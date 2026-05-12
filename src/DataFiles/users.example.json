@@ -1,0 +1,13 @@
+[
+  {
+    "id": "1",
+    "name": "Admin",
+    "username": "admin",
+    "email": "admin@example.com",
+    "password": "CHANGE_ME",
+    "role": "superadmin",
+    "otp": null,
+    "isVerified": true,
+    "isApproved": true
+  }
+]

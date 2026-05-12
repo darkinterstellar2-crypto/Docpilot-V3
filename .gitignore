@@ -1,0 +1,21 @@
+node_modules/
+.env
+.DS_Store
+*.log
+*.tar.gz
+DM
+DM.pub
+*.db-shm
+*.db-wal
+*.db
+
+# Server data files — never overwrite on deploy
+src/DataFiles/users.json
+src/DataFiles/projects.json
+src/DataFiles/logs.json
+src/DataFiles/sessions-log.json
+src/DataFiles/super-log.json
+src/DataFiles/shares.json
+src/DataFiles/access-control.json
+storage/.sync-operations.json
+src/DataFiles/.jwt-secret

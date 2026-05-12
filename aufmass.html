@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocPilot - Data Table</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        #data-table { table-layout: auto; width: max-content; min-width: 100%; }
+
+        /* Alternating row colors */
+        #table-body tr:nth-child(even) { background-color: #f9fafb; }
+        #table-body tr:hover { background-color: #f0f4ff !important; }
+
+        /* Inline cell editing */
+        td[contenteditable="true"] { background: #eff6ff !important; outline: none; cursor: text; }
+        td[contenteditable="true"]:focus { background: #dbeafe !important; box-shadow: inset 0 0 0 2px #3b82f6; }
+        .cell-editing { background: #eff6ff !important; box-shadow: inset 0 0 0 2px #3b82f6; }
+        .cell-dirty { background: #fefce8 !important; }
+
+        /* Selection highlights */
+        .col-selected { background: rgba(59, 130, 246, 0.08) !important; }
+        .row-selected { background: rgba(59, 130, 246, 0.08) !important; }
+
+        /* Row number column */
+        .row-num-cell { user-select: none; }
+        .row-num-cell:hover { background: #e2e8f0 !important; }
+
+        /* Floating edit bar */
+        .edit-bar {
+            position: fixed;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 10px 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0,0,0,0.06);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: max-content;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans h-screen flex flex-col text-gray-900 overflow-hidden">
+
+    <!-- Glass Header -->
+    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center shrink-0">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button id="backToHubBtn" class="p-2 -ml-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Back to Project Hub">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </button>
+            <div class="w-px h-5 bg-gray-200 mx-1"></div>
+            <h1 class="text-base sm:text-lg font-bold tracking-tight truncate max-w-[180px] sm:max-w-md" id="headerProjectName">LOADING...</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="window.location.href='profile.html'" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Profile">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 flex flex-col overflow-hidden gap-4">
+
+        <!-- Toolbar Card -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 flex justify-between items-center shrink-0">
+            <div class="relative" style="width: 280px;">
+                <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input id="tableSearch" type="text" placeholder="Search records..." class="w-full pl-9 pr-8 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-50 focus:bg-white transition-colors" style="min-width: 240px;">
+                <button id="searchClearBtn" type="button" title="Clear search" style="display:none;" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors w-4 h-4 flex items-center justify-center rounded-full">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <h2 id="tableProjectName" class="text-xs font-bold text-gray-400 uppercase tracking-widest">LOADING...</h2>
+
+            <div class="flex gap-2 relative">
+                <button id="addRowBtn" class="flex items-center gap-2 px-4 py-2 border border-blue-200 text-blue-700 rounded-lg text-sm font-semibold hover:bg-blue-50 transition-colors bg-white shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Row
+                </button>
+                <button id="addColBtn" class="flex items-center gap-2 px-4 py-2 border border-purple-200 text-purple-700 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-colors bg-white shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Column
+                </button>
+                <button id="excelBtn" class="flex items-center gap-2 px-4 py-2 border border-green-200 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-50 transition-colors bg-white shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Excel
+                </button>
+                <button id="viewFilterBtn" class="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors bg-white shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    View
+                </button>
+
+                <div id="viewFilterMenu" class="hidden absolute right-0 top-12 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 max-h-96 overflow-y-auto custom-scrollbar">
+                    <div id="viewFilterContent" class="text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Edit Bar (appears when cells are modified) -->
+        <div id="editPanel" class="edit-bar hidden">
+            <span class="flex items-center gap-2 mr-1">
+                <span class="flex h-2.5 w-2.5 relative">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                </span>
+                <span class="text-sm font-semibold text-gray-700 tracking-wide">Unsaved Changes</span>
+            </span>
+            <div class="w-px h-5 bg-gray-200 mx-1"></div>
+            <button id="discardBtn" class="px-4 py-1.5 border border-red-300 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors">Discard</button>
+            <button id="saveBtn" class="px-5 py-1.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors shadow-sm">Save Changes</button>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden relative">
+            <div class="overflow-x-auto overflow-y-auto h-full custom-scrollbar relative">
+                <table id="data-table" class="text-left border-collapse">
+                    <thead id="table-head" class="bg-slate-800 text-white sticky top-0 z-20 shadow-sm">
+                    </thead>
+                    <tbody id="table-body" class="divide-y divide-gray-100">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Set header project name from URL (before table.js loads)
+        (function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectName = urlParams.get('project') || 'Data Table';
+            const el = document.getElementById('headerProjectName');
+            if (el) el.innerText = projectName;
+        })();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <script src="src/js/api.js"></script>
+    <script src="src/js/modal.js"></script>
+    <script src="src/js/table.js?v=20260413b"></script>
+    <script src="src/js/logout.js"></script>
+<script src="src/js/header-avatar.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/force-logout.js"></script>
+<script src="src/js/idle-logout.js?v=20260414a"></script>
+</body>
+</html>

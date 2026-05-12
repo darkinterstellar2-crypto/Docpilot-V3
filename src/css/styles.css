@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Base Styles */
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-dark {
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Table Layout */
+table {
+    table-layout: fixed;
+    width: max-content;
+}
+
+th, td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+th {
+    position: relative;
+    min-width: 1px; 
+}
+
+/* Resizer Handle - Premium Violet on Hover */
+.resizer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    cursor: col-resize;
+    user-select: none;
+    height: 100%;
+    z-index: 10;
+    transition: all 0.2s ease;
+}
+
+.resizer:hover, .resizing {
+    background-color: #6366f1; /* Indigo-500 */
+    border-right: 2px solid #6366f1;
+}
+
+/* Custom scrollbar - Modern Vercel/Linear Style */
+.custom-scrollbar::-webkit-scrollbar { 
+    width: 8px; 
+    height: 8px; 
+}
+.custom-scrollbar::-webkit-scrollbar-track { 
+    background: transparent; 
+} 
+.custom-scrollbar::-webkit-scrollbar-thumb { 
+    background-color: #cbd5e1; 
+    border-radius: 9999px; 
+    border: 2px solid transparent;
+    background-clip: padding-box;
+} 
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { 
+    background-color: #94a3b8; 
+}
+
+.hidden-col {
+    display: none !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.stagger-1 { animation-delay: 100ms; }
+.stagger-2 { animation-delay: 200ms; }
+.stagger-3 { animation-delay: 300ms; }
+.stagger-4 { animation-delay: 400ms; }
+
+/* Gradient Text Utilities */
+.text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

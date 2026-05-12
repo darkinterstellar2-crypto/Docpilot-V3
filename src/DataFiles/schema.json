@@ -1,0 +1,192 @@
+[
+  {
+    "id": "grp-timing",
+    "title": "Timing",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-date",
+        "label": "Date"
+      }
+    ]
+  },
+  {
+    "id": "grp-location",
+    "title": "Location",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-cluster",
+        "label": "Cluster"
+      },
+      {
+        "id": "col-nvt",
+        "label": "NVT"
+      }
+    ]
+  },
+  {
+    "id": "grp-address",
+    "title": "Address",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-addr-start",
+        "label": "Address Start"
+      },
+      {
+        "id": "col-addr-end",
+        "label": "Address End"
+      }
+    ]
+  },
+  {
+    "id": "grp-hardware",
+    "title": "Hardware",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-cable",
+        "label": "Cable Name"
+      },
+      {
+        "id": "col-fiber",
+        "label": "Fiber Type"
+      }
+    ]
+  },
+  {
+    "id": "grp-lwl",
+    "title": "LWL Specs",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-lwl-start",
+        "label": "LWL Start"
+      },
+      {
+        "id": "col-lwl-end",
+        "label": "LWL End"
+      },
+      {
+        "id": "col-lwl-total",
+        "label": "Total"
+      }
+    ]
+  },
+  {
+    "id": "grp-einblasen",
+    "title": "Einblasen",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-ein-status",
+        "label": "Status",
+        "isBadge": true
+      },
+      {
+        "id": "col-ein-lwl",
+        "label": "LWL Count"
+      },
+      {
+        "id": "col-ein-file",
+        "label": "File Location"
+      }
+    ]
+  },
+  {
+    "id": "grp-kalibrieren",
+    "title": "Kalibrieren",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-kal-status",
+        "label": "Status",
+        "isBadge": true
+      },
+      {
+        "id": "col-kal-type",
+        "label": "Type"
+      },
+      {
+        "id": "col-kal-file",
+        "label": "File Location"
+      }
+    ]
+  },
+  {
+    "id": "grp-druck",
+    "title": "Druckprüfung",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-dru-status",
+        "label": "Status",
+        "isBadge": true
+      },
+      {
+        "id": "col-dru-type",
+        "label": "Type"
+      },
+      {
+        "id": "col-dru-file",
+        "label": "File Location"
+      }
+    ]
+  },
+  {
+    "id": "grp-apl",
+    "title": "APL Splicing",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-apl-status",
+        "label": "Status",
+        "isBadge": true
+      },
+      {
+        "id": "col-apl-type",
+        "label": "Type"
+      },
+      {
+        "id": "col-apl-splices",
+        "label": "Splices"
+      },
+      {
+        "id": "col-apl-folder",
+        "label": "Folder Location"
+      }
+    ]
+  },
+  {
+    "id": "grp-otdr",
+    "title": "OTDR Testing",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-otdr-status",
+        "label": "Status",
+        "isBadge": true
+      },
+      {
+        "id": "col-otdr-type",
+        "label": "Type"
+      },
+      {
+        "id": "col-otdr-folder",
+        "label": "Folder Location"
+      }
+    ]
+  },
+  {
+    "id": "grp-notes",
+    "title": "Notes",
+    "color": "text-slate-800 bg-slate-100",
+    "cols": [
+      {
+        "id": "col-notes",
+        "label": "Comments"
+      }
+    ]
+  }
+]

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DocPilot - Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; }
+        .avatar-ring { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #e5e7eb; overflow: hidden; position: relative; cursor: pointer; transition: all 0.2s; }
+        .avatar-ring:hover { border-color: #111827; }
+        .avatar-ring:hover .avatar-overlay { opacity: 1; }
+        .avatar-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; border-radius: 50%; }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 40px; font-weight: 700; }
+        .input-field { width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; transition: all 0.2s; outline: none; background: #fafafa; }
+        .input-field:focus { border-color: #111827; background: #fff; box-shadow: 0 0 0 3px rgba(17,24,39,0.06); }
+        .input-field:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
+        .btn { padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; }
+        .btn-dark { background: #111827; color: white; }
+        .btn-dark:hover { background: #374151; transform: translateY(-1px); }
+        .btn-dark:disabled { background: #9ca3af; transform: none; cursor: not-allowed; }
+        .btn-outline { background: transparent; color: #374151; border: 1px solid #e5e7eb; }
+        .btn-outline:hover { background: #f9fafb; border-color: #d1d5db; }
+        .btn-danger { background: transparent; color: #dc2626; border: 1px solid #fecaca; }
+        .btn-danger:hover { background: #fef2f2; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 1000; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast-success { background: #111827; color: white; }
+        .toast-error { background: #dc2626; color: white; }
+        .section-title { font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+        .strength-bar { height: 4px; border-radius: 2px; transition: all 0.3s; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-[100dvh] flex flex-col">
+
+    <!-- Header -->
+    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <a href="index.html" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h1 class="text-lg font-bold tracking-tight">DocPilot</h1>
+            </a>
+            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold tracking-wider uppercase ml-2" data-i18n="profile.title">Profile</span>
+        </div>
+        <a href="index.html" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Back to Hub">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </a>
+    </header>
+
+    <main class="flex-grow w-full max-w-xl mx-auto px-4 sm:px-8 py-8 sm:py-12 flex flex-col gap-6">
+
+        <!-- Avatar Section -->
+        <div class="card p-8 flex flex-col items-center gap-4">
+            <div class="avatar-ring" id="avatarContainer" onclick="document.getElementById('avatarInput').click()">
+                <div class="avatar-placeholder" id="avatarPlaceholder">?</div>
+                <img class="avatar-img hidden" id="avatarImg" alt="Profile">
+                <div class="avatar-overlay">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </div>
+            </div>
+            <input type="file" id="avatarInput" accept=".jpg,.jpeg,.png,.webp" class="hidden">
+            <div class="text-center">
+                <h2 class="text-xl font-bold" id="displayName">—</h2>
+                <p class="text-sm text-gray-500" id="displayEmail">—</p>
+                <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold" id="displayRole">—</span>
+            </div>
+            <button id="removeAvatarBtn" class="btn btn-outline text-xs hidden" onclick="removeAvatar()">Remove photo</button>
+        </div>
+
+        <!-- Personal Info -->
+        <div class="card p-6">
+            <div class="flex items-center justify-between mb-4">
+                <p class="section-title mb-0"data-i18n="profile.personalInfo">Personal Information</p>
+                <button id="editProfileBtn" onclick="toggleEdit()" class="btn btn-outline text-xs">Edit</button>
+            </div>
+            <form id="profileForm" class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="auth.fullName">Full Name</label>
+                    <input type="text" id="inputName" class="input-field" placeholder="Your name" required disabled>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="auth.username">Username</label>
+                    <input type="text" id="inputUsername" class="input-field" placeholder="Your username" required disabled>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="auth.email">Email</label>
+                    <input type="email" id="inputEmail" class="input-field" disabled>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.memberSince">Member Since</label>
+                    <input type="text" id="inputCreatedAt" class="input-field" disabled>
+                </div>
+                <div id="profileActions" class="flex gap-2 self-end hidden">
+                    <button type="button" onclick="cancelEdit()" class="btn btn-outline">Cancel</button>
+                    <button type="submit" id="saveProfileBtn" class="btn btn-dark" disabled>Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card p-6">
+            <p class="section-title"data-i18n="profile.changePassword">Change Password</p>
+            <form id="passwordForm" class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.currentPassword">Current Password</label>
+                    <input type="password" id="currentPass" class="input-field" placeholder="Enter current password" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.newPassword">New Password</label>
+                    <input type="password" id="newPass" class="input-field" placeholder="At least 8 characters" required minlength="8">
+                    <div class="flex gap-1 mt-2">
+                        <div class="strength-bar flex-1 bg-gray-200" id="str1"></div>
+                        <div class="strength-bar flex-1 bg-gray-200" id="str2"></div>
+                        <div class="strength-bar flex-1 bg-gray-200" id="str3"></div>
+                        <div class="strength-bar flex-1 bg-gray-200" id="str4"></div>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-1" id="strengthLabel"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPass" class="input-field" placeholder="Repeat new password" required>
+                </div>
+                <button type="submit" class="btn btn-dark self-end">Change Password</button>
+            </form>
+        </div>
+
+        <!-- Logout -->
+        <div class="card p-6 flex items-center justify-between">
+            <div>
+                <p class="font-semibold text-gray-900"data-i18n="profile.signOut">Sign Out</p>
+                <p class="text-sm text-gray-500"data-i18n="profile.signOutDesc">Log out of your DocPilot account</p>
+            </div>
+            <button onclick="doLogout()" class="btn btn-danger"data-i18n="auth.logout">Logout</button>
+        </div>
+
+    </main>
+
+    <!-- Toast -->
+    <div class="toast toast-success" id="toast"></div>
+
+    <script>
+        const API = (path, opts = {}) => fetch(path, {
+            ...opts,
+            headers: {
+                'x-user-email': localStorage.getItem('userEmail') || '',
+                'x-user-role': localStorage.getItem('userRole') || '',
+                'x-user-name': localStorage.getItem('userName') || '',
+                ...(opts.headers || {}),
+                ...(!opts.body || opts.body instanceof FormData ? {} : { 'Content-Type': 'application/json' })
+            }
+        }).then(r => r.json());
+
+        let originalProfile = {};
+
+        // ── Auth guard ───────────────────────────────────────────────────────
+        if (!localStorage.getItem('userEmail')) window.location.href = 'login.html';
+
+        // ── Toast ────────────────────────────────────────────────────────────
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `toast toast-${type} show`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        // ── Load profile ─────────────────────────────────────────────────────
+        async function loadProfile() {
+            const data = await API('/api/profile');
+            if (!data.success) return showToast('Failed to load profile', 'error');
+
+            const p = data.profile;
+            originalProfile = { name: p.name, username: p.username };
+
+            document.getElementById('displayName').textContent = p.name;
+            document.getElementById('displayEmail').textContent = p.email;
+
+            const roleBadge = document.getElementById('displayRole');
+            roleBadge.textContent = p.role === 'superadmin' ? 'Super Admin' : 'User';
+            roleBadge.className = `inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
+                p.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
+            }`;
+
+            document.getElementById('inputName').value = p.name;
+            document.getElementById('inputUsername').value = p.username;
+            document.getElementById('inputEmail').value = p.email;
+            document.getElementById('inputCreatedAt').value = new Date(p.createdAt).toLocaleDateString('de-DE', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+
+            // Avatar
+            const img = document.getElementById('avatarImg');
+            const placeholder = document.getElementById('avatarPlaceholder');
+            const removeBtn = document.getElementById('removeAvatarBtn');
+
+            if (p.avatar) {
+                img.src = p.avatar;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                removeBtn.classList.remove('hidden');
+            } else {
+                img.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                placeholder.textContent = (p.name || '?')[0].toUpperCase();
+                removeBtn.classList.add('hidden');
+            }
+        }
+
+        // ── Edit mode toggle ─────────────────────────────────────────────────
+        let editing = false;
+
+        function toggleEdit() {
+            editing = true;
+            document.getElementById('inputName').disabled = false;
+            document.getElementById('inputUsername').disabled = false;
+            document.getElementById('profileActions').classList.remove('hidden');
+            document.getElementById('editProfileBtn').classList.add('hidden');
+            document.getElementById('inputName').focus();
+        }
+
+        function cancelEdit() {
+            editing = false;
+            document.getElementById('inputName').value = originalProfile.name;
+            document.getElementById('inputUsername').value = originalProfile.username;
+            document.getElementById('inputName').disabled = true;
+            document.getElementById('inputUsername').disabled = true;
+            document.getElementById('profileActions').classList.add('hidden');
+            document.getElementById('editProfileBtn').classList.remove('hidden');
+            document.getElementById('saveProfileBtn').disabled = true;
+        }
+
+        // ── Real-time username validation ────────────────────────────────────
+        let usernameTimeout = null;
+        let usernameAvailable = true;
+
+        document.getElementById('inputUsername').addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            clearTimeout(usernameTimeout);
+
+            // Get or create single status element
+            let statusEl = document.getElementById('usernameStatus');
+            if (!statusEl) {
+                statusEl = document.createElement('p');
+                statusEl.id = 'usernameStatus';
+                statusEl.className = 'text-xs mt-1';
+                e.target.parentNode.appendChild(statusEl);
+            }
+
+            if (!val || val.toLowerCase() === originalProfile.username.toLowerCase()) {
+                usernameAvailable = true;
+                statusEl.textContent = '';
+                updateSaveButton();
+                return;
+            }
+
+            statusEl.textContent = '...';
+            statusEl.className = 'text-xs mt-1 text-gray-400';
+
+            // Debounce 300ms
+            usernameTimeout = setTimeout(async () => {
+                const data = await API(`/api/profile/check-username?username=${encodeURIComponent(val)}`);
+                usernameAvailable = data.available;
+
+                statusEl.className = `text-xs mt-1 ${data.available ? 'text-green-600' : 'text-red-500'}`;
+                statusEl.textContent = data.available ? '✓ Available' : '✗ Username already taken';
+
+                updateSaveButton();
+            }, 300);
+        });
+
+        // ── Dirty detection for save button ──────────────────────────────────
+        function updateSaveButton() {
+            const nameChanged = document.getElementById('inputName').value !== originalProfile.name;
+            const usernameChanged = document.getElementById('inputUsername').value !== originalProfile.username;
+            const hasChanges = nameChanged || usernameChanged;
+            document.getElementById('saveProfileBtn').disabled = !hasChanges || !usernameAvailable;
+        }
+
+        ['inputName', 'inputUsername'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateSaveButton);
+        });
+
+        // ── Save profile ─────────────────────────────────────────────────────
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveProfileBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const data = await API('/api/profile', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    name: document.getElementById('inputName').value,
+                    username: document.getElementById('inputUsername').value
+                })
+            });
+
+            btn.textContent = 'Save Changes';
+
+            if (data.success) {
+                showToast('Profile updated');
+                if (data.name) localStorage.setItem('userName', data.name);
+                cancelEdit();
+                loadProfile();
+            } else {
+                showToast(data.message || 'Update failed', 'error');
+                btn.disabled = false;
+            }
+        });
+
+        // ── Password strength ────────────────────────────────────────────────
+        document.getElementById('newPass').addEventListener('input', (e) => {
+            const pw = e.target.value;
+            let score = 0;
+            if (pw.length >= 8) score++;
+            if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+            if (/\d/.test(pw)) score++;
+            if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+            const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#22c55e'];
+            const labels = ['Weak', 'Fair', 'Strong', 'Very strong'];
+
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`str${i}`).style.background = i <= score ? colors[score - 1] : '#e5e7eb';
+            }
+            document.getElementById('strengthLabel').textContent = pw.length > 0 ? (pw.length < 8 ? 'Too short' : labels[score - 1] || '') : '';
+        });
+
+        // ── Change password ──────────────────────────────────────────────────
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newPass = document.getElementById('newPass').value;
+            const confirmPass = document.getElementById('confirmPass').value;
+
+            if (newPass !== confirmPass) return showToast('Passwords do not match', 'error');
+
+            const data = await API('/api/profile/password', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    currentPassword: document.getElementById('currentPass').value,
+                    newPassword: newPass
+                })
+            });
+
+            if (data.success) {
+                showToast('Password changed');
+                document.getElementById('passwordForm').reset();
+                document.getElementById('strengthLabel').textContent = '';
+                for (let i = 1; i <= 4; i++) document.getElementById(`str${i}`).style.background = '#e5e7eb';
+            } else {
+                showToast(data.message || 'Failed', 'error');
+            }
+        });
+
+        // ── Avatar upload ────────────────────────────────────────────────────
+        document.getElementById('avatarInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) return showToast('Image must be under 2MB', 'error');
+
+            const form = new FormData();
+            form.append('avatar', file);
+
+            const data = await API('/api/profile/avatar', { method: 'POST', body: form });
+
+            if (data.success) {
+                showToast('Photo updated');
+                loadProfile();
+            } else {
+                showToast(data.message || 'Upload failed', 'error');
+            }
+
+            e.target.value = '';
+        });
+
+        // ── Remove avatar ────────────────────────────────────────────────────
+        async function removeAvatar() {
+            const data = await API('/api/profile/avatar', { method: 'DELETE' });
+            if (data.success) {
+                showToast('Photo removed');
+                loadProfile();
+            } else {
+                showToast(data.message || 'Failed', 'error');
+            }
+        }
+
+        // ── Logout ───────────────────────────────────────────────────────────
+        async function doLogout() {
+            await fetch('/api/auth/logout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: localStorage.getItem('userEmail') })
+            }).catch(() => {});
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        // ── Init ─────────────────────────────────────────────────────────────
+        loadProfile();
+    </script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/force-logout.js"></script>
+<script src="src/js/idle-logout.js?v=20260414a"></script>
+</body>
+</html>

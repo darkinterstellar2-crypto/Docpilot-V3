@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DocPilot - Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .btn-primary { background-color: #111827; color: white; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-primary:hover { background-color: #374151; transform: translateY(-1px); }
+        .btn-secondary { background-color: #f3f4f6; color: #111827; transition: all 0.2s; }
+        .btn-secondary:hover { background-color: #e5e7eb; transform: translateY(-1px); }
+        .input-field { background: #fff; border: 1px solid #e5e7eb; transition: all 0.2s; }
+        .input-field:focus { border-color: #111827; box-shadow: 0 0 0 1px #111827; outline: none; }
+        .auth-card { background: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); }
+    </style>
+</head>
+<body class="bg-gray-50 flex items-center justify-center min-h-[100dvh] p-4 sm:py-12 selection:bg-gray-200">
+
+    <div class="w-full max-w-sm auth-card rounded-2xl sm:rounded-3xl p-6 sm:p-10 flex flex-col gap-6 animate-fade-in relative z-10">
+        
+        <!-- Header -->
+        <div class="text-center flex flex-col items-center">
+            <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center mb-4 shadow-sm">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h1 class="text-2xl font-black text-gray-900 tracking-tight uppercase">DocPilot</h1>
+            <p id="formTitle" class="text-gray-500 text-[10px] font-bold mt-1.5 tracking-widest uppercase">Create Account</p>
+        </div>
+
+        <!-- Registration Form -->
+        <form id="registerForm" class="flex flex-col gap-3.5 mt-2">
+            <div>
+                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Full Name</label>
+                <input type="text" id="regName" required placeholder="John Doe" class="input-field w-full px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Username</label>
+                <input type="text" id="regUser" required placeholder="johndoe" class="input-field w-full px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Email</label>
+                <input type="email" id="regEmail" required placeholder="john@company.com" class="input-field w-full px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Password</label>
+                <div class="relative">
+                    <input type="password" id="regPass" required placeholder="••••••••" class="input-field w-full px-4 py-2.5 pr-12 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
+                    <button type="button" onclick="togglePass('regPass','eyeReg','eyeOffReg')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors p-1" tabindex="-1">
+                        <svg id="eyeReg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg id="eyeOffReg" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                    </button>
+                </div>
+                <!-- Password strength indicator -->
+                <div id="passStrengthWrap" class="mt-2 hidden">
+                    <div class="flex gap-1 h-1 rounded-full overflow-hidden">
+                        <div id="passBar1" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
+                        <div id="passBar2" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
+                        <div id="passBar3" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
+                        <div id="passBar4" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
+                    </div>
+                    <p id="passStrengthLabel" class="text-[10px] font-semibold mt-1 tracking-wide transition-colors duration-300"></p>
+                </div>
+            </div>
+
+            <button type="submit" class="w-full btn-primary font-semibold py-3 rounded-xl mt-3 text-sm tracking-wide">
+                Get Code
+            </button>
+        </form>
+
+        <!-- OTP Form (Hidden by default) -->
+        <form id="otpForm" class="hidden flex flex-col gap-4 mt-2">
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
+                <p class="text-xs text-gray-600 font-medium leading-relaxed">We sent a 6-digit code to your email.</p>
+                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">(Check console if testing)</p>
+            </div>
+            
+            <div>
+                <input type="text" id="otpCode" maxlength="6" required placeholder="------" class="input-field w-full px-4 py-3.5 rounded-xl text-center text-xl tracking-[0.5em] font-black text-gray-900 placeholder-gray-300 transition-all">
+            </div>
+            
+            <button type="submit" class="w-full btn-primary font-semibold py-3 rounded-xl mt-1 text-sm tracking-wide">
+                Verify
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="text-center pt-2 mt-1">
+            <p class="text-gray-500 text-sm font-medium">
+                Already have an account? 
+                <a href="login.html" class="text-gray-900 font-bold hover:underline ml-1">Sign In</a>
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function togglePass(inputId, onId, offId) {
+            const p = document.getElementById(inputId);
+            const on = document.getElementById(onId);
+            const off = document.getElementById(offId);
+            const show = p.type === 'password';
+            p.type = show ? 'text' : 'password';
+            on.classList.toggle('hidden', show);
+            off.classList.toggle('hidden', !show);
+        }
+
+        // Password strength indicator
+        (function() {
+            const passInput = document.getElementById('regPass');
+            const wrap = document.getElementById('passStrengthWrap');
+            const bars = [document.getElementById('passBar1'), document.getElementById('passBar2'), document.getElementById('passBar3'), document.getElementById('passBar4')];
+            const label = document.getElementById('passStrengthLabel');
+
+            const levels = [
+                { min: 0, label: '', bars: 0, color: 'bg-gray-200', text: '' },
+                { min: 1, label: 'Too short', bars: 1, color: 'bg-red-400', text: 'text-red-500' },
+                { min: 2, label: 'Weak', bars: 1, color: 'bg-red-400', text: 'text-red-500' },
+                { min: 3, label: 'Fair', bars: 2, color: 'bg-yellow-400', text: 'text-yellow-600' },
+                { min: 4, label: 'Strong', bars: 3, color: 'bg-blue-400', text: 'text-blue-600' },
+                { min: 5, label: 'Very strong', bars: 4, color: 'bg-green-500', text: 'text-green-600' },
+            ];
+
+            function getStrength(pw) {
+                if (!pw) return 0;
+                if (pw.length < 8) return 1;
+                let score = 2;
+                if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++;
+                if (/\d/.test(pw)) score++;
+                if (/[^a-zA-Z0-9]/.test(pw)) score++;
+                if (pw.length >= 12) score++;
+                return Math.min(score, 5);
+            }
+
+            passInput.addEventListener('input', function() {
+                const pw = this.value;
+                if (!pw) { wrap.classList.add('hidden'); return; }
+                wrap.classList.remove('hidden');
+
+                const strength = getStrength(pw);
+                const lvl = levels[strength];
+
+                bars.forEach((bar, i) => {
+                    bar.className = 'flex-1 rounded-full transition-colors duration-300 ' + (i < lvl.bars ? lvl.color : 'bg-gray-200');
+                });
+                label.textContent = lvl.label;
+                label.className = 'text-[10px] font-semibold mt-1 tracking-wide transition-colors duration-300 ' + lvl.text;
+            });
+        })();
+    </script>
+    <script src="src/js/api.js"></script>
+    <script src="src/js/auth.js"></script>
+<script src="src/js/i18n.js"></script>
+</body>
+</html>

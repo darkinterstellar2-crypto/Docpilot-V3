@@ -1,0 +1,27 @@
+services:
+  docpilot:
+    build: .
+    container_name: docpilot
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - geggos-storage:/data/storage
+      - geggos-appdata:/app/src/DataFiles
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.docpilot.rule=Host(`geggos.ai`)"
+      - "traefik.http.routers.docpilot.entrypoints=websecure"
+      - "traefik.http.routers.docpilot.tls.certresolver=letsencrypt"
+      - "traefik.http.services.docpilot.loadbalancer.server.port=3000"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  geggos-storage:
+  geggos-appdata:

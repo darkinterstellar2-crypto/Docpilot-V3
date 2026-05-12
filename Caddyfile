@@ -1,0 +1,8 @@
+geggos.ai {
+	reverse_proxy geggos-app:3000
+
+	# File upload limit (50MB for chat media, module files, etc.)
+	request_body {
+		max_size 50MB
+	}
+}

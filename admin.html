@@ -1,0 +1,1894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DocPilot - Admin Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .btn-primary { background-color: #111827; color: white; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .btn-primary:hover { background-color: #374151; transform: translateY(-1px); }
+        .user-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; transition: all 0.2s ease; display: flex; flex-direction: column; gap: 12px; }
+        .user-card:hover { border-color: #d1d5db; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transform: translateY(-2px); }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .nas-field-cell { padding: 1.25rem; border-bottom: 1px solid #f3f4f6; }
+        .nas-field-cell:nth-child(n+4) { border-bottom: none; }
+        @media (min-width: 640px) {
+            .nas-field-cell { border-right: 1px solid #f3f4f6; }
+            .nas-field-cell:nth-child(3n) { border-right: none; }
+        }
+        /* Modal overlay */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-box { background: #fff; border-radius: 20px; padding: 28px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
+        /* Sessions panel — wider */
+        .modal-box.sessions-box { max-width: 640px; }
+        /* Slide-in animation */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-box { animation: fadeUp 0.2s ease; }
+        /* Form input style */
+        .form-input { width: 100%; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s; }
+        .form-input:focus { border-color: #111827; }
+        /* Session event row */
+        .session-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+        .session-row:last-child { border-bottom: none; }
+        /* Action icon chips */
+        .action-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+        .chip-login  { background: #f0fdf4; color: #16a34a; }
+        .chip-logout { background: #fef9c3; color: #92400e; }
+        .chip-failed { background: #fef2f2; color: #dc2626; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-[100dvh] flex flex-col selection:bg-gray-200">
+<script>
+    const role = localStorage.getItem('userRole');
+    if (!role) { window.location.href = 'login.html'; }
+    else if (role !== 'superadmin') { window.location.href = 'index.html'; }
+</script>
+
+    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <button onclick="window.location.href='index.html'" class="p-2 -ml-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Back to Hub">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </button>
+            <div class="w-px h-5 bg-gray-200 mx-1"></div>
+            <h1 class="text-base sm:text-lg font-bold tracking-tight">System Admin</h1>
+        </div>
+        
+        <div class="flex items-center gap-2">
+            <button onclick="window.location.href='profile.html'" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Profile">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-8 sm:mb-12">
+            <div>
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Access Control</h3>
+                <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">User Management</h2>
+            </div>
+            
+            <div class="flex bg-gray-100 rounded-lg p-1 w-full sm:w-auto">
+                <button onclick="switchTab('pending')" id="tab-pending" class="flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all">Pending</button>
+                <button onclick="switchTab('approved')" id="tab-approved" class="flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all">Approved</button>
+                <button onclick="switchTab('logs')" id="tab-logs" class="flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all">Audit Logs</button>
+            </div>
+        </div>
+
+        <div id="usersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <div class="col-span-full py-12 flex justify-center text-gray-400">
+                <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            </div>
+        </div>
+        <!-- ── Generator Settings ─────────────────────────────────── -->
+        <div class="mt-12 sm:mt-16 pb-8 sm:pb-12" id="generatorSettingsSection" style="display:none">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Modules</h3>
+                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Generator Settings</h2>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-white border border-gray-200 rounded-2xl p-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Generator Access Code</label>
+                    <p class="text-xs text-gray-400 mb-3">Workers enter this code in Einblasen/OTDR to access the protocol generator.</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="generatorCodeInput" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono" placeholder="e.g. GEGGOS2026">
+                        <button onclick="saveGeneratorSettings()" class="px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors">Save</button>
+                    </div>
+                </div>
+                <div class="bg-white border border-gray-200 rounded-2xl p-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Generator App URL</label>
+                    <p class="text-xs text-gray-400 mb-3">Frontend URL of the generator app (iframe source).</p>
+                    <input type="text" id="generatorUrlInput" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono mb-3" placeholder="http://localhost:3001">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Generator API URL</label>
+                    <p class="text-xs text-gray-400 mb-3">Backend API URL (Python FastAPI).</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="generatorApiUrlInput" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono" placeholder="http://localhost:8000">
+                        <button onclick="saveGeneratorSettings()" class="px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors">Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Generator Access ──────────────────────────────────── -->
+            <div class="mt-6 bg-white border border-gray-200 rounded-2xl p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-900">Generator Access</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Control which users can access the Einblasprotokoll Generator.</p>
+                    </div>
+                    <span id="generatorAccessSaveIndicator" class="hidden items-center gap-1 text-xs text-green-600 font-medium">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        Saved
+                    </span>
+                </div>
+                <!-- Search & add user -->
+                <div class="relative mb-4">
+                    <input type="text" id="genAccessSearch" class="w-full px-3 py-2.5 pr-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent" placeholder="Search users to add..." autocomplete="off">
+                    <svg class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <div id="genAccessDropdown" class="hidden absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"></div>
+                </div>
+                <!-- Allowed users list -->
+                <div id="generatorAccessList" class="space-y-2">
+                    <p class="text-xs text-gray-400 py-3 text-center">Loading...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── NAS Sync Status ─────────────────────────────────── -->
+        <div class="mt-12 sm:mt-16 pb-8 sm:pb-12">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Infrastructure</h3>
+                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">NAS Sync Status</h2>
+                </div>
+                <button id="syncNowBtn" onclick="triggerNasSync()"
+                    class="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold">
+                    <svg id="syncIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span id="syncBtnText">Sync Now</span>
+                </button>
+            </div>
+
+            <div id="nasSyncCard" class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+
+                <!-- Loading -->
+                <div id="nasLoading" class="flex justify-center items-center py-12 text-gray-400">
+                    <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </div>
+
+                <!-- Error fetching -->
+                <div id="nasError" class="hidden text-center py-12 px-6 text-gray-500 font-medium">
+                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Could not fetch sync status
+                </div>
+
+                <!-- Content -->
+                <div id="nasContent" class="hidden">
+
+                    <!-- Disabled / not configured -->
+                    <div id="nasDisabledMsg" class="hidden text-center py-12 px-6 text-gray-500 font-medium">
+                        <svg class="w-8 h-8 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                        NAS sync is not configured
+                    </div>
+
+                    <!-- Active details -->
+                    <div id="nasDetails" class="hidden">
+
+                        <!-- Status header bar -->
+                        <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50/60">
+                            <span id="nasStatusDot" class="status-dot bg-gray-300"></span>
+                            <span id="nasStatusText" class="text-sm font-semibold text-gray-700">Checking…</span>
+                        </div>
+
+                        <!-- Stats grid -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3">
+                            <div class="nas-field-cell">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sync Enabled</p>
+                                <p id="nasEnabled" class="text-sm font-semibold text-gray-900">—</p>
+                            </div>
+                            <div class="nas-field-cell">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Connection</p>
+                                <p id="nasConnection" class="text-sm font-semibold text-gray-900">—</p>
+                            </div>
+                            <div class="nas-field-cell">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pending Files</p>
+                                <p id="nasPending" class="text-sm font-semibold text-gray-900">—</p>
+                            </div>
+                            <div class="nas-field-cell">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Last Sync</p>
+                                <p id="nasLastSync" class="text-sm font-semibold text-gray-900">—</p>
+                            </div>
+                            <div class="nas-field-cell">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Last Cleanup</p>
+                                <p id="nasLastCleanup" class="text-sm font-semibold text-gray-900">—</p>
+                            </div>
+                            <div class="nas-field-cell">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Tracked</p>
+                                <p id="nasTotalTracked" class="text-sm font-semibold text-gray-900">—</p>
+                            </div>
+                        </div>
+
+                        <!-- Error log (collapsible) -->
+                        <div id="nasErrorSection" class="hidden border-t border-gray-100">
+                            <button onclick="toggleNasErrors()"
+                                class="w-full flex items-center justify-between px-6 py-3.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">
+                                <span class="flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span id="nasErrorCount">Errors</span>
+                                </span>
+                                <svg id="nasErrorChevron" class="w-4 h-4 transition-transform duration-200"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div id="nasErrorList" class="hidden px-6 pb-5 space-y-2"></div>
+                        </div>
+
+                        <!-- Sync trigger feedback -->
+                        <div id="nasSyncMsg" class="hidden px-6 py-3 text-xs font-medium text-center border-t border-gray-100"></div>
+
+                    </div>
+                </div>
+            </div>
+            <p class="text-[10px] text-gray-400 text-right mt-2 font-mono">Auto-refreshes every 30 s</p>
+        </div>
+        <!-- ── /NAS Sync Status ─────────────────────────────────── -->
+
+        <!-- ── Access Control (superadmin only) ─────────────────── -->
+        <div id="accessControlSection" class="hidden mt-12 sm:mt-16 pb-8 sm:pb-12">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Superadmin</h3>
+                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Access Control</h2>
+                </div>
+            </div>
+
+            <!-- How it works — explanation card -->
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-5 text-sm text-blue-800">
+                <p class="font-semibold mb-2">📋 How Access Control Works</p>
+                <ul class="space-y-1 text-xs leading-relaxed text-blue-700">
+                    <li>• New accounts start with <strong>zero access</strong> — they can't see anything until you grant it here.</li>
+                    <li>• <strong>Master toggle ON</strong> = sees all projects by default. Use project toggles to block specific ones.</li>
+                    <li>• <strong>Master toggle OFF</strong> = sees NO projects. Use project toggles to grant specific ones.</li>
+                    <li>• Module toggles control which tabs are visible within a project (e.g. disable OTDR for a specific person).</li>
+                    <li>• Only you (superadmin) can create, delete, or manage projects.</li>
+                </ul>
+            </div>
+
+            <!-- User selector -->
+            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-5">
+                <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">Select User</label>
+                <select id="aclUserSelect" class="form-input mb-4" onchange="loadUserACL()">
+                    <option value="">— Choose a user —</option>
+                </select>
+
+                <!-- User role info banner — shown when a user is selected -->
+                <div id="aclUserRoleBanner" class="hidden mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2"></div>
+
+                <div id="aclPanel" class="hidden">
+
+                    <!-- Full Access toggle -->
+                    <div class="flex items-center justify-between py-4 px-4 bg-gray-50 rounded-xl border border-gray-200 mb-5">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">🔓 Full Access</p>
+                            <p class="text-xs text-gray-500 mt-1">Grants complete read+write access to everything. All other settings ignored.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
+                            <input type="checkbox" id="aclFullAccess" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
+                        </label>
+                    </div>
+
+                    <!-- Granular sections (hidden when fullAccess is ON) -->
+                    <div id="aclGranularSections">
+
+                        <!-- Authority Permissions -->
+                        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm mb-4">
+                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Authority Permissions</p>
+                            <p class="text-xs text-gray-400 mb-4">These permissions grant elevated control over the project hub. Enable with caution.</p>
+                            <div class="space-y-3" id="aclAuthorityPerms">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Project Access -->
+                        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm mb-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Project Access</p>
+                                <div class="flex gap-3">
+                                    <button type="button" onclick="aclSelectAllProjects(true)" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline">Enable All</button>
+                                    <span class="text-gray-300">|</span>
+                                    <button type="button" onclick="aclSelectAllProjects(false)" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline">Disable All</button>
+                                </div>
+                            </div>
+                            <div id="aclProjectList" class="space-y-2"></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex gap-3 flex-wrap">
+                        <button onclick="saveUserACL()" class="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold">
+                            💾 Save Changes
+                        </button>
+                        <button onclick="resetUserACL()" class="px-6 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">
+                            Reset to No Access
+                        </button>
+                    </div>
+
+                    <!-- Feedback -->
+                    <div id="aclFeedback" class="hidden mt-4 p-3 rounded-xl text-sm font-medium"></div>
+                </div>
+
+                <div id="aclNoUser" class="py-6 text-center text-gray-400 text-sm">
+                    Select a user above to manage their access permissions.
+                </div>
+            </div>
+        </div>
+        <!-- ── /Access Control ────────────────────────────────────── -->
+
+        <!-- ── Super Logs (superadmin only) ──────────────────────── -->
+        <div id="superLogsSection" class="hidden mt-12 sm:mt-16 pb-8 sm:pb-12">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">System Monitor</h3>
+                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Super Logs</h2>
+                </div>
+                <a href="superlog.html"
+                   style="background:#0d1117; border:1px solid #22c55e; color:#22c55e; font-family:'JetBrains Mono','Cascadia Code','Consolas',monospace; font-size:13px; font-weight:700; padding:10px 20px; border-radius:10px; letter-spacing:0.04em; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all 0.15s;"
+                   onmouseover="this.style.background='#22c55e'; this.style.color='#0d1117';"
+                   onmouseout="this.style.background='#0d1117'; this.style.color='#22c55e';">
+                    <span style="font-size:15px;">▶</span> Open Terminal
+                </a>
+            </div>
+            <div style="background:#0d1117; border:1px solid #30363d; border-radius:16px; padding:20px 24px;">
+                <p style="font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; color:#4b5563; margin-bottom:8px;">// Live system event monitor — SUPERADMIN ONLY</p>
+                <p style="font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; color:#22c55e;">
+                    Tracks: <span style="color:#06b6d4;">requests</span> · <span style="color:#60a5fa;">auth</span> · <span style="color:#f59e0b;">files</span> · <span style="color:#a78bfa;">sync</span> · <span style="color:#34d399;">chat</span> · <span style="color:#ef4444;">errors</span> · <span style="color:#6b7280;">system</span>
+                </p>
+            </div>
+        </div>
+        <!-- ── /Super Logs ────────────────────────────────────────── -->
+
+    </main>
+
+    <!-- ══════════════════════════════════════════════════════════
+         EDIT USER MODAL
+    ═══════════════════════════════════════════════════════════ -->
+    <div id="editModal" class="modal-overlay hidden" onclick="if(event.target===this)closeEditModal()">
+        <div class="modal-box">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Admin Action</p>
+                    <h3 class="text-lg font-bold text-gray-900">Edit User</h3>
+                </div>
+                <button onclick="closeEditModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <p class="text-xs text-gray-500 font-mono mb-5" id="editTargetEmail"></p>
+
+            <div class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Username</label>
+                    <input id="editUsername" type="text" class="form-input" placeholder="Min. 3 characters" autocomplete="off">
+                    <p class="text-[11px] text-gray-400 mt-1">Leave empty to keep current username.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">New Password</label>
+                    <input id="editPassword" type="password" class="form-input" placeholder="Min. 4 characters (leave blank to keep)">
+                    <p class="text-[11px] text-gray-400 mt-1">Leave blank to keep current password.</p>
+                </div>
+            </div>
+
+            <!-- Feedback message -->
+            <div id="editFeedback" class="hidden mt-4 p-3 rounded-lg text-sm font-medium"></div>
+
+            <div class="flex gap-3 mt-6">
+                <button onclick="closeEditModal()" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+                <button onclick="submitEditUser()" id="editSubmitBtn" class="flex-1 btn-primary py-2.5 rounded-xl text-sm font-semibold">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SESSIONS MODAL
+    ═══════════════════════════════════════════════════════════ -->
+    <div id="sessionsModal" class="modal-overlay hidden" onclick="if(event.target===this)closeSessionsModal()">
+        <div class="modal-box sessions-box">
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Login History</p>
+                    <h3 class="text-lg font-bold text-gray-900" id="sessionsModalTitle">Sessions</h3>
+                </div>
+                <button onclick="closeSessionsModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Device summary chips -->
+            <div id="sessionsDevices" class="flex flex-wrap gap-2 mb-4"></div>
+
+            <!-- Sessions list -->
+            <div id="sessionsList" class="flex flex-col">
+                <div class="py-8 text-center text-gray-400 text-sm">Loading…</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════
+         STATS MODAL
+    ═══════════════════════════════════════════════════════════ -->
+    <div id="statsModal" class="modal-overlay hidden" onclick="if(event.target===this)closeStatsModal()">
+        <div class="modal-box">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">User Activity</p>
+                    <h3 class="text-lg font-bold text-gray-900" id="statsModalTitle">Stats</h3>
+                </div>
+                <button onclick="closeStatsModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="statsContent" class="grid grid-cols-2 gap-3">
+                <div class="col-span-2 py-6 text-center text-gray-400 text-sm">Loading…</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="src/js/api.js"></script>
+    <script src="src/js/logout.js"></script>
+    <script>
+        // ── XSS escape helper ─────────────────────────────────────────────────
+        function escapeHtml(str) {
+            if (str == null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#x27;');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const userRole = localStorage.getItem('userRole');
+            if (userRole !== 'superadmin') { window.location.href = 'index.html'; return; }
+
+            // Show Super Logs and Access Control sections only for superadmin
+            if (userRole === 'superadmin') {
+                const sec = document.getElementById('superLogsSection');
+                if (sec) sec.classList.remove('hidden');
+                const aclSec = document.getElementById('accessControlSection');
+                if (aclSec) aclSec.classList.remove('hidden');
+                // Load ACL user list
+                loadACLUsers();
+            }
+
+            const usersGrid = document.getElementById('usersGrid');
+            let currentTab = 'pending';
+            let allUsers = [];
+            let allLogs = [];
+            let selectedUser = 'all';
+
+            window.switchTab = function(tabName) {
+                currentTab = tabName;
+                document.getElementById('tab-pending').className = tabName === 'pending' ? 'flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all' : 'flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all';
+                document.getElementById('tab-approved').className = tabName === 'approved' ? 'flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all' : 'flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all';
+                document.getElementById('tab-logs').className = tabName === 'logs' ? 'flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all' : 'flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all';
+                
+                if (tabName === 'logs') {
+                    loadLogs();
+                } else {
+                    renderUsers();
+                }
+            };
+
+            async function loadLogs() {
+                try {
+                    const res = await fetch('/api/admin/logs');
+                    const data = await res.json();
+                    if (data.success) { allLogs = data.logs; renderLogs(); }
+                } catch (e) { console.error(e); }
+            }
+
+            function renderLogs() {
+                usersGrid.className = 'flex flex-col gap-3';
+                usersGrid.innerHTML = '';
+
+                if (allLogs.length === 0) {
+                    usersGrid.innerHTML = `<div class="py-16 text-center text-gray-500 font-medium bg-gray-100/50 rounded-2xl border border-gray-200 border-dashed">No logs found.</div>`;
+                    return;
+                }
+
+                const uniqueUsers = [...new Set(allLogs.map(l => l.user).filter(Boolean))].sort();
+
+                const filterBar = document.createElement('div');
+                filterBar.className = 'flex items-center gap-3 mb-1 p-3 bg-white border border-gray-200 rounded-xl shadow-sm';
+                filterBar.innerHTML = `
+                    <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Filter by user</label>
+                    <select id="logUserFilter" class="flex-1 text-sm font-medium text-gray-800 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors cursor-pointer">
+                        <option value="all">All Users</option>
+                        ${uniqueUsers.map(u => `<option value="${u.replace(/"/g, '&quot;')}"${selectedUser === u ? ' selected' : ''}>${u}</option>`).join('')}
+                    </select>
+                `;
+                usersGrid.appendChild(filterBar);
+
+                const filterSelect = document.getElementById('logUserFilter');
+                filterSelect.value = selectedUser;
+                filterSelect.addEventListener('change', () => {
+                    selectedUser = filterSelect.value;
+                    renderLogs();
+                });
+
+                const visibleLogs = selectedUser === 'all' ? allLogs : allLogs.filter(l => l.user === selectedUser);
+
+                if (visibleLogs.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'py-16 text-center text-gray-500 font-medium bg-gray-100/50 rounded-2xl border border-gray-200 border-dashed';
+                    empty.textContent = `No logs for "${selectedUser}".`;
+                    usersGrid.appendChild(empty);
+                    return;
+                }
+
+                visibleLogs.forEach(log => {
+                    const d = new Date(log.timestamp);
+                    const formattedDate = d.toLocaleString();
+                    const detailsHtml = (log.details || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-gray-300 transition-colors shadow-sm';
+                    card.innerHTML = `
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 mb-0.5">${escapeHtml(log.action)}</h4>
+                                <p class="text-xs text-gray-500 font-medium leading-relaxed">${detailsHtml}</p>
+                                <p class="text-[10px] text-gray-400 font-mono mt-1">User: ${escapeHtml(log.user)}</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 font-medium whitespace-nowrap self-start sm:self-center">
+                            ${formattedDate}
+                        </div>
+                    `;
+                    usersGrid.appendChild(card);
+                });
+            }
+
+            async function loadUsers() {
+                try {
+                    const res = await fetch('/api/admin/users');
+                    const data = await res.json();
+                    if (data.success) { allUsers = data.users; renderUsers(); }
+                } catch (e) { console.error(e); }
+            }
+
+            window.updateUserStatus = async function(email, newStatus) {
+                try {
+                    const res = await fetch('/api/admin/approve', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, status: newStatus })
+                    });
+                    if (res.ok) loadUsers();
+                } catch (e) { alert('Update failed'); }
+            };
+
+            window.rejectUser = async function(email, name) {
+                if (!confirm(`Reject and remove "${name}" (${email})? This will delete their account and notify them by email.`)) return;
+                try {
+                    const res = await fetch('/api/admin/reject', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+                    if (data.success) loadUsers();
+                    else alert(data.message || 'Rejection failed');
+                } catch (e) { alert('Rejection failed'); }
+            };
+
+            function roleBadgeHTML(role) {
+                // Only show badge for superadmin — everyone else is just a regular user, no need to label
+                if (role === 'superadmin') {
+                    return `<span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-[10px] font-bold uppercase tracking-wider">Superadmin</span>`;
+                }
+                return '';
+            }
+
+            function renderUsers() {
+                usersGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5';
+                usersGrid.innerHTML = '';
+                const filtered = allUsers.filter(u => currentTab === 'pending' ? u.status === 'pending' : u.status === 'approved');
+                
+                if (filtered.length === 0) {
+                    usersGrid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500 font-medium bg-gray-100/50 rounded-2xl border border-gray-200 border-dashed">No ${currentTab} users found.</div>`;
+                    return;
+                }
+
+                filtered.forEach(u => {
+                    // Escape for JS string arguments in onclick (prevent string-breaking injection)
+                    const safeEmail    = escapeHtml(u.email);
+                    const safeName     = escapeHtml(u.name);
+                    const safeUsername = escapeHtml(u.username);
+                    // Escape for JS onclick single-quoted string args
+                    const jsEmail    = u.email.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                    const jsName     = u.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                    const jsUsername = (u.username || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+                    let actions;
+                    if (currentTab === 'pending') {
+                        actions = `
+                        <div class="flex gap-2 mt-2 pt-4 border-t border-gray-100">
+                            <button onclick="updateUserStatus('${jsEmail}', 'approved')" class="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-xs font-semibold py-2 rounded-lg transition-colors">Approve</button>
+                            <button onclick="rejectUser('${jsEmail}', '${jsName}')" class="flex-1 bg-white hover:bg-red-50 text-red-600 border border-gray-200 text-xs font-semibold py-2 rounded-lg transition-colors">Reject</button>
+                        </div>`;
+                    } else {
+                        // Approved tab — superadmin gets Edit access
+                        const isSuperadminViewer = userRole === 'superadmin';
+
+                        const editBtn = isSuperadminViewer
+                            ? `<button onclick="openEditModal('${jsEmail}', '${jsUsername}')" class="flex-1 min-w-[70px] btn-primary text-xs font-semibold py-2 rounded-lg transition-colors">Edit</button>`
+                            : '';
+
+                        // No role selector — roles are no longer changeable (everyone is 'user', access via ACL)
+                        const roleSelector = '';
+
+                        const terminateBtn = isSuperadminViewer
+                            ? `<button onclick="terminateSession('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 text-xs font-semibold py-2 rounded-lg transition-colors">⏻ Terminate</button>`
+                            : '';
+
+                        actions = `
+                        <div class="flex gap-2 mt-2 pt-4 border-t border-gray-100 flex-wrap">
+                            ${editBtn}
+                            <button onclick="openSessionsModal('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 text-xs font-semibold py-2 rounded-lg transition-colors">Sessions</button>
+                            <button onclick="openStatsModal('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2 rounded-lg transition-colors">Stats</button>
+                            ${terminateBtn}
+                        </div>
+                        ${roleSelector}
+                        <div class="mt-1">
+                            <button onclick="updateUserStatus('${jsEmail}', 'pending')" class="w-full bg-white hover:bg-red-50 text-red-600 border border-gray-200 text-xs font-semibold py-2 rounded-lg transition-colors">Revoke Access</button>
+                        </div>`;
+                    }
+
+                    usersGrid.innerHTML += `
+                        <div class="user-card">
+                            <div class="flex justify-between items-start">
+                                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-sm">
+                                    ${escapeHtml(u.name.charAt(0).toUpperCase())}
+                                </div>
+                                ${roleBadgeHTML(u.role)}
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-gray-900 text-sm mb-0.5">${safeEmail ? safeName : '—'}</h3>
+                                <p class="text-xs text-gray-500 font-medium truncate mb-0.5">${safeEmail}</p>
+                                <p class="text-[10px] text-gray-400 font-mono tracking-wide">${safeUsername}</p>
+                            </div>
+                            ${actions}
+                        </div>
+                    `;
+                });
+            }
+
+            loadUsers();
+        });
+
+        // ══════════════════════════════════════════════════════════
+        // EDIT MODAL
+        // ══════════════════════════════════════════════════════════
+        let _editTargetEmail = '';
+        let _editOrigUsername = '';
+
+        window.openEditModal = function(email, currentUsername) {
+            _editTargetEmail  = email;
+            _editOrigUsername = currentUsername;
+            document.getElementById('editTargetEmail').textContent = email;
+            document.getElementById('editUsername').value = currentUsername || '';
+            document.getElementById('editPassword').value = '';
+            const fb = document.getElementById('editFeedback');
+            fb.className = 'hidden mt-4 p-3 rounded-lg text-sm font-medium';
+            fb.textContent = '';
+            document.getElementById('editModal').classList.remove('hidden');
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').classList.add('hidden');
+        };
+
+        window.submitEditUser = async function() {
+            const username = document.getElementById('editUsername').value.trim();
+            const password = document.getElementById('editPassword').value;
+            const fb       = document.getElementById('editFeedback');
+            const btn      = document.getElementById('editSubmitBtn');
+
+            // Client-side validation
+            if (username && username.length < 3) {
+                showFeedback(fb, 'Username must be at least 3 characters.', false);
+                return;
+            }
+            if (password && password.length < 4) {
+                showFeedback(fb, 'Password must be at least 4 characters.', false);
+                return;
+            }
+            if (!username && !password) {
+                showFeedback(fb, 'Please provide a new username or password.', false);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Saving…';
+
+            const body = { email: _editTargetEmail };
+            if (username) body.username = username;
+            if (password) body.password = password;
+
+            try {
+                const res = await fetch('/api/admin/user/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-email': localStorage.getItem('userEmail') || '',
+                        'x-user-role':  localStorage.getItem('userRole')  || ''
+                    },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showFeedback(fb, 'User updated successfully!', true);
+                    setTimeout(closeEditModal, 1200);
+                } else {
+                    showFeedback(fb, data.message || 'Update failed.', false);
+                }
+            } catch (e) {
+                showFeedback(fb, 'Network error. Please try again.', false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Changes';
+            }
+        };
+
+        function showFeedback(el, msg, success) {
+            el.textContent = msg;
+            el.className = `mt-4 p-3 rounded-lg text-sm font-medium ${success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`;
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // SESSIONS MODAL
+        // ══════════════════════════════════════════════════════════
+        window.openSessionsModal = async function(email, name) {
+            document.getElementById('sessionsModalTitle').textContent = name + ' — Sessions';
+            document.getElementById('sessionsDevices').innerHTML = '';
+            document.getElementById('sessionsList').innerHTML = '<div class="py-8 text-center text-gray-400 text-sm">Loading…</div>';
+            document.getElementById('sessionsModal').classList.remove('hidden');
+
+            try {
+                const res = await fetch(`/api/admin/user-sessions/${encodeURIComponent(email)}?limit=50`, {
+                    headers: {
+                        'x-user-email': localStorage.getItem('userEmail') || '',
+                        'x-user-role':  localStorage.getItem('userRole')  || ''
+                    }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                // Device chips
+                const devicesEl = document.getElementById('sessionsDevices');
+                if (data.devices && data.devices.length > 0) {
+                    data.devices.forEach(d => {
+                        const chip = document.createElement('span');
+                        chip.className = 'px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium';
+                        chip.textContent = d;
+                        devicesEl.appendChild(chip);
+                    });
+                } else {
+                    devicesEl.innerHTML = '<span class="text-xs text-gray-400">No device data</span>';
+                }
+
+                // Sessions list
+                const listEl = document.getElementById('sessionsList');
+                listEl.innerHTML = '';
+
+                if (!data.sessions || data.sessions.length === 0) {
+                    listEl.innerHTML = '<div class="py-8 text-center text-gray-400 text-sm">No sessions recorded yet.</div>';
+                    return;
+                }
+
+                data.sessions.forEach(s => {
+                    let chipClass = 'chip-login';
+                    let chipLabel = 'Login';
+                    if (s.action === 'logout')       { chipClass = 'chip-logout'; chipLabel = 'Logout'; }
+                    if (s.action === 'login_failed') { chipClass = 'chip-failed'; chipLabel = 'Failed'; }
+
+                    const row = document.createElement('div');
+                    row.className = 'session-row';
+                    row.innerHTML = `
+                        <span class="action-chip ${chipClass} shrink-0 mt-0.5">${chipLabel}</span>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-semibold text-gray-800">${escapeHtml(s.device || 'Unknown')}</p>
+                            <p class="text-[10px] text-gray-400 font-mono mt-0.5 truncate">${escapeHtml(s.ip || '—')}</p>
+                        </div>
+                        <div class="text-[10px] text-gray-400 font-medium whitespace-nowrap shrink-0">${new Date(s.timestamp).toLocaleString()}</div>
+                    `;
+                    listEl.appendChild(row);
+                });
+
+            } catch (e) {
+                document.getElementById('sessionsList').innerHTML = `<div class="py-8 text-center text-red-500 text-sm">Could not load sessions.</div>`;
+            }
+        };
+
+        window.closeSessionsModal = function() {
+            document.getElementById('sessionsModal').classList.add('hidden');
+        };
+
+        // ══════════════════════════════════════════════════════════
+        // STATS MODAL
+        // ══════════════════════════════════════════════════════════
+        window.openStatsModal = async function(email, name) {
+            document.getElementById('statsModalTitle').textContent = name + ' — Stats';
+            document.getElementById('statsContent').innerHTML = '<div class="col-span-2 py-6 text-center text-gray-400 text-sm">Loading…</div>';
+            document.getElementById('statsModal').classList.remove('hidden');
+
+            try {
+                const res = await fetch(`/api/admin/user-stats/${encodeURIComponent(email)}`, {
+                    headers: {
+                        'x-user-email': localStorage.getItem('userEmail') || '',
+                        'x-user-role':  localStorage.getItem('userRole')  || ''
+                    }
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message);
+
+                const s = data.stats;
+                const fmt = ts => ts ? new Date(ts).toLocaleString() : '—';
+
+                document.getElementById('statsContent').innerHTML = `
+                    ${statCell('Total Logins',  s.totalLogins ?? 0)}
+                    ${statCell('Total Logouts', s.totalLogouts ?? 0)}
+                    ${statCell('Last Login',    escapeHtml(fmt(s.lastLogin)),  true)}
+                    ${statCell('Last Logout',   escapeHtml(fmt(s.lastLogout)), true)}
+                    ${statCell('Last Device',   escapeHtml(s.lastDevice || '—'), true)}
+                    ${statCell('Account Created', escapeHtml(fmt(s.createdAt)), true)}
+                    ${s.devices && s.devices.length > 1 ? statCellWide('All Devices', escapeHtml(s.devices.join(', '))) : ''}
+                `;
+            } catch (e) {
+                document.getElementById('statsContent').innerHTML = `<div class="col-span-2 py-6 text-center text-red-500 text-sm">Could not load stats.</div>`;
+            }
+        };
+
+        function statCell(label, value, wide) {
+            return `
+                <div class="${wide ? '' : ''}bg-gray-50 rounded-xl p-4">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">${label}</p>
+                    <p class="text-sm font-semibold text-gray-900">${value}</p>
+                </div>
+            `;
+        }
+        function statCellWide(label, value) {
+            return `
+                <div class="col-span-2 bg-gray-50 rounded-xl p-4">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">${label}</p>
+                    <p class="text-sm font-semibold text-gray-900">${value}</p>
+                </div>
+            `;
+        }
+
+        window.closeStatsModal = function() {
+            document.getElementById('statsModal').classList.add('hidden');
+        };
+
+        // ── Terminate Session ──────────────────────────────────────────────
+        window.terminateSession = async function(email, name) {
+            const confirmed = confirm(
+                `⚠️ Terminate all sessions for ${name} (${email})?\n\n` +
+                `This will immediately log them out from ALL devices.\n` +
+                `They will need to log in again to regain access.`
+            );
+            if (!confirmed) return;
+
+            try {
+                const res = await fetch('/api/admin/terminate-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-email': localStorage.getItem('userEmail') || '',
+                        'x-user-role': localStorage.getItem('userRole') || ''
+                    },
+                    body: JSON.stringify({ email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`✓ All sessions for ${name} have been terminated.`);
+                } else {
+                    alert('Failed: ' + (data.message || 'Unknown error'));
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        };
+
+        // Role change removed — roles are no longer changeable.
+        // Access is controlled entirely via ACL panel.
+        window.changeUserRole = function() { /* no-op — role change disabled */ };
+
+        // ── NAS Sync Monitor ──────────────────────────────────────────────
+
+        // ── Generator Settings ─────────────────────────────────────────────
+
+        // Shared state for allowed users (emails)
+        let _generatorAllowedUsers = [];
+
+        async function loadGeneratorSettings() {
+            const role = localStorage.getItem('userRole');
+            const email = localStorage.getItem('userEmail');
+            if (role !== 'superadmin') return;
+            document.getElementById('generatorSettingsSection').style.display = '';
+            try {
+                const res = await fetch('/api/settings', { headers: { 'x-user-email': email, 'x-user-role': role } });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('generatorCodeInput').value = data.settings.generatorCode || '';
+                    document.getElementById('generatorUrlInput').value = data.settings.generatorUrl || '';
+                    document.getElementById('generatorApiUrlInput').value = data.settings.generatorApiUrl || '';
+                    _generatorAllowedUsers = Array.isArray(data.settings.generatorAllowedUsers) ? data.settings.generatorAllowedUsers : [];
+                }
+            } catch (e) { console.error('Failed to load generator settings:', e); }
+
+            // Load user list for Generator Access panel
+            await loadGeneratorAccessList();
+        }
+
+        let _genAllUsers = []; // all approved users from /api/admin/users
+
+        async function loadGeneratorAccessList() {
+            const role = localStorage.getItem('userRole');
+            const email = localStorage.getItem('userEmail');
+            const listEl = document.getElementById('generatorAccessList');
+            if (!listEl) return;
+
+            try {
+                const res = await fetch('/api/admin/users', { headers: { 'x-user-email': email, 'x-user-role': role } });
+                const data = await res.json();
+                _genAllUsers = Array.isArray(data) ? data : (data.users || []);
+                // Filter to approved users only
+                _genAllUsers = _genAllUsers.filter(u => u.status === 'approved' || !u.status);
+            } catch (e) {
+                console.error('Failed to load users for generator access:', e);
+                _genAllUsers = [];
+            }
+            renderGeneratorAllowedList();
+            setupGenAccessSearch();
+        }
+
+        function renderGeneratorAllowedList() {
+            const listEl = document.getElementById('generatorAccessList');
+            if (!listEl) return;
+            const allowedSet = new Set((_generatorAllowedUsers || []).map(e => e.toLowerCase().trim()));
+            const allowedUsers = _genAllUsers.filter(u => allowedSet.has((u.email || '').toLowerCase().trim()) || (u.role || '').toLowerCase() === 'superadmin');
+
+            if (!allowedUsers.length) {
+                listEl.innerHTML = '<p class="text-xs text-gray-400 py-3 text-center">No users have generator access yet. Search above to add.</p>';
+                return;
+            }
+
+            listEl.innerHTML = allowedUsers.map(u => {
+                const uEmail = escapeHtml(u.email || '');
+                const uName = escapeHtml(u.name || u.email || 'Unknown');
+                const initial = (u.name || u.email || '?')[0].toUpperCase();
+                const isSA = (u.role || '').toLowerCase() === 'superadmin';
+
+                return `
+                <div class="flex items-center gap-3 px-3 py-2 rounded-xl ${isSA ? 'bg-gray-50 border border-gray-100' : 'bg-gray-50 border border-gray-100'}">
+                    <div class="w-7 h-7 rounded-full ${isSA ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-700'} flex items-center justify-center text-xs font-bold flex-shrink-0">${escapeHtml(initial)}</div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 truncate">${uName}</p>
+                        <p class="text-xs text-gray-400 truncate">${uEmail}</p>
+                    </div>
+                    ${isSA
+                        ? '<span class="text-[10px] font-semibold text-gray-500 bg-gray-200 px-2 py-0.5 rounded-full whitespace-nowrap">Always</span>'
+                        : `<button onclick="removeGeneratorAccess('${uEmail}')" class="text-gray-400 hover:text-red-500 transition-colors flex-shrink-0 p-1" title="Remove access">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>`
+                    }
+                </div>`;
+            }).join('');
+        }
+
+        function setupGenAccessSearch() {
+            const input = document.getElementById('genAccessSearch');
+            const dropdown = document.getElementById('genAccessDropdown');
+            if (!input || !dropdown) return;
+
+            input.addEventListener('input', () => {
+                const q = input.value.trim().toLowerCase();
+                if (!q) { dropdown.classList.add('hidden'); return; }
+
+                const allowedSet = new Set((_generatorAllowedUsers || []).map(e => e.toLowerCase().trim()));
+                const matches = _genAllUsers.filter(u => {
+                    if ((u.role || '').toLowerCase() === 'superadmin') return false;
+                    if (allowedSet.has((u.email || '').toLowerCase().trim())) return false;
+                    const name = (u.name || '').toLowerCase();
+                    const email = (u.email || '').toLowerCase();
+                    return name.includes(q) || email.includes(q);
+                }).slice(0, 8);
+
+                if (!matches.length) {
+                    dropdown.innerHTML = '<p class="text-xs text-gray-400 px-3 py-3 text-center">No matching users</p>';
+                } else {
+                    dropdown.innerHTML = matches.map(u => {
+                        const uEmail = escapeHtml(u.email || '');
+                        const uName = escapeHtml(u.name || u.email || 'Unknown');
+                        const initial = (u.name || u.email || '?')[0].toUpperCase();
+                        return `
+                        <div class="flex items-center gap-3 px-3 py-2.5 cursor-pointer hover:bg-gray-50 transition-colors" onclick="addGeneratorAccess('${uEmail}')">
+                            <div class="w-7 h-7 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-xs font-bold flex-shrink-0">${escapeHtml(initial)}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">${uName}</p>
+                                <p class="text-xs text-gray-400 truncate">${uEmail}</p>
+                            </div>
+                            <svg class="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </div>`;
+                    }).join('');
+                }
+                dropdown.classList.remove('hidden');
+            });
+
+            input.addEventListener('focus', () => { if (input.value.trim()) input.dispatchEvent(new Event('input')); });
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#genAccessSearch') && !e.target.closest('#genAccessDropdown')) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        window.addGeneratorAccess = async function(email) {
+            const emailNorm = email.toLowerCase().trim();
+            if (!_generatorAllowedUsers.map(e => e.toLowerCase().trim()).includes(emailNorm)) {
+                _generatorAllowedUsers.push(email);
+            }
+            await _saveGeneratorAllowedUsers();
+            document.getElementById('genAccessSearch').value = '';
+            document.getElementById('genAccessDropdown').classList.add('hidden');
+            renderGeneratorAllowedList();
+        };
+
+        window.removeGeneratorAccess = async function(email) {
+            const emailNorm = email.toLowerCase().trim();
+            _generatorAllowedUsers = _generatorAllowedUsers.filter(e => e.toLowerCase().trim() !== emailNorm);
+            await _saveGeneratorAllowedUsers();
+            renderGeneratorAllowedList();
+        };
+
+        async function _saveGeneratorAllowedUsers() {
+            const role = localStorage.getItem('userRole');
+            const userEmail = localStorage.getItem('userEmail');
+            try {
+                const res = await fetch('/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'x-user-email': userEmail || '', 'x-user-role': role || '' },
+                    body: JSON.stringify({ generatorAllowedUsers: _generatorAllowedUsers })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    const indicator = document.getElementById('generatorAccessSaveIndicator');
+                    if (indicator) {
+                        indicator.classList.remove('hidden');
+                        indicator.classList.add('inline-flex');
+                        clearTimeout(indicator._hideTimer);
+                        indicator._hideTimer = setTimeout(() => {
+                            indicator.classList.add('hidden');
+                            indicator.classList.remove('inline-flex');
+                        }, 2000);
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to save generator access:', e);
+            }
+        };
+
+        window.saveGeneratorSettings = async function() {
+            const code = document.getElementById('generatorCodeInput').value.trim();
+            const url = document.getElementById('generatorUrlInput').value.trim();
+            const apiUrl = document.getElementById('generatorApiUrlInput').value.trim();
+            try {
+                const res = await fetch('/api/settings', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'x-user-email': localStorage.getItem('userEmail') || '', 'x-user-role': localStorage.getItem('userRole') || '' },
+                    body: JSON.stringify({ generatorCode: code, generatorUrl: url, generatorApiUrl: apiUrl })
+                });
+                const data = await res.json();
+                if (data.success) alert('Generator settings saved');
+                else alert(data.message || 'Failed');
+            } catch (e) { alert('Save failed'); }
+        };
+
+        loadGeneratorSettings();
+
+        async function loadNasSyncStatus() {
+            try {
+                const res = await fetch('/api/admin/sync-status');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+
+                document.getElementById('nasLoading').classList.add('hidden');
+                document.getElementById('nasError').classList.add('hidden');
+                document.getElementById('nasContent').classList.remove('hidden');
+
+                const syncBtn = document.getElementById('syncNowBtn');
+
+                if (!data.enabled) {
+                    document.getElementById('nasDisabledMsg').classList.remove('hidden');
+                    document.getElementById('nasDetails').classList.add('hidden');
+                    syncBtn.disabled = true;
+                    syncBtn.classList.add('opacity-40', 'cursor-not-allowed');
+                    return;
+                }
+
+                document.getElementById('nasDisabledMsg').classList.add('hidden');
+                document.getElementById('nasDetails').classList.remove('hidden');
+                syncBtn.disabled = false;
+                syncBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+
+                const dot  = document.getElementById('nasStatusDot');
+                const txt  = document.getElementById('nasStatusText');
+                dot.className = 'status-dot';
+                if (data.connected) {
+                    dot.classList.add('bg-green-500');
+                    txt.textContent = 'Connected';
+                    txt.className = 'text-sm font-semibold text-green-700';
+                } else {
+                    dot.classList.add('bg-red-500');
+                    txt.textContent = 'Disconnected';
+                    txt.className = 'text-sm font-semibold text-red-700';
+                }
+
+                document.getElementById('nasEnabled').textContent      = data.enabled    ? 'Yes'          : 'No';
+                document.getElementById('nasConnection').textContent   = !data.enabled   ? 'Disabled'     : data.connected ? 'Connected' : 'Disconnected';
+                document.getElementById('nasPending').textContent      = data.pendingFiles  != null ? data.pendingFiles  : '—';
+                document.getElementById('nasTotalTracked').textContent = data.totalTracked  != null ? data.totalTracked  : '—';
+                document.getElementById('nasLastSync').textContent     = data.lastSync    ? new Date(data.lastSync).toLocaleString()    : 'Never';
+                document.getElementById('nasLastCleanup').textContent  = data.lastCleanup ? new Date(data.lastCleanup).toLocaleString() : 'Never';
+
+                const errors = Array.isArray(data.errors) ? data.errors : [];
+                const errSection = document.getElementById('nasErrorSection');
+                if (errors.length > 0) {
+                    errSection.classList.remove('hidden');
+                    document.getElementById('nasErrorCount').textContent =
+                        errors.length + ' Error' + (errors.length !== 1 ? 's' : '');
+                    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    document.getElementById('nasErrorList').innerHTML = errors.map(e => {
+                        const time   = e && e.time    ? `<span class="opacity-60">${esc(e.time)}</span> ` : '';
+                        const msg    = e && e.message ? esc(e.message) : esc(e);
+                        const detail = e && e.detail  ? ` — ${esc(e.detail)}` : '';
+                        return `<div class="text-xs bg-red-50 border border-red-100 text-red-700 rounded-lg px-3 py-2 font-mono break-all">${time}${msg}${detail}</div>`;
+                    }).join('');
+                } else {
+                    errSection.classList.add('hidden');
+                    document.getElementById('nasErrorList').innerHTML = '';
+                }
+
+            } catch (e) {
+                document.getElementById('nasLoading').classList.add('hidden');
+                document.getElementById('nasContent').classList.add('hidden');
+                document.getElementById('nasError').classList.remove('hidden');
+            }
+        }
+
+        window.triggerNasSync = async function () {
+            const btn    = document.getElementById('syncNowBtn');
+            const icon   = document.getElementById('syncIcon');
+            const btnTxt = document.getElementById('syncBtnText');
+            const msgEl  = document.getElementById('nasSyncMsg');
+
+            btn.disabled = true;
+            icon.classList.add('animate-spin');
+            btnTxt.textContent = 'Syncing…';
+
+            try {
+                const res  = await fetch('/api/admin/sync-trigger', { method: 'POST' });
+                const data = await res.json();
+
+                msgEl.className = 'px-6 py-3 text-xs font-medium text-center border-t border-gray-100 ' +
+                    (data.success ? 'text-green-600' : 'text-red-600');
+                msgEl.textContent = data.message || (data.success ? 'Sync triggered successfully' : 'Sync failed');
+                msgEl.classList.remove('hidden');
+
+                await loadNasSyncStatus();
+                setTimeout(() => msgEl.classList.add('hidden'), 5000);
+            } catch (e) {
+                msgEl.className = 'px-6 py-3 text-xs font-medium text-center border-t border-gray-100 text-red-600';
+                msgEl.textContent = 'Could not trigger sync';
+                msgEl.classList.remove('hidden');
+                setTimeout(() => msgEl.classList.add('hidden'), 5000);
+            } finally {
+                btn.disabled = false;
+                icon.classList.remove('animate-spin');
+                btnTxt.textContent = 'Sync Now';
+            }
+        };
+
+        window.toggleNasErrors = function () {
+            const list    = document.getElementById('nasErrorList');
+            const chevron = document.getElementById('nasErrorChevron');
+            const opening = list.classList.contains('hidden');
+            list.classList.toggle('hidden', !opening);
+            chevron.style.transform = opening ? 'rotate(180deg)' : '';
+        };
+
+        // Initial load + auto-refresh every 30 s
+        loadNasSyncStatus();
+        setInterval(loadNasSyncStatus, 30000);
+
+        // ══════════════════════════════════════════════════════════
+        // ACCESS CONTROL PANEL — SUPERADMIN ONLY
+        // ══════════════════════════════════════════════════════════
+
+        const ALL_MODULES = [
+            { key: 'aufmass',     label: 'Aufmass' },
+            { key: 'files',       label: 'Files' },
+            { key: 'druckprufung',label: 'Druckprüfung' },
+            { key: 'kalibrieren', label: 'Kalibrieren' },
+            { key: 'einblasen',   label: 'Einblasen' },
+            { key: 'apl',         label: 'APL' },
+            { key: 'knotenpunkt', label: 'NVT &amp; Splicing' },
+            { key: 'otdr',        label: 'OTDR' },
+            { key: 'chat',        label: 'Chat' },
+            { key: 'planner',     label: 'Planner' },
+        ];
+
+        // ─── Authority permission definitions ────────────────────────────────────
+        const AUTHORITY_PERMS = [
+            { key: 'createProject',    label: 'Create New Project' },
+            { key: 'deleteProject',    label: 'Delete Project' },
+            { key: 'changeStatus',     label: 'Change Project Status' },
+            { key: 'reorderProjects',  label: 'Reorder Projects' },
+            { key: 'downloadZip',      label: 'Download Project ZIP' },
+            { key: 'editProjectInfo',  label: 'Edit Project Details' },
+        ];
+
+        let aclAllProjects = [];
+        let aclAllUsers = []; // store user list for role lookups
+        let aclCurrentEmail = '';
+        let aclCurrentData = null; // new format: { fullAccess, authority, projects }
+
+        const myEmail = localStorage.getItem('userEmail') || '';
+        const myRole  = localStorage.getItem('userRole')  || '';
+
+        function aclHeaders() {
+            return { 'Content-Type': 'application/json', 'x-user-email': myEmail, 'x-user-role': myRole };
+        }
+
+        /**
+         * loadACLUsers — populate the user dropdown with all approved non-superadmin users
+         * Bug 2 fix: load projects with auth headers so we only get existing projects.
+         * ACL panel will only render projects that exist in the fetched project list.
+         */
+        async function loadACLUsers() {
+            try {
+                const [usersRes, prjRes] = await Promise.all([
+                    fetch('/api/admin/users', { headers: aclHeaders() }),
+                    fetch('/api/projects',    { headers: aclHeaders() })
+                ]);
+                const usersData = await usersRes.json();
+                const prjData   = await prjRes.json();
+
+                if (usersData.success) {
+                    aclAllUsers = usersData.users;
+                    const sel = document.getElementById('aclUserSelect');
+                    usersData.users.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.email;
+                        opt.textContent = `${u.name} (${u.email})`;
+                        sel.appendChild(opt);
+                    });
+                }
+
+                // Bug 2: aclAllProjects only contains EXISTING projects.
+                // Stale projects in ACL JSON are silently ignored when rendering.
+                if (prjData.success) aclAllProjects = prjData.projects || [];
+            } catch (e) {
+                console.error('[ACL] loadACLUsers error:', e);
+            }
+        }
+
+        /**
+         * loadUserACL — called when a user is selected in the dropdown
+         */
+        window.loadUserACL = async function() {
+            const sel = document.getElementById('aclUserSelect');
+            aclCurrentEmail = sel.value;
+
+            const panel    = document.getElementById('aclPanel');
+            const noUser   = document.getElementById('aclNoUser');
+            const banner   = document.getElementById('aclUserRoleBanner');
+            const feedback = document.getElementById('aclFeedback');
+            if (feedback) { feedback.classList.add('hidden'); feedback.textContent = ''; }
+
+            // Hide banner when no user selected
+            if (banner) banner.classList.add('hidden');
+
+            if (!aclCurrentEmail) {
+                panel.classList.add('hidden');
+                noUser.classList.remove('hidden');
+                noUser.textContent = 'Select a user above to manage their access permissions.';
+                return;
+            }
+
+            panel.classList.add('hidden');
+            noUser.classList.remove('hidden');
+            noUser.textContent = 'Loading…';
+
+            try {
+                const res  = await fetch(`/api/admin/access-control/${encodeURIComponent(aclCurrentEmail)}`, {
+                    headers: aclHeaders()
+                });
+                const data = await res.json();
+                if (!data.success) throw new Error('Failed to load ACL');
+
+                aclCurrentData = data.access; // null = no entry (no access)
+
+                // Show user banner
+                if (banner) {
+                    const u = aclAllUsers.find(u => u.email === aclCurrentEmail);
+                    if (u) {
+                        banner.className = 'mb-4 p-3 rounded-xl text-xs font-medium flex items-start gap-2 bg-gray-50 border border-gray-200 text-gray-700';
+                        banner.innerHTML = `<span class="text-base">👤</span><div><strong>${escapeHtml(u.name)}</strong> (${escapeHtml(u.email)})<br><span class="opacity-75">Manage this user's granular access below.</span></div>`;
+                        banner.classList.remove('hidden');
+                    }
+                }
+
+                renderACLPanel();
+                noUser.classList.add('hidden');
+                panel.classList.remove('hidden');
+            } catch (e) {
+                noUser.textContent = 'Error loading permissions.';
+                console.error('[ACL] loadUserACL error:', e);
+            }
+        };
+
+        /**
+         * renderACLPanel — build the full ACL UI (fullAccess toggle + dashboard + projects)
+         */
+        function renderACLPanel() {
+            const d = aclCurrentData;
+            const isFullAccess = d && d.fullAccess === true;
+
+            // Full Access toggle
+            const fullAccessToggle = document.getElementById('aclFullAccess');
+            fullAccessToggle.checked = isFullAccess;
+
+            // No grey-out — full access just syncs toggles, doesn't disable them
+
+            // Helper: check if all sub-toggles are ON and sync fullAccess toggle accordingly
+            function checkFullAccessAutoSync() {
+                const allDash = [...document.querySelectorAll('.acl-authority-toggle')].every(cb => cb.checked);
+                const allProjects = [...document.querySelectorAll('.acl-project-toggle')].every(cb => cb.checked);
+                const allCanEdit = [...document.querySelectorAll('.acl-canedit-toggle')].every(cb => cb.checked);
+                const allModules = [...document.querySelectorAll('.acl-module-toggle')].every(cb => cb.checked);
+                const anyToggles = document.querySelectorAll('.acl-authority-toggle').length > 0;
+                if (anyToggles && allDash && allProjects && allCanEdit && allModules) {
+                    fullAccessToggle.checked = true;
+                } else {
+                    fullAccessToggle.checked = false;
+                }
+            }
+
+            // Expose so project/module toggle handlers can call it
+            window._checkFullAccessAutoSync = checkFullAccessAutoSync;
+
+            // Full Access toggle event — ON: confirm then sync everything ON; OFF: turn everything OFF
+            fullAccessToggle.onchange = function() {
+                if (fullAccessToggle.checked) {
+                    // Show confirmation before granting Full Access
+                    showFullAccessConfirm(fullAccessToggle);
+                } else {
+                    // Turn OFF all authority perms
+                    document.querySelectorAll('.acl-authority-toggle').forEach(cb => { cb.checked = false; });
+                    // Turn OFF all project access + sub-toggles
+                    document.querySelectorAll('.acl-project-toggle').forEach(cb => {
+                        cb.checked = false;
+                        cb.dispatchEvent(new Event('change'));
+                    });
+                    document.querySelectorAll('.acl-canedit-toggle').forEach(cb => { cb.checked = false; });
+                    document.querySelectorAll('.acl-module-toggle').forEach(cb => { cb.checked = false; });
+                }
+            };
+
+            // ─── Authority Permissions ────────────────────────────────────────
+            const dashContainer = document.getElementById('aclAuthorityPerms');
+            dashContainer.innerHTML = '';
+            // Backward compat: read from authority first, fall back to dashboard
+            const authorityData = (d && (d.authority || d.dashboard)) || {};
+            AUTHORITY_PERMS.forEach(perm => {
+                const checked = authorityData[perm.key] === true;
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between';
+                row.innerHTML = `
+                    <span class="text-sm text-gray-700">${escapeHtml(perm.label)}</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer acl-authority-toggle" data-perm="${perm.key}" data-label="${escapeHtml(perm.label)}" ${checked ? 'checked' : ''}>
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gray-900"></div>
+                    </label>
+                `;
+                // Confirmation dialog on toggle ON; reverse sync both directions
+                const authInput = row.querySelector('.acl-authority-toggle');
+                if (authInput) authInput.addEventListener('change', function() {
+                    if (this.checked) {
+                        // Show confirmation before granting
+                        showAuthorityConfirm(this.dataset.label, this);
+                    } else {
+                        // Revoking — no confirmation needed
+                        if (window._checkFullAccessAutoSync) window._checkFullAccessAutoSync();
+                    }
+                });
+                dashContainer.appendChild(row);
+            });
+
+            // ─── Project Access ───────────────────────────────────────────────
+            const projectList = document.getElementById('aclProjectList');
+            projectList.innerHTML = '';
+
+            if (aclAllProjects.length === 0) {
+                projectList.innerHTML = '<p class="text-xs text-gray-400 text-center py-4">No projects found.</p>';
+                return;
+            }
+
+            // Bug 2: only render projects that exist in aclAllProjects.
+            // Stale entries in ACL JSON are silently ignored.
+            aclAllProjects.forEach(project => {
+                const pName = project.name;
+                // Get project data from ACL (may be absent for stale/new projects)
+                const pData = d && d.projects && d.projects[pName];
+
+                // Resolve project-level access (default: false = no access)
+                const pAccess = pData ? pData.access === true : false;
+                const pCanEdit = pData ? pData.canEdit === true : false;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'border border-gray-200 rounded-xl overflow-hidden';
+                wrapper.dataset.project = pName;
+
+                // Project row header
+                const header = document.createElement('div');
+                header.className = 'flex items-center justify-between px-4 py-3 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors select-none';
+                header.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <label class="relative inline-flex items-center cursor-pointer" onclick="event.stopPropagation()">
+                            <input type="checkbox" class="sr-only peer acl-project-toggle" data-project="${escapeHtml(pName)}" ${pAccess ? 'checked' : ''}>
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gray-900"></div>
+                        </label>
+                        <span class="text-sm font-semibold text-gray-900">${escapeHtml(pName)}</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded acl-access-badge ${pAccess ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-500'}">${pAccess ? 'Allowed' : 'Blocked'}</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-400 acl-expand-label">▾</span>
+                    </div>
+                `;
+                wrapper.appendChild(header);
+
+                // Expanded details section (collapsible)
+                const detailsSection = document.createElement('div');
+                detailsSection.className = 'hidden border-t border-gray-100 bg-white px-4 py-4 acl-detail-section';
+
+                // Edit toggle
+                const editRow = document.createElement('div');
+                editRow.className = 'flex items-center justify-between mb-4 pb-3 border-b border-gray-100';
+                editRow.innerHTML = `
+                    <div>
+                        <span class="text-sm font-semibold text-gray-800">Edit</span>
+                        <p class="text-xs text-gray-400 mt-0.5">Allow this user to modify data, upload files, etc.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer acl-canedit-toggle" data-project="${escapeHtml(pName)}" ${pCanEdit ? 'checked' : ''}>
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gray-900"></div>
+                    </label>
+                `;
+                detailsSection.appendChild(editRow);
+
+                // Modules
+                const modHeaderRow = document.createElement('div');
+                modHeaderRow.className = 'flex items-center justify-between mb-3';
+                modHeaderRow.innerHTML = `
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modules</p>
+                    <div class="flex gap-3 flex-shrink-0">
+                        <button type="button" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline" onclick="aclSelectAllModules('${escapeHtml(pName)}', true)">All On</button>
+                        <span class="text-gray-300">|</span>
+                        <button type="button" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline" onclick="aclSelectAllModules('${escapeHtml(pName)}', false)">All Off</button>
+                    </div>
+                `;
+                detailsSection.appendChild(modHeaderRow);
+
+                // Module grid
+                const moduleGrid = document.createElement('div');
+                moduleGrid.className = 'grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1';
+
+                ALL_MODULES.forEach(mod => {
+                    const mChecked = pData && pData.modules && mod.key in pData.modules
+                        ? pData.modules[mod.key] !== false
+                        : pAccess; // default: inherit from project access
+
+                    const row = document.createElement('label');
+                    row.className = 'flex items-center gap-2 py-1.5 cursor-pointer group';
+                    row.innerHTML = `
+                        <input type="checkbox" class="w-4 h-4 acl-module-toggle cursor-pointer accent-gray-900 flex-shrink-0"
+                            data-project="${escapeHtml(pName)}" data-module="${mod.key}" ${mChecked ? 'checked' : ''}>
+                        <span class="text-xs text-gray-700 group-hover:text-gray-900">${escapeHtml(mod.label)}</span>
+                    `;
+                    moduleGrid.appendChild(row);
+                });
+                detailsSection.appendChild(moduleGrid);
+                wrapper.appendChild(detailsSection);
+
+                // Toggle expand on header click; update badge when project toggle changes
+                header.addEventListener('click', (e) => {
+                    if (e.target.closest('label')) return; // handled by label click
+                    const isHidden = detailsSection.classList.contains('hidden');
+                    detailsSection.classList.toggle('hidden', !isHidden);
+                    header.querySelector('.acl-expand-label').textContent = isHidden ? '▴' : '▾';
+                });
+
+                // Update access badge when toggle changes; when turned ON, enable sub-toggles
+                const toggle = header.querySelector('.acl-project-toggle');
+                toggle.addEventListener('change', () => {
+                    const badge = header.querySelector('.acl-access-badge');
+                    if (toggle.checked) {
+                        badge.textContent = 'Allowed';
+                        badge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded acl-access-badge bg-green-50 text-green-700';
+                        // Also turn on canEdit + all modules for this project
+                        const pName = toggle.dataset.project;
+                        const canEditTog = document.querySelector(`.acl-canedit-toggle[data-project="${CSS.escape(pName)}"]`);
+                        if (canEditTog) canEditTog.checked = true;
+                        document.querySelectorAll(`.acl-module-toggle[data-project="${CSS.escape(pName)}"]`).forEach(cb => { cb.checked = true; });
+                    } else {
+                        badge.textContent = 'Blocked';
+                        badge.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded acl-access-badge bg-red-50 text-red-500';
+                    }
+                    // Reverse-sync: update fullAccess if all sub-toggles match
+                    if (window._checkFullAccessAutoSync) window._checkFullAccessAutoSync();
+                });
+
+                // Reverse sync: when canEdit or any module is toggled, check fullAccess
+                detailsSection.addEventListener('change', () => {
+                    if (window._checkFullAccessAutoSync) window._checkFullAccessAutoSync();
+                });
+
+                projectList.appendChild(wrapper);
+            });
+        }
+
+        /**
+         * aclSelectAllProjects — enable or disable all project toggles
+         */
+        window.aclSelectAllProjects = function(checked) {
+            document.querySelectorAll('.acl-project-toggle').forEach(cb => {
+                cb.checked = checked;
+                // Fire change event to update badges
+                cb.dispatchEvent(new Event('change'));
+            });
+        };
+
+        /**
+         * aclSelectAllModules — set all module checkboxes for a project to on/off
+         */
+        window.aclSelectAllModules = function(projectName, checked) {
+            document.querySelectorAll(`.acl-module-toggle[data-project="${CSS.escape(projectName)}"]`).forEach(cb => {
+                cb.checked = checked;
+            });
+        };
+
+        /**
+         * saveUserACL — collect UI state and POST to server (new format)
+         */
+        window.saveUserACL = async function() {
+            if (!aclCurrentEmail) return;
+
+            const fullAccess = document.getElementById('aclFullAccess').checked;
+
+            // Build authority permissions from UI
+            const authority = {};
+            AUTHORITY_PERMS.forEach(perm => {
+                const toggle = document.querySelector(`.acl-authority-toggle[data-perm="${perm.key}"]`);
+                authority[perm.key] = toggle ? toggle.checked : false;
+            });
+
+            // Build project map from UI (only rendered = existing projects)
+            const projects = {};
+            aclAllProjects.forEach(project => {
+                const pName   = project.name;
+                const pToggle = document.querySelector(`.acl-project-toggle[data-project="${CSS.escape(pName)}"]`);
+                const pAccess = pToggle ? pToggle.checked : false;
+
+                const cEditToggle = document.querySelector(`.acl-canedit-toggle[data-project="${CSS.escape(pName)}"]`);
+                const canEdit = cEditToggle ? cEditToggle.checked : false;
+
+                const modules = {};
+                ALL_MODULES.forEach(mod => {
+                    const mToggle = document.querySelector(`.acl-module-toggle[data-project="${CSS.escape(pName)}"][data-module="${mod.key}"]`);
+                    modules[mod.key] = mToggle ? mToggle.checked : pAccess;
+                });
+
+                projects[pName] = { access: pAccess, canEdit, modules };
+            });
+
+            // Preserve stale entries in ACL (projects that no longer exist)
+            // by merging back any existing projects not in the rendered list.
+            if (aclCurrentData && aclCurrentData.projects) {
+                const renderedNames = new Set(aclAllProjects.map(p => p.name));
+                for (const [pName, pData] of Object.entries(aclCurrentData.projects)) {
+                    if (!renderedNames.has(pName)) {
+                        // Keep stale entry as-is in ACL (don't delete it)
+                        projects[pName] = pData;
+                    }
+                }
+            }
+
+            const feedback = document.getElementById('aclFeedback');
+            feedback.className = 'hidden mt-4 p-3 rounded-xl text-sm font-medium';
+            feedback.textContent = '';
+
+            try {
+                const res = await fetch(`/api/admin/access-control/${encodeURIComponent(aclCurrentEmail)}`, {
+                    method: 'POST',
+                    headers: aclHeaders(),
+                    body: JSON.stringify({ fullAccess, authority, projects })
+                });
+                const data = await res.json();
+
+                feedback.classList.remove('hidden');
+                if (data.success) {
+                    feedback.className = 'mt-4 p-3 rounded-xl text-sm font-medium bg-green-50 text-green-700';
+                    feedback.textContent = '✓ Access rules saved successfully.';
+                    aclCurrentData = { fullAccess, authority, projects };
+                } else {
+                    feedback.className = 'mt-4 p-3 rounded-xl text-sm font-medium bg-red-50 text-red-700';
+                    feedback.textContent = data.message || 'Failed to save access rules.';
+                }
+            } catch (e) {
+                feedback.classList.remove('hidden');
+                feedback.className = 'mt-4 p-3 rounded-xl text-sm font-medium bg-red-50 text-red-700';
+                feedback.textContent = 'Network error. Could not save access rules.';
+                console.error('[ACL] saveUserACL error:', e);
+            }
+        };
+
+        /**
+         * resetUserACL — reset user to a clean zero-access state (NOT full access)
+         */
+        window.resetUserACL = async function() {
+            if (!aclCurrentEmail) return;
+            if (!confirm(`Reset this user to zero access (no projects, no dashboard permissions)? This cannot be undone.`)) return;
+
+            const zeroAccess = {
+                fullAccess: false,
+                authority: {
+                    createProject: false, deleteProject: false,
+                    changeStatus: false, reorderProjects: false, downloadZip: false
+                },
+                projects: {}
+            };
+
+            const feedback = document.getElementById('aclFeedback');
+            feedback.className = 'hidden mt-4 p-3 rounded-xl text-sm font-medium';
+
+            try {
+                const res = await fetch(`/api/admin/access-control/${encodeURIComponent(aclCurrentEmail)}`, {
+                    method: 'POST',
+                    headers: aclHeaders(),
+                    body: JSON.stringify(zeroAccess)
+                });
+                const data = await res.json();
+
+                feedback.classList.remove('hidden');
+                if (data.success) {
+                    feedback.className = 'mt-4 p-3 rounded-xl text-sm font-medium bg-green-50 text-green-700';
+                    feedback.textContent = '✓ User reset to zero access.';
+                    aclCurrentData = zeroAccess;
+                    renderACLPanel();
+                } else {
+                    feedback.className = 'mt-4 p-3 rounded-xl text-sm font-medium bg-red-50 text-red-700';
+                    feedback.textContent = data.message || 'Failed to reset access rules.';
+                }
+            } catch (e) {
+                feedback.classList.remove('hidden');
+                feedback.className = 'mt-4 p-3 rounded-xl text-sm font-medium bg-red-50 text-red-700';
+                feedback.textContent = 'Network error. Could not reset access rules.';
+                console.error('[ACL] resetUserACL error:', e);
+            }
+        };
+
+        /**
+         * showFullAccessConfirm — confirm before granting Full Access.
+         * If confirmed, turns ON all authority perms + project toggles.
+         * If cancelled, reverts the toggle.
+         */
+        function showFullAccessConfirm(toggleEl) {
+            const backdrop = document.createElement('div');
+            backdrop.id = 'fullAccessConfirmBackdrop';
+            backdrop.style.cssText = `
+                position:fixed; inset:0; z-index:9999;
+                background:rgba(0,0,0,0.45);
+                backdrop-filter:blur(4px);
+                -webkit-backdrop-filter:blur(4px);
+                display:flex; align-items:center; justify-content:center;
+                animation:fadeIn 0.15s ease;
+            `;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background:#fff;
+                border-radius:20px;
+                padding:28px 28px 24px;
+                max-width:400px;
+                width:calc(100% - 40px);
+                box-shadow:0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+                animation:slideUp 0.18s ease;
+            `;
+
+            modal.innerHTML = `
+                <div style="margin-bottom:6px;">
+                    <span style="font-size:10px;font-weight:700;color:#dc2626;letter-spacing:0.1em;text-transform:uppercase;">⚠️ Full Access</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#111827;margin:0 0 12px;">Grant Full Access?</h3>
+                <p style="font-size:0.875rem;color:#4b5563;margin:0 0 24px;line-height:1.6;">
+                    This will grant <strong>complete access</strong> to this user — all authority permissions, all projects, all modules, and edit rights. This is equivalent to admin-level control.
+                </p>
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <button id="fullAccessConfirmCancel" style="
+                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
+                        border:1px solid #e5e7eb;background:#f9fafb;color:#374151;cursor:pointer;
+                        transition:background 0.15s;
+                    ">Cancel</button>
+                    <button id="fullAccessConfirmOk" style="
+                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
+                        border:none;background:#dc2626;color:#fff;cursor:pointer;
+                        transition:background 0.15s;
+                    ">Grant Full Access</button>
+                </div>
+            `;
+
+            backdrop.appendChild(modal);
+            document.body.appendChild(backdrop);
+
+            function cleanup() { backdrop.remove(); }
+
+            document.getElementById('fullAccessConfirmCancel').addEventListener('click', function() {
+                toggleEl.checked = false;
+                cleanup();
+            });
+
+            document.getElementById('fullAccessConfirmOk').addEventListener('click', function() {
+                // Turn ON all authority perms
+                document.querySelectorAll('.acl-authority-toggle').forEach(cb => { cb.checked = true; });
+                // Turn ON all project access + sub-toggles
+                document.querySelectorAll('.acl-project-toggle').forEach(cb => {
+                    cb.checked = true;
+                    cb.dispatchEvent(new Event('change'));
+                });
+                document.querySelectorAll('.acl-canedit-toggle').forEach(cb => { cb.checked = true; });
+                document.querySelectorAll('.acl-module-toggle').forEach(cb => { cb.checked = true; });
+                cleanup();
+            });
+
+            backdrop.addEventListener('click', function(e) {
+                if (e.target === backdrop) {
+                    toggleEl.checked = false;
+                    cleanup();
+                }
+            });
+        }
+
+        /**
+         * showAuthorityConfirm — show a glassmorphism confirmation modal before granting
+         * an Authority Permission toggle. If cancelled, reverts the toggle to OFF.
+         * @param {string} permLabel - Human-readable permission name
+         * @param {HTMLInputElement} toggleEl - The checkbox element that was just toggled ON
+         */
+        function showAuthorityConfirm(permLabel, toggleEl) {
+            // Create backdrop
+            const backdrop = document.createElement('div');
+            backdrop.id = 'authorityConfirmBackdrop';
+            backdrop.style.cssText = `
+                position:fixed; inset:0; z-index:9999;
+                background:rgba(0,0,0,0.45);
+                backdrop-filter:blur(4px);
+                -webkit-backdrop-filter:blur(4px);
+                display:flex; align-items:center; justify-content:center;
+                animation:fadeIn 0.15s ease;
+            `;
+
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background:#fff;
+                border-radius:20px;
+                padding:28px 28px 24px;
+                max-width:400px;
+                width:calc(100% - 40px);
+                box-shadow:0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
+                animation:slideUp 0.18s ease;
+            `;
+
+            modal.innerHTML = `
+                <div style="margin-bottom:6px;">
+                    <span style="font-size:10px;font-weight:700;color:#9ca3af;letter-spacing:0.1em;text-transform:uppercase;">Authority Permission</span>
+                </div>
+                <h3 style="font-size:1.1rem;font-weight:700;color:#111827;margin:0 0 12px;">Grant Permission?</h3>
+                <p style="font-size:0.875rem;color:#4b5563;margin:0 0 24px;line-height:1.6;">
+                    Are you sure you want to grant <strong>${escapeHtml(permLabel)}</strong> to this user?
+                    This gives them elevated control.
+                </p>
+                <div style="display:flex;gap:10px;justify-content:flex-end;">
+                    <button id="authorityConfirmCancel" style="
+                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
+                        border:1px solid #e5e7eb;background:#f9fafb;color:#374151;cursor:pointer;
+                        transition:background 0.15s;
+                    ">Cancel</button>
+                    <button id="authorityConfirmOk" style="
+                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
+                        border:none;background:#dc2626;color:#fff;cursor:pointer;
+                        transition:background 0.15s;
+                    ">Confirm</button>
+                </div>
+            `;
+
+            backdrop.appendChild(modal);
+            document.body.appendChild(backdrop);
+
+            function cleanup() {
+                backdrop.remove();
+            }
+
+            document.getElementById('authorityConfirmCancel').addEventListener('click', function() {
+                toggleEl.checked = false; // revert
+                cleanup();
+            });
+
+            document.getElementById('authorityConfirmOk').addEventListener('click', function() {
+                // Keep toggle ON — just close
+                cleanup();
+                if (window._checkFullAccessAutoSync) window._checkFullAccessAutoSync();
+            });
+
+            // Close on backdrop click (reverts toggle)
+            backdrop.addEventListener('click', function(e) {
+                if (e.target === backdrop) {
+                    toggleEl.checked = false;
+                    cleanup();
+                }
+            });
+        }
+
+    </script>
+<script src="src/js/header-avatar.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/force-logout.js"></script>
+<script src="src/js/idle-logout.js?v=20260414a"></script>
+</body>
+</html>
