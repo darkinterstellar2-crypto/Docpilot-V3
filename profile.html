@@ -7,153 +7,290 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="src/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                        primary: '#022448',
+                        'primary-container': '#1e3a5f',
+                        'on-primary': '#ffffff',
+                        'on-primary-container': '#8aa4cf',
+                        accent: '#fea619',
+                        'surface': '#F8FAFC',
+                        'outline-variant': '#E2E8F0',
+                    },
+                    width: {
+                        'sidebar': '240px',
+                    },
+                    spacing: {
+                        'sidebar': '240px',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { -webkit-font-smoothing: antialiased; }
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; }
-        .avatar-ring { width: 120px; height: 120px; border-radius: 50%; border: 3px solid #e5e7eb; overflow: hidden; position: relative; cursor: pointer; transition: all 0.2s; }
-        .avatar-ring:hover { border-color: #111827; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; background-color: #F8FAFC; }
+        ::-webkit-scrollbar { width: 4px; background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 4px; }
+
+        /* Sidebar */
+        .sidebar { width: 240px; background: #022448; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 16px; color: #8aa4cf; font-size: 14px; font-weight: 600; letter-spacing: 0.03em; border-radius: 0; transition: all 0.15s; cursor: pointer; text-decoration: none; }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; border-left: 3px solid #fea619; padding-left: 13px; }
+        .nav-item .material-symbols-outlined { font-size: 20px; }
+
+        /* Cards */
+        .card { background: #fff; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0px 2px 4px rgba(15,23,42,0.05); }
+
+        /* Inputs */
+        .input-field { width: 100%; padding: 10px 14px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 14px; font-family: 'Inter', sans-serif; background: #fff; color: #191c1e; transition: border-color 0.2s, box-shadow 0.2s; outline: none; min-height: 44px; }
+        .input-field:focus { border-color: #022448; border-width: 2px; box-shadow: none; }
+        .input-field:disabled { background: #F2F4F6; color: #74777f; cursor: not-allowed; border-color: #E2E8F0; }
+
+        /* Buttons */
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.2s; cursor: pointer; border: none; }
+        .btn-primary { background: #022448; color: #fff; }
+        .btn-primary:hover { background: #1e3a5f; }
+        .btn-primary:disabled { background: #c4c6cf; cursor: not-allowed; }
+        .btn-outline { background: transparent; color: #43474e; border: 1px solid #E2E8F0; }
+        .btn-outline:hover { background: #F2F4F6; border-color: #c4c6cf; }
+        .btn-danger { background: transparent; color: #ba1a1a; border: 1px solid #ffdad6; }
+        .btn-danger:hover { background: #ffdad6; }
+
+        /* Avatar */
+        .avatar-ring { width: 96px; height: 96px; border-radius: 50%; border: 2px solid #E2E8F0; overflow: hidden; position: relative; cursor: pointer; flex-shrink: 0; }
         .avatar-ring:hover .avatar-overlay { opacity: 1; }
-        .avatar-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; border-radius: 50%; }
+        .avatar-overlay { position: absolute; inset: 0; background: rgba(2,36,72,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; border-radius: 50%; flex-direction: column; gap: 2px; }
+        .avatar-overlay span { font-size: 11px; font-weight: 600; color: #fff; text-align: center; line-height: 1.2; }
         .avatar-img { width: 100%; height: 100%; object-fit: cover; }
-        .avatar-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 40px; font-weight: 700; }
-        .input-field { width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 10px; font-size: 14px; transition: all 0.2s; outline: none; background: #fafafa; }
-        .input-field:focus { border-color: #111827; background: #fff; box-shadow: 0 0 0 3px rgba(17,24,39,0.06); }
-        .input-field:disabled { background: #f3f4f6; color: #9ca3af; cursor: not-allowed; }
-        .btn { padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; transition: all 0.2s; cursor: pointer; border: none; }
-        .btn-dark { background: #111827; color: white; }
-        .btn-dark:hover { background: #374151; transform: translateY(-1px); }
-        .btn-dark:disabled { background: #9ca3af; transform: none; cursor: not-allowed; }
-        .btn-outline { background: transparent; color: #374151; border: 1px solid #e5e7eb; }
-        .btn-outline:hover { background: #f9fafb; border-color: #d1d5db; }
-        .btn-danger { background: transparent; color: #dc2626; border: 1px solid #fecaca; }
-        .btn-danger:hover { background: #fef2f2; }
-        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 1000; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; }
+        .avatar-placeholder { width: 100%; height: 100%; background: linear-gradient(135deg, #1e3a5f 0%, #455f87 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 36px; font-weight: 700; }
+
+        /* Strength bar */
+        .strength-bar { height: 4px; border-radius: 2px; transition: background 0.3s; }
+
+        /* Section label */
+        .section-label { font-size: 11px; font-weight: 700; color: #74777f; text-transform: uppercase; letter-spacing: 0.08em; padding: 8px 16px 4px; }
+
+        /* Toast */
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 9999; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; white-space: nowrap; }
         .toast.show { transform: translateX(-50%) translateY(0); }
-        .toast-success { background: #111827; color: white; }
-        .toast-error { background: #dc2626; color: white; }
-        .section-title { font-size: 13px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
-        .strength-bar { height: 4px; border-radius: 2px; transition: all 0.3s; }
+        .toast-success { background: #022448; color: #fff; }
+        .toast-error { background: #ba1a1a; color: #fff; }
+
+        /* Bottom nav mobile */
+        .bottom-nav { display: none; }
+        @media (max-width: 767px) {
+            .bottom-nav { display: flex; }
+            .sidebar-desktop { display: none !important; }
+            .main-topbar { display: none !important; }
+        }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; padding: 8px 4px; color: #74777f; text-decoration: none; font-size: 11px; font-weight: 600; gap: 2px; }
+        .bottom-nav-item.active { color: #fea619; }
+        .bottom-nav-item .material-symbols-outlined { font-size: 22px; }
+
+        /* Mobile card adjustments */
+        @media (max-width: 767px) {
+            .mobile-full { width: 100% !important; }
+            .content-wrapper { padding-bottom: 80px; }
+            .btn-mobile-full { width: 100%; }
+            .profile-avatar-section { flex-direction: column; align-items: center; text-align: center; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-[100dvh] flex flex-col">
+<body class="min-h-screen flex overflow-hidden">
 
-    <!-- Header -->
-    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <a href="index.html" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <!-- ── Sidebar (Desktop) ──────────────────────────────────────────────── -->
+    <aside class="sidebar-desktop sidebar fixed left-0 top-0 h-screen flex flex-col z-50 hidden md:flex">
+        <!-- Logo -->
+        <div class="px-6 py-5 border-b border-white/10">
+            <a href="index.html" class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+                    <span class="material-symbols-outlined text-primary" style="font-size:18px;font-variation-settings:'FILL' 1;">bolt</span>
                 </div>
-                <h1 class="text-lg font-bold tracking-tight">DocPilot</h1>
+                <span class="text-white text-lg font-bold tracking-tight">DocPilot</span>
             </a>
-            <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-500 text-[10px] font-semibold tracking-wider uppercase ml-2" data-i18n="profile.title">Profile</span>
-        </div>
-        <a href="index.html" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Back to Hub">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </a>
-    </header>
-
-    <main class="flex-grow w-full max-w-xl mx-auto px-4 sm:px-8 py-8 sm:py-12 flex flex-col gap-6">
-
-        <!-- Avatar Section -->
-        <div class="card p-8 flex flex-col items-center gap-4">
-            <div class="avatar-ring" id="avatarContainer" onclick="document.getElementById('avatarInput').click()">
-                <div class="avatar-placeholder" id="avatarPlaceholder">?</div>
-                <img class="avatar-img hidden" id="avatarImg" alt="Profile">
-                <div class="avatar-overlay">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </div>
-            </div>
-            <input type="file" id="avatarInput" accept=".jpg,.jpeg,.png,.webp" class="hidden">
-            <div class="text-center">
-                <h2 class="text-xl font-bold" id="displayName">—</h2>
-                <p class="text-sm text-gray-500" id="displayEmail">—</p>
-                <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold" id="displayRole">—</span>
-            </div>
-            <button id="removeAvatarBtn" class="btn btn-outline text-xs hidden" onclick="removeAvatar()">Remove photo</button>
         </div>
 
-        <!-- Personal Info -->
-        <div class="card p-6">
-            <div class="flex items-center justify-between mb-4">
-                <p class="section-title mb-0"data-i18n="profile.personalInfo">Personal Information</p>
-                <button id="editProfileBtn" onclick="toggleEdit()" class="btn btn-outline text-xs">Edit</button>
-            </div>
-            <form id="profileForm" class="flex flex-col gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="auth.fullName">Full Name</label>
-                    <input type="text" id="inputName" class="input-field" placeholder="Your name" required disabled>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="auth.username">Username</label>
-                    <input type="text" id="inputUsername" class="input-field" placeholder="Your username" required disabled>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="auth.email">Email</label>
-                    <input type="email" id="inputEmail" class="input-field" disabled>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.memberSince">Member Since</label>
-                    <input type="text" id="inputCreatedAt" class="input-field" disabled>
-                </div>
-                <div id="profileActions" class="flex gap-2 self-end hidden">
-                    <button type="button" onclick="cancelEdit()" class="btn btn-outline">Cancel</button>
-                    <button type="submit" id="saveProfileBtn" class="btn btn-dark" disabled>Save Changes</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Change Password -->
-        <div class="card p-6">
-            <p class="section-title"data-i18n="profile.changePassword">Change Password</p>
-            <form id="passwordForm" class="flex flex-col gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.currentPassword">Current Password</label>
-                    <input type="password" id="currentPass" class="input-field" placeholder="Enter current password" required>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.newPassword">New Password</label>
-                    <input type="password" id="newPass" class="input-field" placeholder="At least 8 characters" required minlength="8">
-                    <div class="flex gap-1 mt-2">
-                        <div class="strength-bar flex-1 bg-gray-200" id="str1"></div>
-                        <div class="strength-bar flex-1 bg-gray-200" id="str2"></div>
-                        <div class="strength-bar flex-1 bg-gray-200" id="str3"></div>
-                        <div class="strength-bar flex-1 bg-gray-200" id="str4"></div>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-1" id="strengthLabel"></p>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"data-i18n="profile.confirmPassword">Confirm New Password</label>
-                    <input type="password" id="confirmPass" class="input-field" placeholder="Repeat new password" required>
-                </div>
-                <button type="submit" class="btn btn-dark self-end">Change Password</button>
-            </form>
-        </div>
+        <!-- Nav -->
+        <nav class="flex-1 py-4 flex flex-col gap-0.5">
+            <a href="index.html" class="nav-item">
+                <span class="material-symbols-outlined">home</span>
+                Home
+            </a>
+            <!-- Admin link — superadmin only, shown/hidden by JS in other pages; include here and let access control handle it -->
+            <a href="admin.html" class="nav-item" id="sidebarAdminLink" style="display:none;">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+                Admin
+            </a>
+            <a href="superlog.html" class="nav-item" id="sidebarSuperLogLink" style="display:none;">
+                <span class="material-symbols-outlined">manage_search</span>
+                Super Logs
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">person</span>
+                Profile
+            </a>
+        </nav>
 
         <!-- Logout -->
-        <div class="card p-6 flex items-center justify-between">
-            <div>
-                <p class="font-semibold text-gray-900"data-i18n="profile.signOut">Sign Out</p>
-                <p class="text-sm text-gray-500"data-i18n="profile.signOutDesc">Log out of your DocPilot account</p>
-            </div>
-            <button onclick="doLogout()" class="btn btn-danger"data-i18n="auth.logout">Logout</button>
+        <div class="px-3 py-4 border-t border-white/10">
+            <button onclick="doLogout()" class="nav-item w-full text-left" style="color:#8aa4cf;">
+                <span class="material-symbols-outlined">logout</span>
+                Logout
+            </button>
         </div>
+    </aside>
 
-    </main>
+    <!-- ── Main Content ───────────────────────────────────────────────────── -->
+    <div class="flex-1 flex flex-col md:ml-[240px] min-h-screen overflow-hidden">
+
+        <!-- Top bar (desktop) -->
+        <header class="main-topbar hidden md:flex items-center justify-between px-8 h-16 bg-white/80 backdrop-blur-md border-b border-[#E2E8F0] sticky top-0 z-40">
+            <h2 class="text-lg font-bold text-primary">Profile</h2>
+            <div class="flex items-center gap-2">
+                <span class="text-sm text-[#74777f]" id="topbarEmail">—</span>
+                <div class="w-8 h-8 rounded-full overflow-hidden border border-[#E2E8F0] bg-[#1e3a5f] flex items-center justify-center cursor-pointer">
+                    <span class="text-white text-xs font-bold" id="topbarInitial">?</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Scrollable canvas -->
+        <main class="flex-1 overflow-y-auto bg-[#F8FAFC] p-4 md:p-8">
+            <div class="max-w-[640px] mx-auto flex flex-col gap-6 content-wrapper">
+
+                <!-- Page heading -->
+                <div class="hidden md:block">
+                    <h1 class="text-2xl font-bold text-[#022448]">Profile</h1>
+                    <p class="text-sm text-[#74777f] mt-1">Manage your account details and security settings.</p>
+                </div>
+
+                <!-- ── Card 1: Avatar & Identity ─────────────────────────────── -->
+                <div class="card p-6">
+                    <div class="profile-avatar-section flex items-start gap-6">
+                        <!-- Avatar -->
+                        <div class="avatar-ring" id="avatarContainer" onclick="document.getElementById('avatarInput').click()">
+                            <div class="avatar-placeholder" id="avatarPlaceholder">?</div>
+                            <img class="avatar-img hidden" id="avatarImg" alt="Profile">
+                            <div class="avatar-overlay">
+                                <span class="material-symbols-outlined text-white" style="font-size:20px;">photo_camera</span>
+                                <span>Change</span>
+                            </div>
+                        </div>
+                        <input type="file" id="avatarInput" accept=".jpg,.jpeg,.png,.webp" class="hidden">
+
+                        <!-- Identity info -->
+                        <div class="flex-1">
+                            <h2 class="text-xl font-bold text-[#191c1e]" id="displayName">—</h2>
+                            <p class="text-sm text-[#74777f] mt-0.5" id="displayEmail">—</p>
+                            <span class="inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold" id="displayRole">—</span>
+                            <div class="mt-3">
+                                <button id="removeAvatarBtn" class="btn btn-danger text-xs py-1.5 px-3 hidden" onclick="removeAvatar()">
+                                    Remove photo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Card 2: Personal Info ──────────────────────────────────── -->
+                <div class="card p-6">
+                    <div class="flex items-center justify-between mb-5 pb-4 border-b border-[#E2E8F0]">
+                        <h3 class="text-base font-semibold text-[#191c1e]" data-i18n="profile.personalInfo">Personal Information</h3>
+                        <button id="editProfileBtn" onclick="toggleEdit()" class="btn btn-outline py-1.5 px-4 text-xs">Edit</button>
+                    </div>
+                    <form id="profileForm" class="flex flex-col gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-[#43474e] mb-1.5" data-i18n="auth.fullName">Full Name</label>
+                            <input type="text" id="inputName" class="input-field" placeholder="Your name" required disabled>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#43474e] mb-1.5" data-i18n="auth.username">Username</label>
+                            <input type="text" id="inputUsername" class="input-field" placeholder="Your username" required disabled>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#43474e] mb-1.5" data-i18n="auth.email">Email</label>
+                            <input type="email" id="inputEmail" class="input-field" disabled>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#43474e] mb-1.5" data-i18n="profile.memberSince">Member Since</label>
+                            <input type="text" id="inputCreatedAt" class="input-field" disabled>
+                        </div>
+                        <div id="profileActions" class="flex flex-col sm:flex-row gap-2 sm:justify-end hidden">
+                            <button type="button" onclick="cancelEdit()" class="btn btn-outline btn-mobile-full">Cancel</button>
+                            <button type="submit" id="saveProfileBtn" class="btn btn-primary btn-mobile-full" disabled>Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ── Card 3: Change Password ────────────────────────────────── -->
+                <div class="card p-6">
+                    <div class="mb-5 pb-4 border-b border-[#E2E8F0]">
+                        <h3 class="text-base font-semibold text-[#191c1e]" data-i18n="profile.changePassword">Change Password</h3>
+                    </div>
+                    <form id="passwordForm" class="flex flex-col gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-[#43474e] mb-1.5" data-i18n="profile.currentPassword">Current Password</label>
+                            <input type="password" id="currentPass" class="input-field" placeholder="Enter current password" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#43474e] mb-1.5" data-i18n="profile.newPassword">New Password</label>
+                            <input type="password" id="newPass" class="input-field" placeholder="At least 8 characters" required minlength="8">
+                            <div class="flex gap-1 mt-2">
+                                <div class="strength-bar flex-1 bg-[#E2E8F0]" id="str1"></div>
+                                <div class="strength-bar flex-1 bg-[#E2E8F0]" id="str2"></div>
+                                <div class="strength-bar flex-1 bg-[#E2E8F0]" id="str3"></div>
+                                <div class="strength-bar flex-1 bg-[#E2E8F0]" id="str4"></div>
+                            </div>
+                            <p class="text-xs text-[#74777f] mt-1" id="strengthLabel"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-[#43474e] mb-1.5" data-i18n="profile.confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPass" class="input-field" placeholder="Repeat new password" required>
+                        </div>
+                        <div class="flex flex-col sm:flex-row sm:justify-end">
+                            <button type="submit" class="btn btn-primary btn-mobile-full">Change Password</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- ── Card 4: Sign Out ───────────────────────────────────────── -->
+                <div class="card p-6 flex items-center justify-between">
+                    <div>
+                        <p class="font-semibold text-[#191c1e]" data-i18n="profile.signOut">Sign Out</p>
+                        <p class="text-sm text-[#74777f] mt-0.5" data-i18n="profile.signOutDesc">Log out of your DocPilot account</p>
+                    </div>
+                    <button onclick="doLogout()" class="btn btn-danger" data-i18n="auth.logout">Logout</button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ── Bottom Nav (Mobile) ────────────────────────────────────────────── -->
+    <nav class="bottom-nav fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#E2E8F0] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.07)] h-16 items-center">
+        <a href="index.html" class="bottom-nav-item">
+            <span class="material-symbols-outlined">home</span>
+            Home
+        </a>
+        <a href="#" class="bottom-nav-item" id="mobileAdminLink" style="display:none;">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            Admin
+        </a>
+        <a href="profile.html" class="bottom-nav-item active">
+            <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">person</span>
+            Profile
+        </a>
+        <button onclick="doLogout()" class="bottom-nav-item" style="background:none;border:none;cursor:pointer;">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+        </button>
+    </nav>
 
     <!-- Toast -->
     <div class="toast toast-success" id="toast"></div>
@@ -175,6 +312,19 @@
         // ── Auth guard ───────────────────────────────────────────────────────
         if (!localStorage.getItem('userEmail')) window.location.href = 'login.html';
 
+        // ── Superadmin nav visibility ────────────────────────────────────────
+        (function() {
+            const role = localStorage.getItem('userRole');
+            if (role === 'superadmin') {
+                const adminLink = document.getElementById('sidebarAdminLink');
+                const superLogLink = document.getElementById('sidebarSuperLogLink');
+                if (adminLink) adminLink.style.display = '';
+                if (superLogLink) superLogLink.style.display = '';
+                const mobileAdmin = document.getElementById('mobileAdminLink');
+                if (mobileAdmin) { mobileAdmin.style.display = ''; mobileAdmin.href = 'admin.html'; }
+            }
+        })();
+
         // ── Toast ────────────────────────────────────────────────────────────
         function showToast(msg, type = 'success') {
             const t = document.getElementById('toast');
@@ -194,10 +344,16 @@
             document.getElementById('displayName').textContent = p.name;
             document.getElementById('displayEmail').textContent = p.email;
 
+            // Topbar
+            const topbarEmail = document.getElementById('topbarEmail');
+            const topbarInitial = document.getElementById('topbarInitial');
+            if (topbarEmail) topbarEmail.textContent = p.email;
+            if (topbarInitial) topbarInitial.textContent = (p.name || '?')[0].toUpperCase();
+
             const roleBadge = document.getElementById('displayRole');
             roleBadge.textContent = p.role === 'superadmin' ? 'Super Admin' : 'User';
             roleBadge.className = `inline-block mt-2 px-3 py-1 rounded-full text-xs font-semibold ${
-                p.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600'
+                p.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : 'bg-[#eceef0] text-[#43474e]'
             }`;
 
             document.getElementById('inputName').value = p.name;
@@ -273,7 +429,7 @@
             }
 
             statusEl.textContent = '...';
-            statusEl.className = 'text-xs mt-1 text-gray-400';
+            statusEl.className = 'text-xs mt-1 text-[#74777f]';
 
             // Debounce 300ms
             usernameTimeout = setTimeout(async () => {
@@ -340,7 +496,7 @@
             const labels = ['Weak', 'Fair', 'Strong', 'Very strong'];
 
             for (let i = 1; i <= 4; i++) {
-                document.getElementById(`str${i}`).style.background = i <= score ? colors[score - 1] : '#e5e7eb';
+                document.getElementById(`str${i}`).style.background = i <= score ? colors[score - 1] : '#E2E8F0';
             }
             document.getElementById('strengthLabel').textContent = pw.length > 0 ? (pw.length < 8 ? 'Too short' : labels[score - 1] || '') : '';
         });
@@ -365,7 +521,7 @@
                 showToast('Password changed');
                 document.getElementById('passwordForm').reset();
                 document.getElementById('strengthLabel').textContent = '';
-                for (let i = 1; i <= 4; i++) document.getElementById(`str${i}`).style.background = '#e5e7eb';
+                for (let i = 1; i <= 4; i++) document.getElementById(`str${i}`).style.background = '#E2E8F0';
             } else {
                 showToast(data.message || 'Failed', 'error');
             }
