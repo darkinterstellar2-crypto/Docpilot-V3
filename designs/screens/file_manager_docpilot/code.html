@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - File Manager</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#31394e",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-background": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "background": "#f7f9fb",
+                        "secondary": "#855300",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed": "#ffddb8",
+                        "tertiary-fixed": "#dae2fd",
+                        "inverse-surface": "#2d3133",
+                        "secondary-container": "#fea619",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-tertiary-container": "#9ba3bb",
+                        "on-secondary-container": "#684000",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed-dim": "#adc8f5",
+                        "outline-variant": "#c4c6cf",
+                        "outline": "#74777f",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#adc8f5",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-primary-fixed": "#001c3b",
+                        "error": "#ba1a1a",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dadc",
+                        "surface-tint": "#455f87",
+                        "primary": "#022448",
+                        "on-tertiary-fixed": "#131b2e",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#8aa4cf",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#1c2337",
+                        "primary-container": "#1e3a5f",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d5e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "stack-sm": "0.5rem",
+                        "sidebar-width": "240px",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter", "sans-serif"],
+                        "headline-sm": ["Inter", "sans-serif"],
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-md": ["Inter", "sans-serif"],
+                        "label-sm": ["Inter", "sans-serif"],
+                        "label-md": ["Inter", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background h-screen overflow-hidden flex font-body-md">
+<!-- SideNavBar (Shared Component) -->
+<nav class="w-sidebar-width h-screen fixed left-0 top-0 bg-primary border-r border-outline-variant shadow-lg flex flex-col py-stack-lg z-50">
+<!-- Header -->
+<div class="px-6 mb-8 flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-on-primary">person</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container">Infrastructure Pro</p>
+</div>
+</div>
+</div>
+<!-- Main Navigation -->
+<div class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<!-- Active State -> Mapping to Field Logs as it's the closest to documentation/files -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined fill">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<!-- CTA & Footer -->
+<div class="px-4 mt-auto flex flex-col gap-4">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-3 rounded-lg shadow-sm hover:opacity-90 transition-opacity">
+                Submit Log
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-sidebar-width flex flex-col h-full overflow-hidden">
+<!-- TopAppBar (Shared Component) -->
+<header class="docked full-width top-0 z-40 bg-surface-bright/80 backdrop-blur-md shadow-sm flex justify-between items-center px-gutter h-16 border-b border-outline-variant">
+<div class="font-headline-sm text-headline-sm font-black text-primary">
+                DocPilot
+            </div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="pl-10 pr-4 py-2 rounded-lg bg-surface-container-low border border-outline-variant text-body-sm focus:ring-2 focus:ring-primary focus:outline-none w-64 transition-all" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container border-2 border-surface overflow-hidden cursor-pointer">
+<!-- Placeholder for user avatar -->
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<main class="flex-1 flex flex-col px-gutter py-6 overflow-hidden gap-4">
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+<a class="hover:text-primary transition-colors" href="#">Projects</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Gemeinde Weigenheim</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-primary font-bold">Files</span>
+</nav>
+<!-- Layout Split: Left Panel & Right Panel -->
+<div class="flex-1 flex gap-gutter overflow-hidden">
+<!-- Left Panel: Folder Tree -->
+<aside class="w-[280px] bg-surface rounded-xl shadow-sm border border-outline-variant flex flex-col overflow-hidden shrink-0">
+<div class="p-4 border-b border-outline-variant">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Directory</h2>
+</div>
+<div class="flex-1 overflow-y-auto py-2">
+<!-- Tree Item: Doku (Expanded) -->
+<div class="flex flex-col">
+<button class="w-full flex items-center gap-2 px-4 py-2 hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+<span class="material-symbols-outlined text-outline">folder_open</span>
+<span class="font-body-sm text-body-sm">Doku</span>
+</button>
+<!-- Sub Item: NVT01 (Expanded) -->
+<div class="flex flex-col pl-6">
+<button class="w-full flex items-center gap-2 px-4 py-2 hover:bg-surface-container-low transition-colors text-on-surface">
+<span class="material-symbols-outlined text-sm">expand_more</span>
+<span class="material-symbols-outlined text-outline">folder_open</span>
+<span class="font-body-sm text-body-sm">NVT01</span>
+</button>
+<!-- Sub-sub Items -->
+<div class="flex flex-col pl-6">
+<button class="w-full flex items-center gap-2 px-4 py-2 hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="w-4"></span>
+<span class="material-symbols-outlined text-outline text-sm">folder</span>
+<span class="font-body-sm text-body-sm">APL</span>
+</button>
+<!-- Active Folder -->
+<button class="w-full flex items-center gap-2 px-4 py-2 bg-primary/5 text-primary border-r-2 border-primary transition-colors">
+<span class="w-4"></span>
+<span class="material-symbols-outlined fill text-sm">folder</span>
+<span class="font-label-md text-label-md">Einblasen</span>
+</button>
+<button class="w-full flex items-center gap-2 px-4 py-2 hover:bg-surface-container-low transition-colors text-on-surface-variant">
+<span class="w-4"></span>
+<span class="material-symbols-outlined text-outline text-sm">folder</span>
+<span class="font-body-sm text-body-sm">OTDR</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Tree Item: Pläne -->
+<button class="w-full flex items-center gap-2 px-4 py-2 hover:bg-surface-container-low transition-colors text-on-surface mt-1">
+<span class="material-symbols-outlined text-sm text-outline">chevron_right</span>
+<span class="material-symbols-outlined text-outline">folder</span>
+<span class="font-body-sm text-body-sm">Pläne</span>
+</button>
+</div>
+<!-- Trash at bottom of list -->
+<div class="p-2 border-t border-outline-variant mt-auto">
+<button class="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-container-low rounded-lg transition-colors text-on-surface-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-sm">delete</span>
+<span class="font-body-sm text-body-sm">Trash</span>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-label-sm px-2 py-0.5 rounded-full">3</span>
+</button>
+</div>
+</aside>
+<!-- Right Panel: File Listing -->
+<section class="flex-1 bg-surface rounded-xl shadow-sm border border-outline-variant flex flex-col overflow-hidden">
+<!-- Header & Actions -->
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-outline">folder_open</span>
+                            Einblasen
+                        </h2>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-outline text-primary font-label-md rounded-lg hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm">create_new_folder</span>
+                                New Folder
+                            </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container font-label-md rounded-lg shadow-sm hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">upload</span>
+                                Upload
+                            </button>
+</div>
+</div>
+<!-- Table Header -->
+<div class="grid grid-cols-[auto_1fr_100px_120px_120px] gap-4 px-6 py-3 bg-surface-container border-b border-outline-variant text-on-surface-variant font-label-sm text-label-sm">
+<div class="w-8 flex justify-center"><span class="material-symbols-outlined text-sm">more_horiz</span></div>
+<div>Name</div>
+<div>Size</div>
+<div>Date Modified</div>
+<div>User</div>
+</div>
+<!-- File List -->
+<div class="flex-1 overflow-y-auto">
+<!-- Row 1: Folder -->
+<div class="grid grid-cols-[auto_1fr_100px_120px_120px] gap-4 px-6 py-3 border-b border-outline-variant items-center hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="w-8 flex justify-center">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">folder</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface truncate">Protocol_Drafts</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">--</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 24, 2023</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">System</div>
+</div>
+<!-- Row 2: Image File -->
+<div class="grid grid-cols-[auto_1fr_100px_120px_120px] gap-4 px-6 py-3 border-b border-outline-variant items-center hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="w-8 flex justify-center">
+<div class="w-8 h-8 rounded bg-surface-variant overflow-hidden shadow-sm border border-outline-variant/50">
+<img alt="" class="w-full h-full object-cover opacity-90" data-alt="A close-up photograph of a modern fiber optic termination box in a clean, industrial environment. The lighting is bright and sterile, casting soft highlights on the precisely routed yellow and orange fiber cables. The aesthetic is highly technical, clean, and organized, reflecting a professional telecommunications infrastructure deployment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBt1Z7csaVXC7UKk9iIDGCOdPFRCFOcOsC7PH8N33sKq3KCvFEwbcTtbQR4e5rdnRM32kEGgsz6wedcuF1Er-GVHRm_9gWumOo4PeZ-EIYcOxYM0jnigySmH43IVmBBgUgRx2bYwIfr-ib_6N1I_gW5igstthRZCyGfhkxMdGBGOl0RcR3OjEC6_UdtHV4uexO5VkR8dTIfO0PC3GTHQfm7-mfo0AHaLdLLEnTRujcw9rhIoYxHH2qRH5xihEt-pzbHAMb8ICDkwPQ"/>
+</div>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface font-medium truncate group-hover:text-primary transition-colors">Einblasen_Setup_Front.jpg</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">4.2 MB</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 24, 10:15</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">K. Müller</div>
+</div>
+<!-- Row 3: Document -->
+<div class="grid grid-cols-[auto_1fr_100px_120px_120px] gap-4 px-6 py-3 border-b border-outline-variant items-center hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="w-8 flex justify-center">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">description</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface truncate group-hover:text-primary transition-colors">Blow_Log_Report_V2.pdf</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">1.1 MB</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 23, 14:30</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">A. Schmidt</div>
+</div>
+<!-- Row 4: Data File -->
+<div class="grid grid-cols-[auto_1fr_100px_120px_120px] gap-4 px-6 py-3 border-b border-outline-variant items-center hover:bg-surface-container-lowest transition-colors cursor-pointer group">
+<div class="w-8 flex justify-center">
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">dataset</span>
+</div>
+<div class="font-body-sm text-body-sm text-on-surface truncate group-hover:text-primary transition-colors">Machine_Telemetry.csv</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">845 KB</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">Oct 23, 09:00</div>
+<div class="font-body-sm text-body-sm text-on-surface-variant">System</div>
+</div>
+</div>
+<!-- Footer: NAS Sync Status -->
+<div class="p-3 bg-surface-container border-t border-outline-variant flex items-center gap-2">
+<!-- Custom inline style used strictly to fulfill the exact "green dot" prompt requirement without relying on non-theme generic utility classes -->
+<svg class="flex-shrink-0" height="10" viewbox="0 0 10 10" width="10" xmlns="http://www.w3.org/2000/svg">
+<circle cx="5" cy="5" r="4" style="fill: #10B981;"></circle>
+</svg>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Last synced 2 min ago</span>
+<span class="material-symbols-outlined text-sm ml-1 text-outline">cloud_sync</span>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

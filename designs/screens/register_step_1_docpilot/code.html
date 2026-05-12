@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - Register</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#f7f9fb",
+                      "on-secondary": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "tertiary-container": "#31394e",
+                      "on-tertiary-fixed": "#131b2e",
+                      "tertiary-fixed": "#dae2fd",
+                      "surface-tint": "#455f87",
+                      "secondary-container": "#fea619",
+                      "outline": "#74777f",
+                      "primary": "#022448",
+                      "on-surface": "#191c1e",
+                      "on-error-container": "#93000a",
+                      "on-secondary-fixed-variant": "#653e00",
+                      "on-primary-container": "#8aa4cf",
+                      "on-primary-fixed-variant": "#2d486d",
+                      "surface": "#f7f9fb",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "inverse-on-surface": "#eff1f3",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-background": "#191c1e",
+                      "on-tertiary": "#ffffff",
+                      "primary-fixed-dim": "#adc8f5",
+                      "on-tertiary-container": "#9ba3bb",
+                      "surface-container": "#eceef0",
+                      "on-secondary-container": "#684000",
+                      "outline-variant": "#c4c6cf",
+                      "secondary-fixed": "#ffddb8",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface-variant": "#43474e",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#2d3133",
+                      "error": "#ba1a1a",
+                      "secondary": "#855300",
+                      "primary-container": "#1e3a5f",
+                      "on-secondary-fixed": "#2a1700",
+                      "background": "#f7f9fb",
+                      "primary-fixed": "#d5e3ff",
+                      "surface-container-low": "#f2f4f6",
+                      "surface-variant": "#e0e3e5",
+                      "tertiary": "#1c2337",
+                      "error-container": "#ffdad6",
+                      "on-primary-fixed": "#001c3b",
+                      "inverse-primary": "#adc8f5",
+                      "surface-container-high": "#e6e8ea",
+                      "surface-dim": "#d8dadc",
+                      "secondary-fixed-dim": "#ffb95f"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "0.5rem",
+                      "stack-lg": "1.5rem",
+                      "stack-md": "1rem",
+                      "gutter": "1.5rem",
+                      "sidebar-width": "240px",
+                      "container-padding": "2rem"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      }
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-surface-bright text-on-surface font-body-md min-h-screen flex">
+<!-- Split Layout Container -->
+<div class="flex flex-col md:flex-row w-full min-h-screen">
+<!-- Left Half: Branding/Image (Hidden on small screens) -->
+<div class="hidden md:flex flex-col flex-1 bg-primary relative overflow-hidden">
+<!-- Background Image -->
+<img alt="Telecom infrastructure installation" class="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" data-alt="A sweeping, dramatic wide shot of a modern telecom infrastructure site at dawn, capturing the installation of high-capacity fiber optic cables. The scene is bathed in cool, industrial blue light, reflecting the system's corporate navy palette. Silhouetted figures in high-vis gear work efficiently against a backdrop of complex, structured equipment, conveying a sense of authoritative precision and industrial modernity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMBE_BU5TNumEaZa1uLC2WGsFwGunzi3JFcxHwZJ9EPtNXu3K6IRUz9fvorqBzftS9KXtbYIZyZz__7LvOv8VmdJMMDa_b4J8db7zkRL5dJe9G6NLxMNUoa5dYMovXvmwLl88vRP27LrEqTLDnaobbwwrcfDnf7umrIhEwqkbDNzlyujnZWIuMLxtmDdJpJOp50mKIgG6o2K9yuWzy0TU_Tm2VsnmP5Up02RmLKSRL0RNg18QWwCDkjgjINz8E92Adbs3Gr68JnaA"/>
+<!-- Branding Overlay -->
+<div class="relative z-10 flex flex-col h-full p-12 justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-4xl text-on-primary">hub</span>
+<span class="font-headline-lg text-headline-lg text-on-primary">DocPilot</span>
+</div>
+<div class="max-w-md">
+<h1 class="font-headline-lg text-headline-lg text-on-primary mb-4">Precision Field Data. Delivered.</h1>
+<p class="font-body-lg text-body-lg text-primary-fixed-dim">Join the definitive platform for telecom infrastructure management and streamline your field deployments.</p>
+</div>
+<div class="flex items-center gap-4 text-primary-fixed-dim font-label-md text-label-md">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined">verified</span> Verified Secure</span>
+<span class="flex items-center gap-2"><span class="material-symbols-outlined">speed</span> Real-time Sync</span>
+</div>
+</div>
+</div>
+<!-- Right Half: Registration Form -->
+<div class="flex flex-col flex-1 justify-center items-center p-8 bg-surface-bright">
+<div class="w-full max-w-md bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/30">
+<!-- Mobile Branding (Visible only on small screens) -->
+<div class="md:hidden flex items-center justify-center gap-2 mb-8">
+<span class="material-symbols-outlined text-3xl text-primary">hub</span>
+<span class="font-headline-md text-headline-md text-primary">DocPilot</span>
+</div>
+<div class="mb-8">
+<h2 class="font-headline-md text-headline-md text-primary mb-2">Create Account</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Step 1 of 2: Let's get your profile set up.</p>
+</div>
+<form class="space-y-5">
+<!-- Full Name Input -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1" for="fullName">Full Name</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">person</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-10 pr-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" id="fullName" name="fullName" placeholder="Jane Doe" type="text"/>
+</div>
+</div>
+<!-- Username Input with Availability Tag -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1" for="username">Username</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">badge</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-10 pr-24 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" id="username" name="username" type="text" value="jdoe_fieldops"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-[#dcfce7] text-[#166534] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">
+                                Available <span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+</div>
+</div>
+<!-- Email Input -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1" for="email">Email</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">mail</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-10 pr-3 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" id="email" name="email" placeholder="jane.doe@telecom.net" type="email"/>
+</div>
+</div>
+<!-- Password Input with Strength Meter -->
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1" for="password">Password</label>
+<div class="relative mb-2">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">lock</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-2 pl-10 pr-10 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" id="password" name="password" type="password" value="********"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Strength Meter -->
+<div class="flex items-center gap-2">
+<div class="flex-1 flex gap-1 h-1.5">
+<div class="h-full w-1/4 bg-[#22c55e] rounded-full"></div>
+<div class="h-full w-1/4 bg-[#22c55e] rounded-full"></div>
+<div class="h-full w-1/4 bg-[#eab308] rounded-full"></div>
+<div class="h-full w-1/4 bg-surface-variant rounded-full"></div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">Good</span>
+</div>
+</div>
+<!-- Action Button -->
+<button class="w-full bg-primary-container text-on-primary font-label-md text-label-md py-3 px-4 rounded-lg hover:bg-primary transition-colors mt-6 flex justify-center items-center gap-2" type="submit">
+                        Create Account <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</form>
+<div class="mt-8 text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                        Already have an account? 
+                        <a class="text-primary font-bold hover:underline" href="#">Log in here</a>
+</p>
+</div>
+</div>
+</div>
+</div>
+</body></html>

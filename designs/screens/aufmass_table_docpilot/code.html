@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Aufmass Table - DocPilot</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for table to match theme */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: theme('colors.surface-container-lowest'); 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant'); 
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline'); 
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#31394e",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-background": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "background": "#f7f9fb",
+                        "secondary": "#855300",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed": "#ffddb8",
+                        "tertiary-fixed": "#dae2fd",
+                        "inverse-surface": "#2d3133",
+                        "secondary-container": "#fea619",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-tertiary-container": "#9ba3bb",
+                        "on-secondary-container": "#684000",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed-dim": "#adc8f5",
+                        "outline-variant": "#c4c6cf",
+                        "outline": "#74777f",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#adc8f5",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-primary-fixed": "#001c3b",
+                        "error": "#ba1a1a",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dadc",
+                        "surface-tint": "#455f87",
+                        "primary": "#022448",
+                        "on-tertiary-fixed": "#131b2e",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#8aa4cf",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#1c2337",
+                        "primary-container": "#1e3a5f",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d5e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "stack-sm": "0.5rem",
+                        "sidebar-width": "240px",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                        "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md min-h-screen flex antialiased">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-full py-stack-lg bg-primary text-on-primary w-sidebar-width h-screen fixed left-0 top-0 border-r border-outline-variant shadow-lg z-50">
+<div class="px-gutter mb-stack-lg">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary/70">Infrastructure Pro</p>
+</div>
+<div class="flex-1 overflow-y-auto px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container hover:bg-primary-container/50 transition-colors duration-200 rounded-r-lg opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="px-4 mt-auto">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-3 rounded-lg flex items-center justify-center gap-2 hover:bg-secondary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                Submit Log
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 mt-4 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col w-full md:ml-sidebar-width min-h-screen">
+<!-- TopAppBar (Desktop) -->
+<header class="hidden md:flex justify-between items-center px-gutter h-16 bg-surface-bright/80 backdrop-blur-md text-primary docked full-width top-0 z-40 border-b border-outline-variant shadow-sm sticky top-0">
+<div class="flex items-center gap-4">
+<!-- Breadcrumbs -->
+<nav class="flex items-center text-outline font-label-sm text-label-sm">
+<a class="hover:text-primary transition-colors" href="#">Projects</a>
+<span class="material-symbols-outlined text-sm mx-1">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Gemeinde Weigenheim</a>
+<span class="material-symbols-outlined text-sm mx-1">chevron_right</span>
+<span class="text-on-surface font-semibold">Aufmass</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative focus-within:ring-2 ring-primary rounded">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">search</span>
+<input class="bg-surface-container-lowest border border-outline-variant rounded pl-9 pr-3 py-1.5 font-body-sm text-body-sm text-on-surface focus:outline-none focus:border-primary w-64" placeholder="Search..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full flex items-center justify-center focus:ring-2 ring-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full flex items-center justify-center focus:ring-2 ring-primary">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-primary-fixed overflow-hidden border border-outline-variant flex items-center justify-center text-primary font-bold font-label-md text-label-md cursor-pointer hover:ring-2 ring-primary transition-all">
+                    JD
+                </div>
+</div>
+</header>
+<!-- Page Canvas -->
+<main class="flex-1 p-4 md:p-container-padding flex flex-col gap-stack-lg pb-24 md:pb-container-padding max-w-[100vw] overflow-hidden">
+<!-- Page Header Controls -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div class="flex items-center gap-2 w-full sm:w-auto">
+<div class="relative w-full sm:w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">filter_alt</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg pl-10 pr-4 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Filter measurements..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none flex items-center justify-center gap-2 border border-outline text-primary bg-transparent px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+                        Export Excel
+                    </button>
+<button class="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-primary text-on-primary px-6 py-2 rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="save">save</span>
+                        Save
+                    </button>
+</div>
+</div>
+<!-- Aufmass Data Table Container -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex flex-col overflow-hidden relative">
+<!-- Scroll Indicator Hint (Visual only, normally JS controlled, static representation here) -->
+<div class="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-surface-container-lowest to-transparent pointer-events-none z-30"></div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse min-w-[1200px]">
+<thead>
+<!-- Header Row 1: Groups (Navy Tinted) -->
+<tr class="bg-primary/5 border-b border-outline-variant">
+<th class="sticky left-0 z-20 bg-primary-fixed-dim/30 backdrop-blur-sm border-r border-outline-variant py-3 px-4 font-label-md text-label-md text-on-surface font-bold text-center border-b" colspan="2">
+                                    Location
+                                </th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface font-bold text-center border-r border-outline-variant" colspan="2">
+                                    Address
+                                </th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface font-bold text-center border-r border-outline-variant" colspan="2">
+                                    Hardware
+                                </th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface font-bold text-center border-r border-outline-variant" colspan="2">
+                                    Einblasen
+                                </th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface font-bold text-center border-r border-outline-variant" colspan="2">
+                                    APL
+                                </th>
+<th class="py-3 px-4 font-label-md text-label-md text-on-surface font-bold text-center" colspan="2">
+                                    OTDR
+                                </th>
+</tr>
+<!-- Header Row 2: Sub-columns -->
+<tr class="bg-surface-container text-on-surface-variant border-b border-outline-variant shadow-sm">
+<th class="sticky left-0 z-20 bg-surface-container border-r border-outline-variant py-2 px-4 font-label-sm text-label-sm font-semibold w-24">ID</th>
+<th class="sticky left-[96px] z-20 bg-surface-container border-r border-outline-variant py-2 px-4 font-label-sm text-label-sm font-semibold w-32 shadow-[4px_0_4px_-4px_rgba(0,0,0,0.1)]">Area Code</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold">Street</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold border-r border-outline-variant w-24">No.</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold">NVt Type</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold border-r border-outline-variant">Status</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold text-right">Length (m)</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold border-r border-outline-variant">Status</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold">Model</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold border-r border-outline-variant">Montage</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold">Dämpfung</th>
+<th class="py-2 px-4 font-label-sm text-label-sm font-semibold">Protokoll</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant font-body-sm text-body-sm text-on-surface bg-surface-container-lowest">
+<!-- Data Row 1 -->
+<tr class="group hover:bg-surface transition-colors cursor-default">
+<td class="sticky left-0 z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 font-semibold text-primary">GW-01-A</td>
+<td class="sticky left-[96px] z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 shadow-[4px_0_4px_-4px_rgba(0,0,0,0.05)] text-on-surface-variant">Nord-01</td>
+<td class="py-3 px-4">Hauptstraße</td>
+<td class="py-3 px-4 border-r border-outline-variant text-on-surface-variant">12a</td>
+<td class="py-3 px-4">GF-NVt 48</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                        Installed
+                                    </span>
+</td>
+<td class="py-3 px-4 text-right font-mono text-on-surface-variant">450.5</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                        Done
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">APL-Standard</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                        Done
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">0.12 dB</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                        OK
+                                    </span>
+</td>
+</tr>
+<!-- Data Row 2 -->
+<tr class="group hover:bg-surface transition-colors cursor-default">
+<td class="sticky left-0 z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 font-semibold text-primary">GW-01-B</td>
+<td class="sticky left-[96px] z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 shadow-[4px_0_4px_-4px_rgba(0,0,0,0.05)] text-on-surface-variant">Nord-01</td>
+<td class="py-3 px-4">Hauptstraße</td>
+<td class="py-3 px-4 border-r border-outline-variant text-on-surface-variant">14</td>
+<td class="py-3 px-4">GF-NVt 48</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                        Installed
+                                    </span>
+</td>
+<td class="py-3 px-4 text-right font-mono text-on-surface-variant">320.0</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-secondary-fixed text-on-secondary-fixed border border-secondary-fixed-dim">
+                                        In Progress
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">APL-Kompakt</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">
+                                        Pending
+                                    </span>
+</td>
+<td class="py-3 px-4 text-outline">-</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">
+                                        Pending
+                                    </span>
+</td>
+</tr>
+<!-- Data Row 3 -->
+<tr class="group hover:bg-surface transition-colors cursor-default">
+<td class="sticky left-0 z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 font-semibold text-primary">GW-02-A</td>
+<td class="sticky left-[96px] z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 shadow-[4px_0_4px_-4px_rgba(0,0,0,0.05)] text-on-surface-variant">Süd-02</td>
+<td class="py-3 px-4">Mühlenweg</td>
+<td class="py-3 px-4 border-r border-outline-variant text-on-surface-variant">3</td>
+<td class="py-3 px-4">GF-NVt 24</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-error-container text-on-error-container border border-error/20">
+                                        Defect
+                                    </span>
+</td>
+<td class="py-3 px-4 text-right font-mono text-on-surface-variant">0.0</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-error-container text-on-error-container border border-error/20">
+                                        Blocked
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">-</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">
+                                        Pending
+                                    </span>
+</td>
+<td class="py-3 px-4 text-outline">-</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">
+                                        Pending
+                                    </span>
+</td>
+</tr>
+<!-- Data Row 4 -->
+<tr class="group hover:bg-surface transition-colors cursor-default">
+<td class="sticky left-0 z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 font-semibold text-primary">GW-02-B</td>
+<td class="sticky left-[96px] z-10 bg-surface-container-lowest group-hover:bg-surface border-r border-outline-variant py-3 px-4 shadow-[4px_0_4px_-4px_rgba(0,0,0,0.05)] text-on-surface-variant">Süd-02</td>
+<td class="py-3 px-4">Mühlenweg</td>
+<td class="py-3 px-4 border-r border-outline-variant text-on-surface-variant">5</td>
+<td class="py-3 px-4">GF-NVt 24</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                        Installed
+                                    </span>
+</td>
+<td class="py-3 px-4 text-right font-mono text-on-surface-variant">185.2</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+                                        Done
+                                    </span>
+</td>
+<td class="py-3 px-4 text-on-surface-variant">APL-Standard</td>
+<td class="py-3 px-4 border-r border-outline-variant">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-secondary-fixed text-on-secondary-fixed border border-secondary-fixed-dim">
+                                        Scheduled
+                                    </span>
+</td>
+<td class="py-3 px-4 text-outline">-</td>
+<td class="py-3 px-4">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-surface-variant text-on-surface-variant border border-outline-variant">
+                                        Pending
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface-container-lowest border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-14 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-14 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm mt-1">Map</span>
+</a>
+<!-- Active Tab Mobile -->
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform w-16 h-14 rounded-lg bg-surface-container-high/50" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label-sm text-label-sm mt-1">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-14 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm mt-1">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-14 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1">User</span>
+</a>
+</nav>
+</body></html>

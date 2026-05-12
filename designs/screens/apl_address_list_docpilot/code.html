@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cluster KA00102 - DocPilot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#ffb95f",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-container": "#8aa4cf",
+                        "primary-fixed-dim": "#adc8f5",
+                        "primary-fixed": "#d5e3ff",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "secondary-fixed": "#ffddb8",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#455f87",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "primary-container": "#1e3a5f",
+                        "secondary-container": "#fea619",
+                        "on-tertiary-fixed": "#131b2e",
+                        "outline": "#74777f",
+                        "outline-variant": "#c4c6cf",
+                        "on-primary-fixed": "#001c3b",
+                        "on-tertiary-container": "#9ba3bb",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-container": "#31394e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#adc8f5",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#022448",
+                        "background": "#f7f9fb",
+                        "on-secondary-container": "#684000",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#1c2337",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-background": "#191c1e",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "secondary": "#855300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "sidebar-width": "240px",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col bg-primary text-on-primary w-sidebar-width h-screen fixed left-0 top-0 border-r border-outline-variant shadow-lg z-50">
+<div class="p-6">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container mt-1">Infrastructure Pro</p>
+</div>
+<nav class="flex-1 px-4 py-stack-lg space-y-2 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container rounded-r-lg opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="p-4 mt-auto">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-3 px-4 rounded-lg hover:bg-secondary-fixed transition-colors flex items-center justify-center gap-2">
+<span>Submit Log</span>
+</button>
+</div>
+<div class="px-4 pb-6 pt-4 border-t border-outline-variant/20">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-sidebar-width flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface-bright/80 backdrop-blur-md sticky top-0 z-40 border-b border-outline-variant shadow-sm h-16 flex justify-between items-center px-gutter">
+<div class="flex items-center gap-4 md:hidden">
+<span class="font-headline-sm text-headline-sm font-black text-primary">DocPilot</span>
+</div>
+<div class="hidden md:flex flex-1 items-center justify-end">
+<!-- Right side actions -->
+</div>
+<div class="flex items-center gap-4 ml-auto">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-outline-variant cursor-pointer hover:ring-2 hover:ring-primary transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuChz2Sf4DVj5d1SH-Abv1CCR4AEexxRxYystWSwfeEl2LECs7shtqU8hWZAC1m-J3TVruXdZSPnnWJzbrhiVPws5TkvHjqCPbM0HADClQi6nmZNQNETWUJZa6i37O3Jv2nhVVxLz5gwrvnvvGtoQFO-w96mYDsy3Enwc6gItPz09wJ7BNBvbcLre_ip7voZe7eFiFf4192pmcVr5vyjIcTPQyN_ZQxLWAIcyruK8cP8By0GT24798mHNfRef126e2d1I0O-3Rtl6iA"/>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-4 md:p-container-padding max-w-7xl mx-auto w-full flex-1 flex flex-col gap-stack-lg pb-24 md:pb-container-padding">
+<!-- Breadcrumbs -->
+<nav class="text-sm font-body-sm text-on-surface-variant flex items-center flex-wrap gap-2">
+<a class="hover:text-primary transition-colors" href="#">Projects</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Gemeinde Weigenheim</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">APL</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">NVT01</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary font-bold">KA00102</span>
+</nav>
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<h2 class="font-headline-lg text-headline-lg text-primary">Cluster KA00102</h2>
+<div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+<div class="relative w-full sm:w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" placeholder="Search addresses..." type="text"/>
+</div>
+<div class="relative w-full sm:w-48">
+<select class="w-full pl-4 pr-10 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface appearance-none focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all">
+<option>All Statuses</option>
+<option>Done</option>
+<option>Waiting</option>
+<option>Pending</option>
+<option>Error</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+<!-- List Section -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0_2px_4px_rgba(15,23,42,0.05)] overflow-hidden">
+<div class="divide-y divide-outline-variant">
+<!-- Row 1: Done -->
+<a class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-surface-container-low transition-colors group gap-4 cursor-pointer" href="#">
+<div class="flex flex-col gap-1 w-full sm:w-auto">
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Hauptstraße 12</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cable: HKA-01-01</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-sm text-label-sm border border-outline-variant/50">12F SM</span>
+<span class="px-3 py-1 bg-[#e6f4ea] text-[#137333] rounded-full font-label-md text-label-md flex items-center gap-1 border border-[#ceead6]">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span>
+                                Done
+                            </span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors hidden sm:block" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Row 2: Waiting -->
+<a class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-surface-container-low transition-colors group gap-4 cursor-pointer" href="#">
+<div class="flex flex-col gap-1 w-full sm:w-auto">
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Hauptstraße 14</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cable: HKA-01-02</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-sm text-label-sm border border-outline-variant/50">24F SM</span>
+<span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed rounded-full font-label-md text-label-md flex items-center gap-1 border border-primary-fixed-dim">
+<span class="material-symbols-outlined text-[16px]" data-icon="hourglass_empty">hourglass_empty</span>
+                                Waiting
+                            </span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors hidden sm:block" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Row 3: Pending -->
+<a class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-surface-container-low transition-colors group gap-4 cursor-pointer" href="#">
+<div class="flex flex-col gap-1 w-full sm:w-auto">
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Am Bach 3</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cable: HKA-01-03</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-sm text-label-sm border border-outline-variant/50">12F SM</span>
+<span class="px-3 py-1 bg-surface-container-highest text-on-surface-variant rounded-full font-label-md text-label-md flex items-center gap-1 border border-outline-variant">
+<span class="material-symbols-outlined text-[16px]" data-icon="pending">pending</span>
+                                Pending
+                            </span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors hidden sm:block" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Row 4: Error -->
+<a class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-surface-container-low transition-colors group gap-4 cursor-pointer" href="#">
+<div class="flex flex-col gap-1 w-full sm:w-auto">
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Am Bach 5</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cable: HKA-01-04</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-sm text-label-sm border border-outline-variant/50">48F SM</span>
+<span class="px-3 py-1 bg-error-container text-on-error-container rounded-full font-label-md text-label-md flex items-center gap-1 border border-[#ffb4ab]">
+<span class="material-symbols-outlined text-[16px]" data-icon="error">error</span>
+                                Error
+                            </span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors hidden sm:block" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Row 5: Appointment -->
+<a class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-surface-container-low transition-colors group gap-4 cursor-pointer bg-[#fff8e1]/30" href="#">
+<div class="flex flex-col gap-1 w-full sm:w-auto">
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Kirchplatz 1</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cable: HKA-02-01</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-sm text-label-sm border border-outline-variant/50">12F SM</span>
+<span class="px-3 py-1 bg-[#fef0d9] text-[#b06000] rounded-full font-label-md text-label-md flex items-center gap-1 border border-[#fdd8a5]">
+<span class="material-symbols-outlined text-[16px]" data-icon="event">event</span>
+                                14 May, 09:00
+                            </span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors hidden sm:block" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+<!-- Row 6: Done -->
+<a class="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 hover:bg-surface-container-low transition-colors group gap-4 cursor-pointer" href="#">
+<div class="flex flex-col gap-1 w-full sm:w-auto">
+<span class="font-body-lg text-body-lg font-bold text-on-surface">Kirchplatz 2</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cable: HKA-02-02</span>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant rounded font-label-sm text-label-sm border border-outline-variant/50">12F SM</span>
+<span class="px-3 py-1 bg-[#e6f4ea] text-[#137333] rounded-full font-label-md text-label-md flex items-center gap-1 border border-[#ceead6]">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span>
+                                Done
+                            </span>
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors hidden sm:block" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</a>
+</div>
+</div>
+<!-- Bottom Breadcrumb/Back -->
+<div class="pt-4 mt-auto">
+<a class="inline-flex items-center gap-2 text-primary font-label-md text-label-md hover:underline" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="arrow_back">arrow_back</span>
+                    Back to NVT01
+                </a>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden bg-surface-container-lowest fixed bottom-0 w-full z-50 border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform w-full h-full rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="font-label-sm text-label-sm mt-1">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm mt-1">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm mt-1">User</span>
+</a>
+</nav>
+</body></html>

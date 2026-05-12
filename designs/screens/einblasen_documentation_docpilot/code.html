@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - Field Logs</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#ffb95f",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-container": "#8aa4cf",
+                        "primary-fixed-dim": "#adc8f5",
+                        "primary-fixed": "#d5e3ff",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "secondary-fixed": "#ffddb8",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#455f87",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "primary-container": "#1e3a5f",
+                        "secondary-container": "#fea619",
+                        "on-tertiary-fixed": "#131b2e",
+                        "outline": "#74777f",
+                        "outline-variant": "#c4c6cf",
+                        "on-primary-fixed": "#001c3b",
+                        "on-tertiary-container": "#9ba3bb",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-container": "#31394e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#adc8f5",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#022448",
+                        "background": "#f7f9fb",
+                        "on-secondary-container": "#684000",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#1c2337",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-background": "#191c1e",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "secondary": "#855300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "sidebar-width": "240px",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex font-body-md">
+<!-- SideNavBar (WEB) -->
+<nav class="hidden md:flex flex-col bg-primary dark:bg-primary text-on-primary dark:text-on-primary w-sidebar-width h-screen fixed left-0 top-0 border-r border-outline-variant shadow-lg z-50 py-stack-lg">
+<div class="px-4 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close up portrait of a telecommunications professional wearing a bright orange high visibility vest and a white hard hat. The man has a serious, focused expression. The background is slightly blurred but suggests an outdoor industrial or construction environment with soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3H3LgPPzpPwNkzc9ySw3jhjsgYPxOwvxwLQ51eCTaop1F5gGdFOgJBkK0CkBlnpdAVHIF_4mg_EyRDumX47WWAFhhJrtUYVeod2-coIGS7PnIbeF5FBQi2o7VBe8a4pnkkply0sxD7rJXB0p3dHPyXKDEDC-J6mjyI8Uj2u7OSndqI3dhgED-UvX_PPzF-gIvr2WXLQTgsUTg0uYfukT8fEoeJIRD3fIJ3kbAkCWtmDPG0AZwB7AM9WTmPvwI9FJTXRoZbfGoDTI"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container">Infrastructure Pro</p>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-2 px-4 rounded-lg flex items-center justify-center gap-2 hover:bg-secondary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">add</span>
+                Submit Log
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-sidebar-width flex flex-col min-h-screen">
+<!-- TopAppBar (WEB) -->
+<header class="hidden md:flex justify-between items-center px-gutter h-16 bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 docked full-width top-0 z-40 border-b border-outline-variant shadow-sm sticky top-0">
+<div class="font-headline-sm text-headline-sm font-black text-primary">DocPilot</div>
+<div class="flex items-center gap-4">
+<div class="relative focus-within:ring-2 focus-within:ring-primary rounded-lg">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm font-body-sm focus:outline-none w-64 text-on-surface" placeholder="Search logs..." type="text"/>
+</div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</header>
+<!-- TopAppBar (MOBILE) -->
+<header class="md:hidden flex justify-between items-center px-4 h-16 bg-surface-bright/80 backdrop-blur-md border-b border-outline-variant sticky top-0 z-40">
+<div class="font-headline-sm text-headline-sm font-black text-primary">DocPilot</div>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyzEUGvylWRja8S4yAf9GXeuKJXQna7xbpMUMUIv_IymD37foGzrVxHkOZ4rrF3rJOIQWxIoAP4xu6P8z4U0n0y5l8DgwWMHWkBJNh9RRhZFWO_Xzct_UFBLi9P5ib7HscWE2wr02zqRq7wJ9QdFnlomTTdU_pdssgSooCRrrdjXQMGVN3_sOA_6bJbUAXKn6XSpphA0BrPOt3eDLvg1aupSwrkaWyDyG1RCZ0lgDDL3D2yWAon83_WsdexOhPhXrsljqpy77b5eg"/>
+</div>
+</header>
+<!-- Content Area -->
+<div class="p-4 md:p-container-padding pb-24 md:pb-container-padding flex-1">
+<div class="max-w-6xl mx-auto space-y-stack-lg">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Field Logs</h2>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Upload and generate installation protocols.</p>
+</div>
+</div>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-stack-lg">
+<!-- Section A: Upload Work Documentation -->
+<div class="lg:col-span-7 space-y-stack-lg">
+<div class="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant shadow-sm relative overflow-hidden">
+<div class="flex items-center gap-3 mb-6 border-b border-outline-variant pb-4">
+<span class="material-symbols-outlined text-primary text-2xl">upload_file</span>
+<h3 class="font-headline-sm text-headline-sm text-primary">Upload Work Documentation</h3>
+</div>
+<form class="space-y-6">
+<!-- Date & Time Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Date</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-on-surface" type="date"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Time</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-on-surface" type="time"/>
+</div>
+</div>
+<!-- Meter Inputs -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">Start Meter (m)</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-on-surface" placeholder="0" type="number"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant block">End Meter (m)</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-on-surface" placeholder="3970" type="number"/>
+</div>
+</div>
+<!-- Metrierung Total Readonly -->
+<div class="bg-surface-container p-4 rounded-lg flex justify-between items-center border border-outline-variant">
+<span class="font-label-md text-label-md text-on-surface-variant">Metrierung Total</span>
+<span class="font-headline-sm text-headline-sm text-primary">3,970 m</span>
+</div>
+<!-- Drag & Drop Zone -->
+<div class="border-2 border-dashed border-outline-variant rounded-xl p-8 flex flex-col items-center justify-center text-center bg-surface hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="w-16 h-16 rounded-full bg-primary-fixed flex items-center justify-center mb-4 group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary text-3xl">cloud_upload</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface">Drag &amp; drop your files here</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">or click to browse (PDF, JPG, PNG)</p>
+</div>
+<div class="flex justify-end pt-4">
+<button class="bg-primary text-on-primary font-label-md text-label-md py-2.5 px-6 rounded-lg flex items-center gap-2 hover:bg-primary-container transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined">upload</span>
+                                        Upload
+                                    </button>
+</div>
+</form>
+</div>
+</div>
+<!-- Section B: Einblasprotokoll Generator -->
+<div class="lg:col-span-5 space-y-stack-lg">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm relative overflow-hidden flex flex-col h-full">
+<!-- Header with Badge -->
+<div class="p-6 border-b border-outline-variant flex justify-between items-start bg-surface-container-low">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary-container text-2xl">description</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Einblasprotokoll Generator</h3>
+</div>
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                    ACCESS REQUIRED
+                                </span>
+</div>
+<!-- Input Area -->
+<div class="p-6 border-b border-outline-variant bg-surface-container-lowest relative z-10">
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-4">Enter your authorization code to generate the final installation protocol.</p>
+<div class="flex gap-3">
+<input class="flex-1 bg-surface border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors text-on-surface text-center tracking-widest uppercase" placeholder="Auth Code" type="text"/>
+<button class="bg-secondary-container text-on-secondary-container font-label-md text-label-md py-2 px-6 rounded-lg flex items-center gap-2 hover:bg-secondary-fixed-dim transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">lock_open</span>
+                                        Unlock
+                                    </button>
+</div>
+</div>
+<!-- Blurred Preview Area (Glassmorphism overlay implication) -->
+<div class="flex-1 p-6 relative bg-surface-container-lowest">
+<!-- The "Blurred" Content -->
+<div class="opacity-40 blur-[4px] select-none pointer-events-none space-y-4">
+<div class="h-6 bg-outline-variant rounded w-1/3"></div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-2">
+<div class="h-4 bg-outline-variant rounded w-1/2"></div>
+<div class="h-10 bg-outline rounded w-full"></div>
+</div>
+<div class="space-y-2">
+<div class="h-4 bg-outline-variant rounded w-1/2"></div>
+<div class="h-10 bg-outline rounded w-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="h-4 bg-outline-variant rounded w-1/4"></div>
+<div class="h-24 bg-outline rounded w-full"></div>
+</div>
+<div class="flex justify-end pt-4">
+<div class="h-10 bg-outline rounded w-32"></div>
+</div>
+</div>
+<!-- Floating Lock Overlay -->
+<div class="absolute inset-0 flex flex-col items-center justify-center bg-surface-bright/30 backdrop-blur-[2px]">
+<div class="w-16 h-16 rounded-full bg-surface-container-high/80 backdrop-blur-md flex items-center justify-center shadow-sm mb-3">
+<span class="material-symbols-outlined text-outline text-3xl">lock</span>
+</div>
+<p class="font-label-md text-label-md text-on-surface-variant bg-surface-bright/80 px-4 py-1.5 rounded-full backdrop-blur-md shadow-sm">Form Locked</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (MOBILE) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 active:bg-surface-container active:scale-95 transition-transform rounded-lg py-1" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 active:bg-surface-container active:scale-95 transition-transform rounded-lg py-1" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-sm text-label-sm mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold w-16 active:bg-surface-container active:scale-95 transition-transform rounded-lg py-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label-sm text-label-sm mt-1">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 active:bg-surface-container active:scale-95 transition-transform rounded-lg py-1" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-sm text-label-sm mt-1">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant w-16 active:bg-surface-container active:scale-95 transition-transform rounded-lg py-1" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm mt-1">User</span>
+</a>
+</nav>
+</body></html>

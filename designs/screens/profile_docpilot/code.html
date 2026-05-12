@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile Settings - DocPilot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-container": "#31394e",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-background": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "background": "#f7f9fb",
+                        "secondary": "#855300",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed": "#ffddb8",
+                        "tertiary-fixed": "#dae2fd",
+                        "inverse-surface": "#2d3133",
+                        "secondary-container": "#fea619",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-tertiary-container": "#9ba3bb",
+                        "on-secondary-container": "#684000",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed-dim": "#adc8f5",
+                        "outline-variant": "#c4c6cf",
+                        "outline": "#74777f",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#adc8f5",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-primary-fixed": "#001c3b",
+                        "error": "#ba1a1a",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dadc",
+                        "surface-tint": "#455f87",
+                        "primary": "#022448",
+                        "on-tertiary-fixed": "#131b2e",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#8aa4cf",
+                        "surface-container-high": "#e6e8ea",
+                        "on-secondary": "#ffffff",
+                        "tertiary": "#1c2337",
+                        "primary-container": "#1e3a5f",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d5e3ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "stack-sm": "0.5rem",
+                        "sidebar-width": "240px",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #F8FAFC; } /* Light Slate Canvas */
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen flex overflow-hidden">
+<!-- SideNavBar -->
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-primary dark:bg-primary border-r border-outline-variant shadow-lg flex flex-col h-full py-stack-lg z-50 hidden md:flex">
+<!-- Header -->
+<div class="px-gutter mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container mt-1">Infrastructure Pro</p>
+</div>
+<!-- Navigation Tabs -->
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<!-- Active Tab: Settings (Because this is a Profile Page) -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<!-- CTA & Footer -->
+<div class="px-gutter mt-auto flex flex-col gap-4">
+<button class="bg-secondary-container text-on-secondary-container font-label-md text-label-md py-2 px-4 rounded-lg hover:bg-secondary-fixed transition-colors">Submit Log</button>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 mt-2" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col md:ml-sidebar-width h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 docked full-width top-0 z-40 border-b border-outline-variant shadow-sm flex justify-between items-center px-gutter h-16 hidden md:flex">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm font-black text-primary">Settings</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant cursor-pointer focus:ring-2 focus:ring-primary">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A close-up portrait of a professional male telecom engineer wearing a hard hat, set against a bright, modern industrial background. The lighting is clean and high-key, reflecting a corporate, authoritative, and efficient brand identity with a subtle cool color temperature." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLZggAiij7sFHtC9bebnSQPRgwmMgV8DTA57kBGT8_9snqRsf5lEPTiKiUR0-JtEgmx63Upb4BU6DQwTRF7bIVQylbcprIfS0vzo7uQOOixmEHKAMcY7u_7gBBLjPNAopIIPx8ykLMb2w7MziXKhonpc7DmPVoUditSG7OL3VQmcfqmJUY0xEz7THI6SDI31hKUpQQiFCdMSZBIAMaNFfqMu4cXchB7DOJ_7tXJXp3s5gKJGDWHPagw65-zKHpSbJhFfrLrFA_N-E"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<main class="flex-1 overflow-y-auto p-4 md:p-8">
+<div class="max-w-[640px] mx-auto flex flex-col gap-8 pb-20 md:pb-0">
+<!-- Header -->
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Profile</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your account details and security settings.</p>
+</div>
+<!-- Card 1: Avatar & Basic Info -->
+<section class="bg-surface rounded-xl border border-outline-variant shadow-[0px_2px_4px_rgba(15,23,42,0.05)] p-6">
+<div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+<div class="relative group">
+<div class="w-24 h-24 rounded-full overflow-hidden border-2 border-outline-variant">
+<img alt="Profile Picture" class="w-full h-full object-cover" data-alt="A close-up portrait of a professional male telecom engineer wearing a hard hat, set against a bright, modern industrial background. The lighting is clean and high-key, reflecting a corporate, authoritative, and efficient brand identity with a subtle cool color temperature." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkQeijoo6nLlVU5t5AV2osm41FYGs20OR1MOMfzGD68h8CO9R1cL8tXMBnH2JxT-AfyP-l0TGOLSahnkgn3nc0BmvGZ-l7mbFoPw9AydJkSRAJ1EmDY-d9Ky7ZLjeLY3ll7cOur8tPYXqpAoE0Xvu-7T9dmVFshKaKc4i_ZI4jQaip8SJtrF8rIn6i-xXhBeoF8bb6NAKg2ruz-jToPoniEUuVCQEsCvitnfS1TEuBCrPwDBRhde16QNgnwDnpRdLEsbLZ6QIlSE"/>
+</div>
+<div class="absolute inset-0 bg-primary/60 backdrop-blur-[2px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+<span class="font-label-sm text-label-sm text-white text-center">Change<br/>Photo</span>
+</div>
+</div>
+<div class="flex-1 text-center sm:text-left">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Alex Mercer</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-1">@amercer_tech</p>
+<span class="inline-block bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-2 py-1 rounded-md mb-3">Senior Field Tech</span>
+<p class="font-label-sm text-label-sm text-outline">Joined March 2021</p>
+<button class="mt-3 font-label-sm text-label-sm text-error hover:underline bg-transparent border-none p-0">Remove photo</button>
+</div>
+</div>
+</section>
+<!-- Card 2: Personal Info -->
+<section class="bg-surface rounded-xl border border-outline-variant shadow-[0px_2px_4px_rgba(15,23,42,0.05)] p-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 border-b border-surface-container-high pb-4">Personal Info</h3>
+<form class="flex flex-col gap-5">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Display Name</label>
+<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-0 focus:border-primary focus:border-2 transition-colors" type="text" value="Alex Mercer"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Username</label>
+<div class="relative">
+<input class="w-full bg-white border border-outline-variant rounded-lg pl-4 pr-10 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-0 focus:border-primary focus:border-2 transition-colors" type="text" value="amercer_tech"/>
+<span class="material-symbols-outlined absolute right-3 top-2.5 text-secondary-container" data-icon="check_circle">check_circle</span>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Email Address</label>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-outline cursor-not-allowed" readonly="" type="email" value="alex.mercer@docpilot.net"/>
+</div>
+<div class="flex justify-end mt-2">
+<button class="bg-primary-container text-on-primary font-label-md text-label-md py-2 px-6 rounded-lg hover:bg-primary transition-colors" type="button">Save Changes</button>
+</div>
+</form>
+</section>
+<!-- Card 3: Change Password -->
+<section class="bg-surface rounded-xl border border-outline-variant shadow-[0px_2px_4px_rgba(15,23,42,0.05)] p-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 border-b border-surface-container-high pb-4">Change Password</h3>
+<form class="flex flex-col gap-5">
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Current Password</label>
+<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-0 focus:border-primary focus:border-2 transition-colors" placeholder="••••••••" type="password"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">New Password</label>
+<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-0 focus:border-primary focus:border-2 transition-colors" type="password"/>
+<div class="mt-2 flex gap-1">
+<div class="h-1 flex-1 bg-secondary-container rounded-full"></div>
+<div class="h-1 flex-1 bg-secondary-container rounded-full"></div>
+<div class="h-1 flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="h-1 flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+<p class="font-label-sm text-label-sm text-outline mt-1">Medium strength</p>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2">Confirm New Password</label>
+<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2 font-body-md text-body-md text-on-surface focus:outline-none focus:ring-0 focus:border-primary focus:border-2 transition-colors" type="password"/>
+</div>
+<div class="flex justify-end mt-2">
+<button class="bg-primary-container text-on-primary font-label-md text-label-md py-2 px-6 rounded-lg hover:bg-primary transition-colors" type="button">Update Password</button>
+</div>
+</form>
+</section>
+<!-- Card 4: Last Session -->
+<section class="bg-surface rounded-xl border border-outline-variant shadow-[0px_2px_4px_rgba(15,23,42,0.05)] p-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 border-b border-surface-container-high pb-4">Security Activity</h3>
+<div class="flex items-start gap-4">
+<div class="bg-surface-container-high p-3 rounded-lg text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="devices">devices</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Last successful login</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">MacBook Pro - San Francisco, CA</p>
+<p class="font-label-sm text-label-sm text-outline mt-1">Today at 08:42 AM</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface-container-lowest dark:bg-inverse-surface fixed bottom-0 w-full z-50 md:hidden border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container tap:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container tap:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container tap:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="font-label-sm text-label-sm mt-1">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container tap:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm mt-1">Alerts</span>
+</a>
+<!-- Active Tab: User -->
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container tap:scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm mt-1">User</span>
+</a>
+</nav>
+</body></html>

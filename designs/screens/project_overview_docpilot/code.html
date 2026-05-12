@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gemeinde Weigenheim - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-container": "#31394e",
+                      "on-secondary-fixed-variant": "#653e00",
+                      "on-background": "#191c1e",
+                      "surface-variant": "#e0e3e5",
+                      "background": "#f7f9fb",
+                      "secondary": "#855300",
+                      "surface-bright": "#f7f9fb",
+                      "secondary-fixed": "#ffddb8",
+                      "tertiary-fixed": "#dae2fd",
+                      "inverse-surface": "#2d3133",
+                      "secondary-container": "#fea619",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "on-tertiary-container": "#9ba3bb",
+                      "on-secondary-container": "#684000",
+                      "surface-container-highest": "#e0e3e5",
+                      "primary-fixed-dim": "#adc8f5",
+                      "outline-variant": "#c4c6cf",
+                      "outline": "#74777f",
+                      "on-primary": "#ffffff",
+                      "on-error-container": "#93000a",
+                      "inverse-primary": "#adc8f5",
+                      "surface-container-low": "#f2f4f6",
+                      "surface": "#f7f9fb",
+                      "secondary-fixed-dim": "#ffb95f",
+                      "on-secondary-fixed": "#2a1700",
+                      "on-primary-fixed": "#001c3b",
+                      "error": "#ba1a1a",
+                      "on-surface": "#191c1e",
+                      "inverse-on-surface": "#eff1f3",
+                      "error-container": "#ffdad6",
+                      "surface-dim": "#d8dadc",
+                      "surface-tint": "#455f87",
+                      "primary": "#022448",
+                      "on-tertiary-fixed": "#131b2e",
+                      "surface-container": "#eceef0",
+                      "on-surface-variant": "#43474e",
+                      "on-primary-fixed-variant": "#2d486d",
+                      "on-error": "#ffffff",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-container": "#8aa4cf",
+                      "surface-container-high": "#e6e8ea",
+                      "on-secondary": "#ffffff",
+                      "tertiary": "#1c2337",
+                      "primary-container": "#1e3a5f",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed": "#d5e3ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-md": "1rem",
+                      "gutter": "1.5rem",
+                      "container-padding": "2rem",
+                      "stack-sm": "0.5rem",
+                      "sidebar-width": "240px",
+                      "stack-lg": "1.5rem"
+              },
+              "fontFamily": {
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ],
+                      "label-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-md": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased h-screen overflow-hidden flex">
+<!-- SideNavBar (Desktop) -->
+<aside class="w-sidebar-width h-screen fixed left-0 top-0 bg-primary dark:bg-primary border-r border-outline-variant shadow-lg flex flex-col h-full py-stack-lg hidden md:flex z-50">
+<div class="px-4 mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary/70">Infrastructure Pro</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-4">
+<button class="w-full py-2 bg-secondary-container text-on-secondary-container font-label-md text-label-md rounded shadow-sm hover:opacity-90 transition-opacity">Submit Log</button>
+<a class="flex items-center gap-3 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 px-4 -mx-4" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<div class="flex-1 flex flex-col md:ml-sidebar-width h-full w-full">
+<!-- TopAppBar -->
+<header class="bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 border-b border-outline-variant shadow-sm docked full-width top-0 z-40 flex justify-between items-center px-gutter h-16 w-full">
+<div class="flex items-center gap-4">
+<span class="font-headline-sm text-headline-sm font-black text-primary md:hidden">DocPilot</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full focus:ring-2 ring-primary">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full focus:ring-2 ring-primary">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="A close-up, high-quality headshot of a professional male field technician. The lighting is bright and even, casting soft shadows that highlight a confident expression. The background is a slightly blurred, light slate color, complementing the corporate navy blue of his uniform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBkVuTL6pfenAyxZQb0TSjI5c3I764X2xbnQF5Ky-iMZmUGxxvlbaDUwxmde8iY3w6vnWlPNOm7GQj0n26nTCV_WEF3jRMVzjiT4U4pgMQLpEvGEJpGA2HaXWCu9sfwiIRC3DWMVqlMsjP27YMXlOJtN0wpVvgI7XS87Y-iO2WShtb0E_IrYtvHTPFd26ZBMogWFKYUR11K5nIolDPX3DT1YZ2Qbv6hB-LcdoeEy6A4tyrW-jQ4BZyFei6XgPhyqWg1KTZM3o3pmlc"/>
+</div>
+</header>
+<!-- Scrollable Content Area -->
+<main class="flex-1 overflow-y-auto p-4 md:p-8 bg-background pb-24 md:pb-8">
+<!-- Page Header -->
+<div class="mb-8">
+<div class="flex items-center text-on-surface-variant font-label-sm text-label-sm mb-2">
+<a class="hover:text-primary" href="#">Projects</a>
+<span class="material-symbols-outlined text-[16px] mx-1">chevron_right</span>
+<span class="text-primary font-bold">Gemeinde Weigenheim</span>
+</div>
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Gemeinde Weigenheim</h1>
+<span class="bg-[#dcfce7] text-[#166534] px-2 py-1 rounded-full font-label-sm text-label-sm border border-[#bbf7d0]">Active</span>
+</div>
+<button class="bg-secondary-container text-on-secondary-container px-4 py-2 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:opacity-90 shadow-sm transition-opacity whitespace-nowrap w-fit">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+                        Download ZIP
+                    </button>
+</div>
+</div>
+<!-- Dashboard Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column: Modules Grid -->
+<div class="lg:col-span-2 space-y-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+<!-- Module Card: Aufmass -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="straighten">straighten</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Aufmass</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Measure and record field dimensions accurately.</p>
+</div>
+<!-- Module Card: Files -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="folder">folder</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Files</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Manage all project documents and blueprints.</p>
+</div>
+<!-- Module Card: Einblasen -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="compress">compress</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Einblasen</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Fiber blowing tracking and status logging.</p>
+</div>
+<!-- Module Card: Druckprüfung -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="speed">speed</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Druckprüfung</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Pressure testing protocols and results.</p>
+</div>
+<!-- Module Card: Kalibrieren -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Kalibrieren</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Calibration records for field equipment.</p>
+</div>
+<!-- Module Card: APL -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="home_work">home_work</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">APL</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Termination point installation details.</p>
+</div>
+<!-- Module Card: Knotenpunkt Vorbereitung -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Knotenpunkt Vorbereitung</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Node preparation and splicing plans.</p>
+</div>
+<!-- Module Card: OTDR -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] hover:shadow-md transition-shadow cursor-pointer group">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center mb-3 text-on-primary-fixed group-hover:bg-primary group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">OTDR</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Optical measurement reports.</p>
+</div>
+<!-- Module Card: Planner (Locked) -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-[0px_2px_4px_rgba(15,23,42,0.05)] relative overflow-hidden">
+<div class="absolute inset-0 bg-surface-variant/60 backdrop-blur-[2px] flex items-center justify-center z-10">
+<div class="bg-surface rounded-full p-2 shadow-sm border border-outline-variant text-outline">
+<span class="material-symbols-outlined" data-icon="lock">lock</span>
+</div>
+</div>
+<div class="opacity-40">
+<div class="w-10 h-10 rounded-lg bg-surface-variant flex items-center justify-center mb-3 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Planner</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Advanced scheduling tools.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Info & Team -->
+<div class="space-y-6">
+<!-- Project Info Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-6 shadow-[0px_2px_4px_rgba(15,23,42,0.05)]">
+<div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Project Info</h2>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="edit">edit</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-6">
+                            Fiber optic deployment across the municipality of Weigenheim. Focus on FTTH connections for residential zones A and B.
+                        </p>
+<div class="space-y-4">
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Contract No.</label>
+<div class="font-body-md text-body-md text-on-surface bg-surface-container-lowest border border-outline-variant rounded px-3 py-2">
+                                    GW-2023-F042
+                                </div>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-on-surface-variant block mb-1">Start Date</label>
+<div class="font-body-md text-body-md text-on-surface bg-surface-container-lowest border border-outline-variant rounded px-3 py-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-outline" data-icon="calendar_today">calendar_today</span>
+                                    12. Oct 2023
+                                </div>
+</div>
+</div>
+</div>
+<!-- Team Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-6 shadow-[0px_2px_4px_rgba(15,23,42,0.05)]">
+<div class="mb-4 border-b border-outline-variant pb-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Team</h2>
+</div>
+<div class="space-y-4">
+<!-- Team Member 1 -->
+<div class="flex items-center gap-3">
+<img alt="Team Member" class="w-10 h-10 rounded-full border border-outline-variant" data-alt="A portrait of a male construction manager with a short beard. The lighting is natural, suggesting an outdoor setting. The background is slightly out of focus, colored in light slate and muted greens. The man wears a high-visibility orange vest over a navy shirt." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYY0JMB-6vnmZeOOAXiJMHMFpcnrq1kXmjWOjFEKuootWuG1aQs-ZgBqL7ziBpfc6BCZegH_TlBZr69AyT8Vjz74qoKrGX7zFKfVl5f94Oz1wJNEyRetGae61EounAIUTK2YHUL11Aaeyj0UsxOGY8IbG7nA2BAnsb_K7pX81rzeNpZLu9EybYjVsRR0PrHrC9Rm-I-0_5znbUJ9dmFOQ5Ba5xnO8lUur5BTbNDbKcgNgd9WlVP4dAfi6pGJyUBtGZANTm5uz7qEg"/>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md text-on-surface">Lars Müller</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Project Manager</p>
+</div>
+<span class="bg-[#dbeafe] text-[#1e40af] px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-[#bfdbfe]">Lead</span>
+</div>
+<!-- Team Member 2 -->
+<div class="flex items-center gap-3">
+<img alt="Team Member" class="w-10 h-10 rounded-full border border-outline-variant" data-alt="A headshot of a female field engineer. She has dark hair pulled back and is smiling slightly. The lighting is clear and bright, typical of a modern corporate portrait. The background is a crisp white surface. She wears a sturdy navy blue jacket." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq4s52u2-beLCg1_BjQ4GBsKnSG_lQaKlvGCFIum8l4xEUuPYk7or_ZUbqc59OmfqvSW3Nq_qT-pVFieBn3SWElgUYYdc-dY_uZ-wRr_wVRrToh35Y6FghHCrLg09KjsVc_SyBGfdKiroNPmzczmsCwyoeFVJLSlDqqk4Nr1kEZiwxtFynZ5JxtZmI8LZ-UcvbedfttxMdnVOMqGbex0FnUGQvNp2nLHzl2gED5TYCAM_UtxVTURF6rhHz10tLcF_ZlzEJd3HMKIg"/>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md text-on-surface">Sarah Klein</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Field Engineer</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-outline-variant">Crew</span>
+</div>
+<!-- Team Member 3 -->
+<div class="flex items-center gap-3">
+<img alt="Team Member" class="w-10 h-10 rounded-full border border-outline-variant" data-alt="A portrait of a young male technician. He looks focused and serious. The lighting highlights the contours of his face against a dark, industrial background. He is wearing a dark navy corporate polo shirt." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlLOQW_3CIug1oCoQ-4wWUAqLeRkPChHx5D8b0J7NgLYNKIfvXeuUZwLvbyYXz44eR58hn_dF9Xj-WYWY7s5JDnf7G1q7W2Bujjb0d4XqJ-QwTa7mKsEojaXgMSLR-ZbhOuNDIKIMOX-b6PA-GI5f33WoTQ9noOcMUjL02C9CnYYWqW0SaTgkBnFt2WliVY7qOO2y7ao23TooZFQJhzTQoDYAGPpIn64tY7f8-NBZwaNUvMy_ntUkSNpH1VElCmLIVSltzvadZF_8"/>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md text-on-surface">Tom Wagner</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Splicing Tech</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-outline-variant">Crew</span>
+</div>
+<!-- Team Member 4 -->
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center font-bold font-label-md border border-outline-variant">
+                                    MJ
+                                </div>
+<div class="flex-1">
+<h4 class="font-label-md text-label-md text-on-surface">Max Jung</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Surveyor</p>
+</div>
+<span class="bg-surface-container text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border border-outline-variant">Crew</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] fixed bottom-0 w-full z-50 md:hidden flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="history_edu">history_edu</span>
+<span class="font-label-sm text-label-sm">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">User</span>
+</a>
+</nav>
+</body></html>

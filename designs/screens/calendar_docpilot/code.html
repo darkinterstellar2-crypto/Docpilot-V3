@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - Calendar</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f7f9fb",
+                        "secondary": "#855300",
+                        "tertiary-container": "#31394e",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-background": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary-fixed": "#dae2fd",
+                        "secondary-container": "#fea619",
+                        "inverse-surface": "#2d3133",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline": "#74777f",
+                        "inverse-primary": "#adc8f5",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed-dim": "#adc8f5",
+                        "outline-variant": "#c4c6cf",
+                        "on-tertiary-container": "#9ba3bb",
+                        "on-secondary-container": "#684000",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-primary-fixed": "#001c3b",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "surface-tint": "#455f87",
+                        "primary": "#022448",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dadc",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#8aa4cf",
+                        "primary-fixed": "#d5e3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#1e3a5f",
+                        "tertiary": "#1c2337"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "sidebar-width": "240px",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-overlay {
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<aside class="hidden md:flex flex-col w-sidebar-width h-screen fixed left-0 top-0 bg-primary dark:bg-primary border-r border-outline-variant shadow-lg z-50">
+<div class="flex flex-col h-full py-stack-lg">
+<div class="px-gutter mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container mt-1">Infrastructure Pro</p>
+</div>
+<nav class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+</li>
+<li>
+<!-- Simulated 'Calendar' mapped to Field Logs or just added based on prompt intent if it were a real tab, but we must use provided JSON exact tabs if we map. The prompt says "'Calendar' active in sidebar". Since "Calendar" is not in the JSON array explicitly, we will append it as requested "If a component is missing from the predicted list, you can generate what you need" or we can assume it's a new tab based on prompt. -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="font-label-md text-label-md">Calendar</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+</ul>
+</nav>
+<div class="px-gutter mt-auto pt-4">
+<button class="w-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all duration-200">
+<span class="material-symbols-outlined">add</span>
+                    Submit Log
+                </button>
+</div>
+<div class="mt-4 border-t border-primary-container">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 mt-2" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col md:ml-sidebar-width h-screen bg-background">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-gutter h-16 bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 border-b border-outline-variant shadow-sm z-40 sticky top-0">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-all focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="font-headline-sm text-headline-sm font-black text-primary md:hidden">DocPilot</h2>
+</div>
+<div class="flex-1 flex justify-end items-center gap-4">
+<!-- Top Nav Actions -->
+<button class="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-all focus:ring-2 focus:ring-primary relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high p-2 rounded-full transition-all focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden border border-outline-variant shadow-sm cursor-pointer hover:ring-2 hover:ring-primary transition-all">
+<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBg0xyzaKSIDBqE1gBGlfKzhXV8N5OFT8GP10mcSCFrTzbXaI6wCpbq8iPW2aIpFs6AlQniu6PoKGWz9hB8oNM0Y48oun2OPSiIv_g51wyT9BNDYSooyQyQvaVpW2KW-DUlTE36jVL6DuD2eHhPKp-0G3tj5-aSLw-IrqA0zCMApBXzSVoohy349RnuBcCYnheXuPFstKlAC_76o05LairPXSaYroXVwRE0R9ySdJQXztHuDsKw3ODWv8tleXRF71Oae8ZdizDs-IE"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto p-4 md:p-[32px] flex flex-col gap-6">
+<!-- Calendar Controls Header -->
+<div class="bg-surface rounded-xl shadow-sm border border-outline-variant p-4 flex flex-col gap-4">
+<!-- Top Row: View Toggles & Filters -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<!-- Month/Week/Day Toggle -->
+<div class="flex bg-surface-container-low rounded-lg p-1 border border-outline-variant">
+<button class="px-4 py-1.5 rounded-md font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-high transition-colors">Month</button>
+<button class="px-4 py-1.5 rounded-md font-label-sm text-label-sm bg-primary text-on-primary shadow-sm transition-colors">Week</button>
+<button class="px-4 py-1.5 rounded-md font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container-high transition-colors">Day</button>
+</div>
+<!-- Filters -->
+<div class="flex flex-wrap items-center gap-2">
+<select class="form-select rounded-lg border-outline-variant text-body-sm font-body-sm bg-surface focus:ring-2 focus:ring-primary focus:border-primary py-1.5 pl-3 pr-8">
+<option>All Projects</option>
+<option>Project Alpha</option>
+<option>Project Beta</option>
+</select>
+<div class="h-6 w-px bg-outline-variant mx-1"></div>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded-full border border-primary bg-primary text-on-primary font-label-sm text-label-sm transition-colors">All</button>
+<button class="px-3 py-1 rounded-full border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm transition-colors">APL</button>
+<button class="px-3 py-1 rounded-full border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm transition-colors">Einblasen</button>
+<button class="px-3 py-1 rounded-full border border-outline-variant bg-surface text-on-surface-variant hover:bg-surface-container font-label-sm text-label-sm transition-colors">Druckprüfung</button>
+</div>
+</div>
+</div>
+<!-- Week Bar Navigation -->
+<div class="flex items-center justify-between border-t border-outline-variant pt-4">
+<div class="flex items-center gap-4">
+<button class="p-1.5 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors border border-outline-variant">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Mon 11 – Sun 17 May</h3>
+<button class="p-1.5 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors border border-outline-variant">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<button class="px-4 py-1.5 border border-outline-variant rounded-lg font-label-sm text-label-sm text-on-surface-variant hover:bg-surface-container transition-colors">Today</button>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div class="flex-1 bg-surface rounded-xl shadow-sm border border-outline-variant overflow-hidden flex flex-col min-h-[600px]">
+<!-- Days Header -->
+<div class="grid grid-cols-[60px_repeat(7,1fr)] border-b border-outline-variant bg-surface-container-low">
+<div class="border-r border-outline-variant p-2 flex items-end justify-center">
+<span class="font-label-sm text-label-sm text-on-surface-variant">UTC+1</span>
+</div>
+<div class="p-2 text-center border-r border-outline-variant">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Mon</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-1">11</div>
+</div>
+<div class="p-2 text-center border-r border-outline-variant relative">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Tue</div>
+<div class="font-headline-sm text-headline-sm bg-primary-container text-on-primary-container w-8 h-8 rounded-full flex items-center justify-center mx-auto mt-1 shadow-sm">12</div>
+<!-- Today highlight line indicator -->
+<div class="absolute bottom-0 left-0 right-0 h-1 bg-primary-container"></div>
+</div>
+<div class="p-2 text-center border-r border-outline-variant">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Wed</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-1">13</div>
+</div>
+<div class="p-2 text-center border-r border-outline-variant">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Thu</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-1">14</div>
+</div>
+<div class="p-2 text-center border-r border-outline-variant">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Fri</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-1">15</div>
+</div>
+<div class="p-2 text-center border-r border-outline-variant bg-surface-container-highest/30">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Sat</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-1 opacity-70">16</div>
+</div>
+<div class="p-2 text-center bg-surface-container-highest/30">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase">Sun</div>
+<div class="font-headline-sm text-headline-sm text-on-surface mt-1 opacity-70">17</div>
+</div>
+</div>
+<!-- Timeline Body -->
+<div class="flex-1 overflow-y-auto relative bg-surface">
+<!-- Grid Background Lines -->
+<div class="absolute inset-0 grid grid-cols-[60px_repeat(7,1fr)] pointer-events-none">
+<div class="border-r border-outline-variant"></div>
+<div class="border-r border-outline-variant"></div>
+<div class="border-r border-outline-variant bg-primary-fixed/5"></div> <!-- Today column subtle bg -->
+<div class="border-r border-outline-variant"></div>
+<div class="border-r border-outline-variant"></div>
+<div class="border-r border-outline-variant"></div>
+<div class="border-r border-outline-variant bg-surface-container-highest/20"></div>
+<div class="bg-surface-container-highest/20"></div>
+</div>
+<!-- Horizontal Hour Lines & Labels -->
+<div class="relative min-h-[800px]">
+<!-- 07:00 -->
+<div class="absolute top-[0px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">07:00</div>
+</div>
+<!-- 08:00 -->
+<div class="absolute top-[64px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">08:00</div>
+</div>
+<!-- 09:00 -->
+<div class="absolute top-[128px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">09:00</div>
+</div>
+<!-- 10:00 -->
+<div class="absolute top-[192px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">10:00</div>
+</div>
+<!-- 11:00 -->
+<div class="absolute top-[256px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">11:00</div>
+</div>
+<!-- 12:00 -->
+<div class="absolute top-[320px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">12:00</div>
+</div>
+<!-- 13:00 -->
+<div class="absolute top-[384px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">13:00</div>
+</div>
+<!-- 14:00 -->
+<div class="absolute top-[448px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">14:00</div>
+</div>
+<!-- 15:00 -->
+<div class="absolute top-[512px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">15:00</div>
+</div>
+<!-- 16:00 -->
+<div class="absolute top-[576px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">16:00</div>
+</div>
+<!-- 17:00 -->
+<div class="absolute top-[640px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">17:00</div>
+</div>
+<!-- 18:00 -->
+<div class="absolute top-[704px] left-0 right-0 h-16 border-b border-outline-variant/50 flex">
+<div class="w-[60px] pr-2 text-right text-xs font-body-sm text-on-surface-variant pt-1 relative -top-3">18:00</div>
+</div>
+<!-- Current Time Indicator Line (e.g. 11:30) -->
+<div class="absolute top-[288px] left-[60px] right-0 h-px bg-error z-20 pointer-events-none">
+<div class="w-2 h-2 rounded-full bg-error absolute -left-1 -top-1"></div>
+</div>
+<!-- EVENT BLOCKS -->
+<!-- Grid setup for absolute positioning: left offset = 60px + (day_index * width_of_col) -->
+<!-- Assuming 7 cols, each is approx 14.28% of (100% - 60px) -->
+<style>
+                            .col-1 { left: calc(60px + (100% - 60px) * 0 / 7); width: calc((100% - 60px) / 7); }
+                            .col-2 { left: calc(60px + (100% - 60px) * 1 / 7); width: calc((100% - 60px) / 7); }
+                            .col-3 { left: calc(60px + (100% - 60px) * 2 / 7); width: calc((100% - 60px) / 7); }
+                            .col-4 { left: calc(60px + (100% - 60px) * 3 / 7); width: calc((100% - 60px) / 7); }
+                            .col-5 { left: calc(60px + (100% - 60px) * 4 / 7); width: calc((100% - 60px) / 7); }
+                            .col-6 { left: calc(60px + (100% - 60px) * 5 / 7); width: calc((100% - 60px) / 7); }
+                            .col-7 { left: calc(60px + (100% - 60px) * 6 / 7); width: calc((100% - 60px) / 7); }
+                        </style>
+<!-- Mon 09:00 blue block "APL · Im Ried 5" (2 hours long -> 128px height) -->
+<div class="absolute top-[128px] col-1 h-[128px] p-1 z-10 group">
+<div class="w-full h-full bg-primary-fixed rounded-lg border border-primary-fixed-dim p-2 flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="font-label-sm text-label-sm text-on-primary-fixed flex items-center gap-1 mb-1 line-clamp-1">
+<span class="material-symbols-outlined text-[14px]">cable</span>
+                                    APL
+                                </div>
+<div class="font-body-sm text-body-sm text-on-primary-fixed-variant line-clamp-2 leading-tight">Im Ried 5</div>
+</div>
+</div>
+<!-- Tue 09:00 amber block "Einblasen · Im Ried 3" with red conflict badge (2 hours long) -->
+<!-- Using 50% width to show conflict stacking visually -->
+<div class="absolute top-[128px] col-2 h-[128px] p-1 z-10 w-[50%]">
+<div class="w-full h-full bg-secondary-fixed rounded-lg border border-secondary-fixed-dim p-2 flex flex-col shadow-sm relative cursor-pointer ring-1 ring-error-container">
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-error text-on-error rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[10px]">warning</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-secondary-fixed flex items-center gap-1 mb-1 line-clamp-1">
+<span class="material-symbols-outlined text-[14px]">air</span>
+                                    Einblasen
+                                </div>
+<div class="font-body-sm text-[11px] md:text-body-sm text-on-secondary-fixed-variant line-clamp-2 leading-tight">Im Ried 3</div>
+</div>
+</div>
+<!-- Tue 09:30 amber block "Einblasen · Am Faltertor 2" with conflict (2 hours long -> top-[160px]) -->
+<div class="absolute top-[160px] left-[calc(60px+((100%-60px)*1/7)+((100%-60px)/14))] w-[calc((100%-60px)/14)] h-[128px] p-1 z-20">
+<div class="w-full h-full bg-secondary-fixed rounded-lg border border-secondary-fixed-dim p-2 flex flex-col shadow-sm relative cursor-pointer ring-1 ring-error-container bg-opacity-95 backdrop-blur-sm">
+<div class="absolute -top-1 -right-1 w-4 h-4 bg-error text-on-error rounded-full flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[10px]">warning</span>
+</div>
+<div class="font-label-sm text-label-sm text-on-secondary-fixed flex items-center gap-1 mb-1 line-clamp-1">
+<span class="material-symbols-outlined text-[14px]">air</span>
+<span class="hidden md:inline">Einblasen</span>
+</div>
+<div class="font-body-sm text-[11px] md:text-body-sm text-on-secondary-fixed-variant line-clamp-2 leading-tight">Am Faltertor 2</div>
+</div>
+</div>
+<!-- Thu 14:00 blue block "APL · Am Faltertor 9" (1.5 hours -> 96px height) -->
+<div class="absolute top-[448px] col-4 h-[96px] p-1 z-10 group">
+<div class="w-full h-full bg-primary-fixed rounded-lg border border-primary-fixed-dim p-2 flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="font-label-sm text-label-sm text-on-primary-fixed flex items-center gap-1 mb-1 line-clamp-1">
+<span class="material-symbols-outlined text-[14px]">cable</span>
+                                    APL
+                                </div>
+<div class="font-body-sm text-body-sm text-on-primary-fixed-variant line-clamp-1 leading-tight">Am Faltertor 9</div>
+</div>
+</div>
+<!-- Fri 10:00 grey block "Druckprüfung · NVT03" (1 hour -> 64px height) -->
+<div class="absolute top-[192px] col-5 h-[64px] p-1 z-10 group">
+<div class="w-full h-full bg-surface-variant rounded-lg border border-outline-variant p-2 flex flex-col shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+<div class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1 mb-0.5 line-clamp-1">
+<span class="material-symbols-outlined text-[14px]">compress</span>
+                                    Druckprüfung
+                                </div>
+<div class="font-body-sm text-body-sm text-on-surface line-clamp-1 leading-tight">NVT03</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform w-full h-full relative" href="#">
+<!-- Representing active calendar roughly here for mobile nav context if needed, though labels say Logs -->
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+<span class="font-label-sm text-label-sm">Calendar</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-sm text-label-sm">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">User</span>
+</a>
+</nav>
+</body></html>

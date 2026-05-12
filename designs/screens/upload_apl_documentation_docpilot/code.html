@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - Upload APL Documentation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed-dim": "#ffb95f",
+                    "inverse-surface": "#2d3133",
+                    "surface-dim": "#d8dadc",
+                    "on-primary-container": "#8aa4cf",
+                    "primary-fixed-dim": "#adc8f5",
+                    "primary-fixed": "#d5e3ff",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "on-surface": "#191c1e",
+                    "secondary-fixed": "#ffddb8",
+                    "on-primary-fixed-variant": "#2d486d",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "inverse-on-surface": "#eff1f3",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#455f87",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "primary-container": "#1e3a5f",
+                    "secondary-container": "#fea619",
+                    "on-tertiary-fixed": "#131b2e",
+                    "outline": "#74777f",
+                    "outline-variant": "#c4c6cf",
+                    "on-primary-fixed": "#001c3b",
+                    "on-tertiary-container": "#9ba3bb",
+                    "surface-container": "#eceef0",
+                    "on-surface-variant": "#43474e",
+                    "surface-container-high": "#e6e8ea",
+                    "tertiary-container": "#31394e",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f2f4f6",
+                    "surface": "#f7f9fb",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#adc8f5",
+                    "surface-bright": "#f7f9fb",
+                    "primary": "#022448",
+                    "background": "#f7f9fb",
+                    "on-secondary-container": "#684000",
+                    "on-error-container": "#93000a",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed": "#dae2fd",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#1c2337",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-secondary-fixed": "#2a1700",
+                    "on-background": "#191c1e",
+                    "on-error": "#ffffff",
+                    "surface-variant": "#e0e3e5",
+                    "secondary": "#855300"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "0.5rem",
+                    "sidebar-width": "240px",
+                    "gutter": "1.5rem",
+                    "container-padding": "2rem",
+                    "stack-lg": "1.5rem",
+                    "stack-md": "1rem"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex w-sidebar-width h-screen fixed left-0 top-0 bg-primary dark:bg-primary border-r border-outline-variant shadow-lg flex-col py-stack-lg z-50">
+<div class="px-4 mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-body-sm text-body-sm text-on-primary-container">Infrastructure Pro</p>
+</div>
+<div class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container hover:bg-primary-container/50 transition-colors duration-200 opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="px-4 mt-auto">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-3 rounded-DEFAULT hover:opacity-90 transition-opacity mb-4">
+                Submit Log
+            </button>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-sidebar-width h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 docked full-width top-0 z-40 border-b border-outline-variant shadow-sm flex justify-between items-center px-gutter h-16">
+<div class="flex items-center md:hidden">
+<span class="font-headline-sm text-headline-sm font-black text-primary">DocPilot</span>
+</div>
+<div class="hidden md:flex items-center text-primary font-bold">
+<span class="font-headline-sm text-headline-sm">Upload APL Documentation</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a telecom worker wearing safety gear. The lighting is bright and industrial, reflecting a modern light-mode aesthetic. The background is a clean, subtle slate color ensuring high contrast and clarity. The mood is confident and authoritative." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBock0nWPT3pN-9PkGR8aYCXlzoV6zW9gkw-WuGZr9UkBCkm85mHbWUEExPYdFw_8AcNMQCcM_xGVEDkjZPU3jDwdmPwzKm3GZjv60jdkes63tpMafyzJAehefUuHTb4yKj8_DF9t4ORm6yUy7qvaCY38mdbPQ-saTVtTFlBCAD41AEuRhDF_E_4YChXAieWTYWYmy4KyBZZ3tcE4phLH_NNBgyDAxASCUA0kkXKxPpHBBqbEFn_rUoufwSi92rS4suva2SgVpa22w"/>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto p-4 md:p-container-padding pb-24 md:pb-container-padding bg-background">
+<!-- Bento Layout Container -->
+<div class="max-w-4xl mx-auto space-y-6">
+<!-- Info Header Card -->
+<div class="bg-surface rounded-xl p-6 shadow-[0_2px_4px_rgba(15,23,42,0.05)] border border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Date & Time -->
+<div class="space-y-4">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2">Record Details</h2>
+<div class="flex gap-4">
+<div class="flex-1">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Date</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">calendar_today</span>
+<input class="w-full pl-10 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md focus:border-primary focus:ring-0 outline-none transition-colors" readonly="" type="text" value="Oct 24, 2023"/>
+</div>
+</div>
+<div class="flex-1">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1">Time</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">schedule</span>
+<input class="w-full pl-10 pr-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface font-body-md focus:border-primary focus:ring-0 outline-none transition-colors" readonly="" type="text" value="14:30"/>
+</div>
+</div>
+</div>
+</div>
+<!-- Splice Count Widget -->
+<div class="space-y-4 md:border-l md:border-outline-variant md:pl-6">
+<h2 class="font-headline-sm text-headline-sm text-primary mb-2">Splicing Info</h2>
+<div class="bg-surface-container-low p-4 rounded-lg flex items-center justify-between border border-outline-variant">
+<div>
+<span class="block font-label-sm text-label-sm text-on-surface-variant">Detected Count</span>
+<span class="font-headline-md text-headline-md text-on-surface">2 splices</span>
+</div>
+<div class="flex flex-col gap-2">
+<button class="flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-DEFAULT font-label-sm text-label-sm border border-green-200 hover:bg-green-200 transition-colors">
+<span class="material-symbols-outlined text-[16px]">check</span> Confirm
+                                    </button>
+<button class="flex items-center gap-1 px-3 py-1 bg-transparent text-on-surface-variant rounded-DEFAULT font-label-sm text-label-sm border border-outline hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-[16px]">edit</span> Update
+                                    </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Image Upload Bento Grid -->
+<div>
+<h2 class="font-headline-sm text-headline-sm text-primary mb-4">Required Documentation</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Zone 1: Metrierung (Filled) -->
+<div class="relative group h-48 rounded-xl border border-outline-variant bg-surface-container-lowest overflow-hidden shadow-[0_2px_4px_rgba(15,23,42,0.05)]">
+<img alt="Cable Measurement" class="w-full h-full object-cover" data-alt="A high-resolution, close-up photograph of thick black fiber optic cables with white measurement markings clearly visible. The lighting is bright, natural industrial light reflecting off the cable casing. The background is blurred concrete, ensuring the focus remains on the specific metric markings. The aesthetic is documentary and highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCU_b33bNC1ZccW9x2VWnEIEZ-l_WrQGO3Ik4009rkZaMk8UcWPHtW37yt1EtSr9cjJ7abFgAFZ1A0rdYFNNSZi080zwBeNev0zRaTQhHuGHIYjI4UB-rHiZk_FgsRuq02SreYuY4r89OvV-60DFAwxR_L3UkrEmDFxIUX0lztew2PUxVx_pVGBLhm5ts7CMErSLVTtXX-jmL_R3szQUKZ5gYSqcE2iyYL8hzeBKSa8dIL2TqW_xpaImP-9A7QFCf54Iy0sJKkkENU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent flex flex-col justify-end p-4">
+<div class="flex justify-between items-center">
+<div>
+<span class="font-label-sm text-label-sm text-on-primary opacity-80 uppercase tracking-wider">Zone 1</span>
+<h3 class="font-headline-sm text-headline-sm text-on-primary">Metrierung</h3>
+</div>
+<div class="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white border-2 border-white shadow-sm">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+<!-- Glassmorphism actions on hover -->
+<div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="w-8 h-8 rounded-full bg-surface-bright/80 backdrop-blur-md flex items-center justify-center text-on-surface shadow-sm border border-outline-variant hover:bg-white">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-bright/80 backdrop-blur-md flex items-center justify-center text-error shadow-sm border border-outline-variant hover:bg-error-container">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+<!-- Zone 2: APL Box (Empty) -->
+<button class="h-48 rounded-xl border-2 border-dashed border-outline-variant bg-surface flex flex-col items-center justify-center gap-3 hover:bg-surface-container-low hover:border-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-3xl">inbox</span>
+</div>
+<div class="text-center">
+<span class="block font-label-md text-label-md text-primary">APL Box</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tap to upload outer casing</span>
+</div>
+</button>
+<!-- Zone 3: Splices (Hover State) -->
+<button class="h-48 rounded-xl border-2 border-primary bg-primary-fixed/20 flex flex-col items-center justify-center gap-3 transition-all focus:outline-none">
+<div class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-3xl">cable</span>
+</div>
+<div class="text-center">
+<span class="block font-label-md text-label-md text-primary">Splices</span>
+<span class="font-body-sm text-body-sm text-primary/80">Drop image here or click</span>
+</div>
+</button>
+<!-- Zone 4: Inside APL (Empty) -->
+<button class="h-48 rounded-xl border-2 border-dashed border-outline-variant bg-surface flex flex-col items-center justify-center gap-3 hover:bg-surface-container-low hover:border-primary transition-all focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-3xl">settings_input_component</span>
+</div>
+<div class="text-center">
+<span class="block font-label-md text-label-md text-primary">Inside APL</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tap to upload internal wiring</span>
+</div>
+</button>
+</div>
+</div>
+<!-- Footer Action -->
+<div class="pt-6 mt-6 border-t border-outline-variant flex justify-end">
+<button class="px-6 py-3 bg-on-surface-variant/10 text-on-surface-variant/50 font-label-md text-label-md rounded-lg cursor-not-allowed border border-outline-variant/30 flex items-center gap-2" disabled="">
+<span class="material-symbols-outlined">cloud_upload</span>
+                        Upload All (1/4)
+                    </button>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label-sm text-label-sm">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-sm text-label-sm">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-full h-full" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">User</span>
+</a>
+</nav>
+</body></html>

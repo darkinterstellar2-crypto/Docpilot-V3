@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "surface-bright": "#f7f9fb",
+                "on-secondary": "#ffffff",
+                "on-primary": "#ffffff",
+                "tertiary-container": "#31394e",
+                "on-tertiary-fixed": "#131b2e",
+                "tertiary-fixed": "#dae2fd",
+                "surface-tint": "#455f87",
+                "secondary-container": "#fea619",
+                "outline": "#74777f",
+                "primary": "#022448",
+                "on-surface": "#191c1e",
+                "on-error-container": "#93000a",
+                "on-secondary-fixed-variant": "#653e00",
+                "on-primary-container": "#8aa4cf",
+                "on-primary-fixed-variant": "#2d486d",
+                "surface": "#f7f9fb",
+                "on-tertiary-fixed-variant": "#3f465c",
+                "inverse-on-surface": "#eff1f3",
+                "surface-container-highest": "#e0e3e5",
+                "on-background": "#191c1e",
+                "on-tertiary": "#ffffff",
+                "primary-fixed-dim": "#adc8f5",
+                "on-tertiary-container": "#9ba3bb",
+                "surface-container": "#eceef0",
+                "on-secondary-container": "#684000",
+                "outline-variant": "#c4c6cf",
+                "secondary-fixed": "#ffddb8",
+                "tertiary-fixed-dim": "#bec6e0",
+                "surface-container-lowest": "#ffffff",
+                "on-surface-variant": "#43474e",
+                "on-error": "#ffffff",
+                "inverse-surface": "#2d3133",
+                "error": "#ba1a1a",
+                "secondary": "#855300",
+                "primary-container": "#1e3a5f",
+                "on-secondary-fixed": "#2a1700",
+                "background": "#f7f9fb",
+                "primary-fixed": "#d5e3ff",
+                "surface-container-low": "#f2f4f6",
+                "surface-variant": "#e0e3e5",
+                "tertiary": "#1c2337",
+                "error-container": "#ffdad6",
+                "on-primary-fixed": "#001c3b",
+                "inverse-primary": "#adc8f5",
+                "surface-container-high": "#e6e8ea",
+                "surface-dim": "#d8dadc",
+                "secondary-fixed-dim": "#ffb95f"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "stack-sm": "0.5rem",
+                "stack-lg": "1.5rem",
+                "stack-md": "1rem",
+                "gutter": "1.5rem",
+                "sidebar-width": "240px",
+                "container-padding": "2rem"
+        },
+        "fontFamily": {
+                "body-md": [
+                        "Inter"
+                ],
+                "label-sm": [
+                        "Inter"
+                ],
+                "body-lg": [
+                        "Inter"
+                ],
+                "headline-md": [
+                        "Inter"
+                ],
+                "headline-lg": [
+                        "Inter"
+                ],
+                "label-md": [
+                        "Inter"
+                ],
+                "headline-sm": [
+                        "Inter"
+                ],
+                "body-sm": [
+                        "Inter"
+                ]
+        },
+        "fontSize": {
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-sm": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-lg": [
+                        "18px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "headline-md": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "headline-lg": [
+                        "32px",
+                        {
+                                "lineHeight": "40px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "label-md": [
+                        "14px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-sm": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+</head>
+<body class="bg-background h-screen flex overflow-hidden">
+<!-- Left Panel: Branding & Context (Hidden on smaller screens) -->
+<div class="hidden lg:flex lg:w-1/2 bg-primary relative flex-col justify-between p-12 overflow-hidden">
+<!-- Background Texture/Pattern -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-4xl text-on-primary">satellite_alt</span>
+<span class="font-headline-lg text-headline-lg text-on-primary">DocPilot</span>
+</div>
+<p class="font-headline-sm text-headline-sm text-primary-fixed-dim max-w-md mt-4 leading-relaxed">
+        Field data. Simplified.
+      </p>
+</div>
+<div class="relative z-10">
+<p class="font-body-sm text-body-sm text-primary-fixed-dim opacity-75">
+        © 2024 DocPilot Infrastructure Systems. All rights reserved. Secure access required.
+      </p>
+</div>
+</div>
+<!-- Right Panel: Login Form -->
+<div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 bg-surface-container-lowest">
+<div class="w-full max-w-md">
+<!-- Mobile Header (Visible only on small screens) -->
+<div class="lg:hidden flex items-center justify-center gap-3 mb-8">
+<span class="material-symbols-outlined text-3xl text-primary">satellite_alt</span>
+<span class="font-headline-md text-headline-md text-primary">DocPilot</span>
+</div>
+<div class="mb-10 text-center lg:text-left">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Welcome Back</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter your credentials to access the secure field portal.</p>
+</div>
+<form class="space-y-6">
+<!-- Email/Username Input -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="username">Email / Username</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">person</span>
+<input class="w-full pl-10 pr-4 py-3 bg-surface-bright border border-outline-variant rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" id="username" name="username" placeholder="name@company.com" type="text" value="technician_01@docpilot.net"/>
+</div>
+</div>
+<!-- Password Input -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="block font-label-md text-label-md text-on-surface" for="password">Password</label>
+<a class="font-label-sm text-label-sm text-primary hover:underline" href="#">Forgot password?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">lock</span>
+<input class="w-full pl-10 pr-10 py-3 bg-error-container/20 border-2 border-error rounded-lg font-body-md text-body-md text-on-surface focus:outline-none transition-all" id="password" name="password" type="password" value="••••••••"/>
+<button class="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface focus:outline-none" type="button">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+<!-- Inline Error -->
+<div class="flex items-center gap-1 mt-2 text-error">
+<span class="material-symbols-outlined text-sm">error</span>
+<p class="font-label-sm text-label-sm">Incorrect password · 3 attempts remaining</p>
+</div>
+</div>
+<!-- Submit Button -->
+<button class="w-full bg-primary-container text-on-primary-container hover:bg-primary-container/90 py-3 px-4 rounded-lg font-label-md text-label-md transition-colors shadow-sm flex items-center justify-center gap-2" type="submit">
+          Log In
+          <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</form>
+<div class="mt-8 text-center">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          Don't have access? 
+          <a class="font-label-md text-label-md text-secondary-container hover:underline ml-1" href="#">Create an account</a>
+</p>
+</div>
+</div>
+</div>
+</body></html>

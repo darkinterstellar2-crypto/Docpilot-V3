@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - Hauptstraße 14</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#ffb95f",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d8dadc",
+                        "on-primary-container": "#8aa4cf",
+                        "primary-fixed-dim": "#adc8f5",
+                        "primary-fixed": "#d5e3ff",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-surface": "#191c1e",
+                        "secondary-fixed": "#ffddb8",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "error": "#ba1a1a",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#455f87",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "primary-container": "#1e3a5f",
+                        "secondary-container": "#fea619",
+                        "on-tertiary-fixed": "#131b2e",
+                        "outline": "#74777f",
+                        "outline-variant": "#c4c6cf",
+                        "on-primary-fixed": "#001c3b",
+                        "on-tertiary-container": "#9ba3bb",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-container": "#31394e",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#adc8f5",
+                        "surface-bright": "#f7f9fb",
+                        "primary": "#022448",
+                        "background": "#f7f9fb",
+                        "on-secondary-container": "#684000",
+                        "on-error-container": "#93000a",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#dae2fd",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#1c2337",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-background": "#191c1e",
+                        "on-error": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "secondary": "#855300"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "0.5rem",
+                        "sidebar-width": "240px",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "stack-lg": "1.5rem",
+                        "stack-md": "1rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md overflow-x-hidden flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex w-sidebar-width h-screen fixed left-0 top-0 border-r border-outline-variant shadow-lg bg-primary dark:bg-primary flex-col py-stack-lg z-50">
+<div class="px-4 mb-8">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container mt-1">Infrastructure Pro</p>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-secondary-container text-primary font-label-md text-label-md py-3 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                Submit Log
+            </button>
+</div>
+<ul class="flex flex-col gap-1 flex-1">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note" data-weight="fill" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="inventory_2">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto pt-4 border-t border-primary-container mx-4">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-sidebar-width flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-gutter h-16 bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 border-b border-outline-variant shadow-sm sticky top-0 z-40">
+<div class="flex items-center gap-4">
+<span class="md:hidden font-headline-sm text-headline-sm font-black text-primary">DocPilot</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary outline-none">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:bg-surface-container-high transition-all p-2 rounded-full focus:ring-2 focus:ring-primary outline-none">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up headshot of a telecom field worker wearing a standard safety vest and hard hat. The lighting is bright and outdoor, reflecting a clear day on a job site. The professional photography captures a neutral, focused expression, fitting a corporate industrial aesthetic. The color palette features vibrant safety yellow against a subtle, blurred outdoor background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhLcGwYlxJWGw8U2KZElGY8K0lPjSXEsdovphntXTL9PoukpRecC3x_ps1PYS23QWMCm3B7riq_NUsnTDOcou4jCsTIBpheuWErjI0XEKigtXiwwx1dfjHYBnKakJ_9mJGltoa52TNRUH4ZT0d1bDh9u1pW_HCpgj7yXeZ90TmXrdUy7VUDV3HnHXsBFYfJTMhONWu0Qbb7vV7bIv7BoY-xnWp0R1u3IRjmDJnhMXe-nWQL7rddeGNj2mk1qdVOVkHfKtLhOuSUCA"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 p-4 md:p-container-padding flex flex-col gap-6">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant overflow-x-auto whitespace-nowrap pb-2">
+<a class="hover:text-primary transition-colors" href="#">Projects</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Gemeinde Weigenheim</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">APL</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">NVT01</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">KA00102</a>
+<span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+<span class="text-primary font-bold">Hauptstraße 14</span>
+</nav>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column (Main Info & Actions) -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<!-- Header Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0_2px_4px_rgba(15,23,42,0.05)] p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-primary mb-1">Hauptstraße 14</h2>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="location_on">location_on</span>
+                                    97215 Weigenheim, Germany
+                                </p>
+</div>
+<span class="inline-flex items-center px-3 py-1 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm gap-1">
+<span class="material-symbols-outlined text-[14px]" data-icon="error">error</span>
+                                Error
+                            </span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-outline-variant">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Status</p>
+<p class="font-body-md text-body-md font-semibold text-primary">In Progress</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Cable Type</p>
+<p class="font-body-md text-body-md font-semibold text-primary">Fiber Optic 48C</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Node</p>
+<p class="font-body-md text-body-md font-semibold text-primary">NVT01</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-1">Cluster</p>
+<p class="font-body-md text-body-md font-semibold text-primary">KA00102</p>
+</div>
+</div>
+</div>
+<!-- Active Issues Box -->
+<div class="bg-error-container/30 border border-error/20 rounded-xl p-5">
+<h3 class="font-headline-sm text-headline-sm text-on-error-container mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+                            Active Issues
+                        </h3>
+<ul class="space-y-2">
+<li class="flex items-start gap-2 text-error font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px] mt-0.5" data-icon="cancel">cancel</span>
+                                APL: Box not sealed properly
+                            </li>
+<li class="flex items-start gap-2 text-green-700 font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px] mt-0.5 text-green-600" data-icon="check_circle">check_circle</span>
+                                APL: Cable bend fixed ✓
+                            </li>
+</ul>
+</div>
+<!-- Action Buttons -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+<button class="bg-transparent border border-outline text-primary font-label-md text-label-md py-4 rounded-lg flex items-center justify-center gap-2 hover:bg-surface-variant transition-colors focus:ring-2 focus:ring-primary outline-none">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+                            📅 Appointment
+                        </button>
+<button class="bg-primary text-on-primary font-label-md text-label-md py-4 rounded-lg flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-sm focus:ring-2 focus:ring-primary outline-none">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+                            📷 Upload Work
+                        </button>
+</div>
+<div class="flex justify-between items-center px-2 mt-2">
+<button class="text-secondary font-label-sm text-label-sm flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[16px]" data-icon="report_problem">report_problem</span>
+                            ⚠ Report Error
+                        </button>
+<button class="text-green-700 font-label-sm text-label-sm flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[16px]" data-icon="task_alt">task_alt</span>
+                            ✓ Clear Error
+                        </button>
+</div>
+</div>
+<!-- Right Column (Meta Info) -->
+<div class="flex flex-col gap-6">
+<!-- Eigentümerdaten Card -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0_2px_4px_rgba(15,23,42,0.05)] p-5">
+<h3 class="font-headline-sm text-headline-sm text-primary mb-4 border-b border-outline-variant pb-2">Eigentümerdaten</h3>
+<div class="space-y-4">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Name</p>
+<p class="font-body-md text-body-md text-primary font-medium flex items-center gap-2 mt-1">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="person">person</span>
+                                    Hans Müller
+                                </p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Phone</p>
+<p class="font-body-md text-body-md text-primary mt-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="phone">phone</span>
+                                    +49 151 23456789
+                                </p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Email</p>
+<p class="font-body-md text-body-md text-primary mt-1 flex items-center gap-2 truncate">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="mail">mail</span>
+                                    hans.mueller@example.com
+                                </p>
+</div>
+</div>
+</div>
+<!-- Done Date Card -->
+<div class="bg-surface-container-low rounded-xl border border-outline-variant p-5 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="event_available">event_available</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Status</p>
+<p class="font-body-md text-body-md font-semibold text-primary">📅 Completed · 2026-05-10</p>
+</div>
+</div>
+<!-- Files Section -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-[0_2px_4px_rgba(15,23,42,0.05)] p-5">
+<div class="flex justify-between items-center mb-4 border-b border-outline-variant pb-2">
+<h3 class="font-headline-sm text-headline-sm text-primary">Files</h3>
+<button class="text-primary hover:bg-surface-container p-1 rounded transition-colors">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="relative group cursor-pointer rounded-lg overflow-hidden border border-outline-variant aspect-square">
+<img alt="Cable Installation photo" class="w-full h-full object-cover" data-alt="A close-up photograph of a partially installed fiber optic wall box attached to a brick exterior. The box is open, revealing colored cables. The lighting is natural daylight, casting sharp shadows that highlight the texture of the brick and the industrial nature of the plastic housing. The overall tone is documentary and technical, typical of a field construction progress report." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_Xu1G3L64BxtBTKdVj16cjr3DKL1CYVZPdiseMvSuXA0uz7OIpUDM1CvgpHfflzinguUtuBLsyPup7S-KexOWVv6RtROlfCTQqPg0kifCl8cvraYSH6A7NvIxjDgwvWVQZoHoHLxQZi4rJ9vArQx93ygBfKm7P4ckEE-dS5YkKDDuzm-buEOx1ZjyqWMpW3fBdgKjW2a3exnNCY_ak-rjs8auOZ8zffPqZQt-q2Xiz8kTnryeICKCUrTWnqy1lFiBNjHzHjcvWFM"/>
+<div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 drop-shadow-md" data-icon="visibility">visibility</span>
+</div>
+</div>
+<div class="relative group cursor-pointer rounded-lg overflow-hidden border border-outline-variant aspect-square">
+<img alt="Trench digging photo" class="w-full h-full object-cover" data-alt="A photograph showing a freshly dug narrow trench along a suburban sidewalk, prepared for laying fiber optic cables. The image focuses on the depth and straightness of the cut, with orange safety netting visible in the background out of focus. The scene is brightly lit by midday sun, emphasizing the earthy tones of the soil against the gray concrete. It conveys a sense of active infrastructure development." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL1dXkCjgBGI-cwDyERt4DHRPSRKWFzFvSvaG-35rphBvaFrLOA7b9IziI1bOvr-oECqEyzR2smG_0lxAW9O94d7lWTNwhs5Ldm0tmPChXO0-Y5ge9ygBibcOuMRqlATmxd1g5m2CGQ4p4eA7XWjsTeisrHeupqm-BHOfVCSQ3kWvz9_BpnLoIiMwBka512grcHbfZGcQsg5UHPzlCSalnOh0HQTDPGkVYa9XRJmQdOnmXaot9bfRCY-4p_38NKWuHZT9B7SC-jHk"/>
+<div class="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-white opacity-0 group-hover:opacity-100 drop-shadow-md" data-icon="visibility">visibility</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="map">map</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform w-16 h-full rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="history_edu" data-weight="fill" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label-sm text-label-sm">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="notifications">notifications</span>
+<span class="font-label-sm text-label-sm">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">User</span>
+</a>
+</nav>
+</body></html>

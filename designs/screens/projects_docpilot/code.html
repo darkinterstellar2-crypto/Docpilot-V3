@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DocPilot - Projects</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f7f9fb",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#31394e",
+                    "on-tertiary-fixed": "#131b2e",
+                    "tertiary-fixed": "#dae2fd",
+                    "surface-tint": "#455f87",
+                    "secondary-container": "#fea619",
+                    "outline": "#74777f",
+                    "primary": "#022448",
+                    "on-surface": "#191c1e",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "on-primary-container": "#8aa4cf",
+                    "on-primary-fixed-variant": "#2d486d",
+                    "surface": "#f7f9fb",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-background": "#191c1e",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#adc8f5",
+                    "on-tertiary-container": "#9ba3bb",
+                    "surface-container": "#eceef0",
+                    "on-secondary-container": "#684000",
+                    "outline-variant": "#c4c6cf",
+                    "secondary-fixed": "#ffddb8",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#43474e",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a",
+                    "secondary": "#855300",
+                    "primary-container": "#1e3a5f",
+                    "on-secondary-fixed": "#2a1700",
+                    "background": "#f7f9fb",
+                    "primary-fixed": "#d5e3ff",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-variant": "#e0e3e5",
+                    "tertiary": "#1c2337",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#001c3b",
+                    "inverse-primary": "#adc8f5",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-dim": "#d8dadc",
+                    "secondary-fixed-dim": "#ffb95f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "0.5rem",
+                    "stack-lg": "1.5rem",
+                    "stack-md": "1rem",
+                    "gutter": "1.5rem",
+                    "sidebar-width": "240px",
+                    "container-padding": "2rem"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["14px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-hidden h-screen flex">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col bg-primary text-on-primary w-sidebar-width h-screen fixed left-0 top-0 border-r border-outline-variant shadow-lg py-stack-lg z-50">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden shrink-0">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A clean, modern user avatar placeholder showing a geometric silhouette on a light slate background, representing a professional infrastructure worker." src="https://lh3.googleusercontent.com/aida-public/AB6AXuABRDILadrP6XcB6iKaPLEiXdWQqePvC6KlbcC_9uTV2uAkPMGV4wbUMhnZfJSgzd96LU-eP67qtCdlEK0qkO5s0pAgrcT2Y5C4wn5ynRAFD7Wlt7_ooe4Rx-Byzwi33rwEhqESwKdRXLe3DSiqONbPm-9ndjPDp2VGqCYO1t5OOiilibSnjxwn1h9j4X75y76vF6lGQC07kyKOx-dP85wbw4DwB7C4ruDVUwVjppo9fEpL78Ei2EOqi9hzOQNsZJlwjoTLPXwzODI"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</span>
+<span class="font-label-sm text-label-sm text-on-primary-container">Infrastructure Pro</span>
+</div>
+</div>
+<button class="w-full bg-secondary-container text-on-secondary-container hover:brightness-110 transition-all font-label-md text-label-md py-2 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span> Submit Log
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-1 overflow-y-auto">
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 border-l-4 border-transparent" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="mt-auto px-2 pt-4 border-t border-primary-container/30">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</nav>
+<!-- TopAppBar -->
+<header class="hidden md:flex justify-between items-center px-gutter h-16 fixed top-0 w-full md:w-[calc(100%-240px)] md:ml-sidebar-width bg-surface-bright/80 backdrop-blur-md text-primary border-b border-outline-variant shadow-sm z-40">
+<div class="font-headline-sm text-headline-sm font-black text-primary md:hidden">DocPilot</div>
+<div class="flex-1 max-w-md ml-auto mr-4 relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input class="w-full bg-surface-container rounded-full py-2 pl-10 pr-4 text-body-sm focus:ring-2 focus:ring-primary focus:outline-none border-none border-outline-variant transition-all" placeholder="Search projects, logs..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-high focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary overflow-hidden ml-2 ring-2 ring-transparent hover:ring-primary transition-all cursor-pointer">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A clean, modern user avatar placeholder showing a geometric silhouette on a navy blue background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPGyej3rTsCyGjB5bNT0kXhhEBLTcDKWltrsKQXO-iiVGo2jMt19xWp_2E6dwwh5KEfpECHtQo_rhMKvdPRLp65DfeJWlXDFmbRzph5Tr4iHD9B4Ml91SOLO8OU2mKtH0RQiGwy3bcwVX7IK98l_igVIU1Ppg3LC4I59IeXwEHcXtBcHORDxwAnqlsKHlxfTqHLVgUNbzm8uUZ3V5RxisMmbQNIvmye4zFwi7_xwghy6xa-bk1dpTt4Nq_4E05WOM0H8w73Qzze4w"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col h-full overflow-hidden w-full md:ml-sidebar-width mt-0 md:mt-16 bg-surface">
+<div class="flex-1 overflow-y-auto p-stack-md md:p-container-padding pb-24 md:pb-container-padding">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-stack-lg">
+<h1 class="font-headline-lg text-headline-lg text-primary">Projects</h1>
+<button class="bg-secondary-container text-on-secondary-container hover:brightness-105 transition-all font-label-md text-label-md py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 shadow-sm w-full sm:w-auto">
+<span class="material-symbols-outlined text-[20px]">add</span> New Project
+                </button>
+</div>
+<!-- Projects Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-stack-lg">
+<!-- Card 1: Active -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-[0_2px_4px_rgba(15,23,42,0.05)] p-stack-lg flex flex-col gap-stack-md hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group">
+<div class="flex justify-between items-start gap-2">
+<h2 class="font-headline-sm text-headline-sm text-primary line-clamp-2">Nordstadt Fiber Ring Expansion</h2>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed font-label-sm text-label-sm px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">Active</span>
+</div>
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Progress</span>
+<span class="font-body-sm text-body-sm font-semibold text-primary">68%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[68%]"></div>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="bg-surface-container text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-md border border-outline-variant/30">NVT01</span>
+<span class="bg-surface-container text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-md border border-outline-variant/30">NVT03</span>
+<span class="bg-surface-container text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-md border border-outline-variant/30">HK04</span>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-variant flex items-center gap-4 text-on-surface-variant">
+<div class="flex items-center gap-1.5" title="APL Installed">
+<span class="material-symbols-outlined text-[18px]">router</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant/80">APL</span>
+</div>
+<div class="flex items-center gap-1.5" title="Documentation">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant/80">Files</span>
+</div>
+<div class="flex items-center gap-1.5" title="Blowing">
+<span class="material-symbols-outlined text-[18px]">cable</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant/80">Einblasen</span>
+</div>
+</div>
+</div>
+<!-- Card 2: On Hold -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-[0_2px_4px_rgba(15,23,42,0.05)] p-stack-lg flex flex-col gap-stack-md hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group">
+<div class="flex justify-between items-start gap-2">
+<h2 class="font-headline-sm text-headline-sm text-primary line-clamp-2">Südpark Metro Interconnect</h2>
+<span class="bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm px-2.5 py-1 rounded-full whitespace-nowrap shrink-0">On Hold</span>
+</div>
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Progress</span>
+<span class="font-body-sm text-body-sm font-semibold text-primary">24%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full w-[24%]"></div>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="bg-surface-container text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-md border border-outline-variant/30">NVT08</span>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-variant flex items-center gap-4 text-on-surface-variant opacity-70">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">router</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider">APL</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider">Files</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Completed -->
+<div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-[0_2px_4px_rgba(15,23,42,0.05)] p-stack-lg flex flex-col gap-stack-md hover:shadow-md transition-shadow cursor-pointer relative overflow-hidden group opacity-80">
+<div class="flex justify-between items-start gap-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface-variant line-clamp-2">Ostend Business Hub Setup</h2>
+<span class="bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm px-2.5 py-1 rounded-full whitespace-nowrap shrink-0 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                            Completed
+                        </span>
+</div>
+<div class="flex flex-col gap-2 mt-2">
+<div class="flex justify-between items-end">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Progress</span>
+<span class="font-body-sm text-body-sm font-semibold text-on-surface-variant">100%</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-outline rounded-full w-full"></div>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="bg-surface-container text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-md border border-outline-variant/30">NVT02</span>
+<span class="bg-surface-container text-on-surface font-label-sm text-label-sm px-2 py-1 rounded-md border border-outline-variant/30">NVT05</span>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-variant flex items-center gap-4 text-outline">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">router</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider">APL</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">folder_open</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider">Files</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px]">cable</span>
+<span class="font-label-sm text-[11px] uppercase tracking-wider">Einblasen</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 bg-surface-container-lowest text-primary border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2 pb-safe">
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container p-2 rounded-lg scale-95 transition-transform w-16" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-[10px] mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg transition-transform w-16" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-sm text-[10px] mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg transition-transform w-16" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-sm text-[10px] mt-1">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg transition-transform w-16 relative" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-3 w-2 h-2 bg-error rounded-full"></span>
+<span class="font-label-sm text-[10px] mt-1">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg transition-transform w-16" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-[10px] mt-1">User</span>
+</a>
+</nav>
+</body></html>

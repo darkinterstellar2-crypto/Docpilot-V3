@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Teams - DocPilot</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "background": "#f7f9fb",
+                    "secondary": "#855300",
+                    "tertiary-container": "#31394e",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "on-background": "#191c1e",
+                    "surface-variant": "#e0e3e5",
+                    "tertiary-fixed": "#dae2fd",
+                    "secondary-container": "#fea619",
+                    "inverse-surface": "#2d3133",
+                    "secondary-fixed": "#ffddb8",
+                    "surface-bright": "#f7f9fb",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "outline": "#74777f",
+                    "inverse-primary": "#adc8f5",
+                    "surface-container-highest": "#e0e3e5",
+                    "primary-fixed-dim": "#adc8f5",
+                    "outline-variant": "#c4c6cf",
+                    "on-tertiary-container": "#9ba3bb",
+                    "on-secondary-container": "#684000",
+                    "on-secondary-fixed": "#2a1700",
+                    "on-primary-fixed": "#001c3b",
+                    "error": "#ba1a1a",
+                    "surface-container-low": "#f2f4f6",
+                    "surface": "#f7f9fb",
+                    "secondary-fixed-dim": "#ffb95f",
+                    "surface-container": "#eceef0",
+                    "on-surface-variant": "#43474e",
+                    "surface-tint": "#455f87",
+                    "primary": "#022448",
+                    "on-tertiary-fixed": "#131b2e",
+                    "on-surface": "#191c1e",
+                    "inverse-on-surface": "#eff1f3",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#d8dadc",
+                    "surface-container-high": "#e6e8ea",
+                    "on-primary-fixed-variant": "#2d486d",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#8aa4cf",
+                    "primary-fixed": "#d5e3ff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "primary-container": "#1e3a5f",
+                    "tertiary": "#1c2337"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-md": "1rem",
+                    "gutter": "1.5rem",
+                    "container-padding": "2rem",
+                    "sidebar-width": "240px",
+                    "stack-sm": "0.5rem",
+                    "stack-lg": "1.5rem"
+            },
+            "fontFamily": {
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen font-body-md antialiased selection:bg-primary selection:text-on-primary">
+<nav class="bg-primary dark:bg-primary w-sidebar-width h-screen fixed left-0 top-0 border-r border-outline-variant shadow-lg flex flex-col h-full py-stack-lg hidden md:flex z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary-container">Infrastructure Pro</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-label-md text-label-md py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm">
+<span class="material-symbols-outlined">add</span>
+                Submit Log
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-2">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">map</span>
+                Map View
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+                Field Logs
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container rounded-r-lg font-label-md text-label-md opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto px-2 border-t border-primary-container pt-4">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200 rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">logout</span>
+                Logout
+            </a>
+</div>
+</nav>
+<header class="bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 fixed full-width top-0 z-40 border-b border-outline-variant shadow-sm flex justify-between items-center px-gutter h-16 md:ml-sidebar-width w-full md:w-[calc(100%-240px)]">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm font-black text-primary md:hidden">DocPilot</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex relative focus-within:ring-2 focus-within:ring-primary rounded-lg transition-all">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="bg-surface-container-low border-none rounded-lg pl-10 pr-4 py-2 font-body-sm text-body-sm text-on-surface focus:ring-0 w-64 placeholder:text-outline-variant" placeholder="Search..." type="text"/>
+</div>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A detailed, realistic headshot of a professional individual in a corporate setting. The lighting is high-key and bright, matching a modern light-mode UI aesthetic. The color palette features subtle navy and slate tones to blend perfectly with an industrial modern design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs6tUPNIJML21fdN1ynX6MYxQLaJNPQBR7yYQHSdzstXNUGeoDcvq5poOl_xYXimXPeykkok8VZP2bFcMYp81dZh2k2hh7QqL_Utvi3v9a3W0wcwbusEQO3y-RAgaRY-TvmOqGFT7Iam0TIvz1vhv7_ktaXqeX4Lj0WMIe7GqTSf_aRF_ygCPwyOEWqFEVRuJsDmvP37uH2gt1RaEUJUtbwy2ixtr9WAzEeOvZeSyuA50ewTZc2kiQe-Jmhn99JtbQnCPVUod13qI"/>
+</div>
+</div>
+</header>
+<main class="md:ml-sidebar-width pt-24 pb-24 md:pb-12 px-4 md:px-8 max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-1">Team Members</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage your organization's field crews and administrators.</p>
+</div>
+<button class="bg-secondary-container hover:bg-secondary-fixed text-on-secondary-container font-label-md text-label-md py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm whitespace-nowrap w-full md:w-auto">
+<span class="material-symbols-outlined">person_add</span>
+                + Invite Member
+            </button>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-4 mb-8 flex flex-col md:flex-row items-center gap-4 justify-between">
+<div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+<div class="relative w-full md:w-72">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-10 pr-4 py-2.5 font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all" placeholder="Search members..." type="text"/>
+</div>
+<div class="relative w-full md:w-48">
+<select class="w-full appearance-none bg-surface border border-outline-variant rounded-lg pl-4 pr-10 py-2.5 font-body-sm text-body-sm text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all">
+<option value="">All Roles</option>
+<option value="superadmin">Superadmin</option>
+<option value="user">User</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="flex bg-surface-container p-1 rounded-lg w-full md:w-auto justify-center">
+<button class="px-4 py-1.5 rounded-md bg-surface-container-lowest shadow-sm flex items-center gap-2 font-label-sm text-label-sm text-primary transition-all">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+                    Grid
+                </button>
+<button class="px-4 py-1.5 rounded-md flex items-center gap-2 font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-all">
+<span class="material-symbols-outlined text-[18px]">view_list</span>
+                    List
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col gap-5 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-primary/10 text-primary">
+                        Superadmin
+                    </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-[11px] font-bold tracking-wider uppercase bg-[#d1fae5] text-[#065f46]">
+                        Active
+                    </span>
+</div>
+<div class="flex items-center gap-4">
+<img alt="Marcus Chen" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container" data-alt="A highly detailed, professional headshot of an adult male in a well-lit corporate environment. The aesthetic is clean and modern, adhering to a light-mode design system with subtle navy and slate accents. The lighting is soft yet authoritative, reflecting an industrial modern visual style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI55ErqNc4mkpAJFjOTeSxiDcY9bqKyy-4RoQc2bYLOGvtXeXLJp-d1R98fy1BDtrL_Bo0_To5lUZc46CZs2FlmGXj8cLtjSFBQbeV0aiymePPkAfVPeTgCkWA80Yh_O_udgE2nTSc1mb0p8dN42T5kTO91woFKvm2S_OodT6XHHzgiosFSwZOxQWJJPcTTeM29ZRSp2WJX41PKHkzcQzd0PCO-1Pcdsw5AkwmMmqb_LnApV76qu8zWk0tCqNlVR-tIDLdU42QoVQ"/>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Marcus Chen</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">@mchen_ops</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                        Global Operations
+                    </span>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex gap-3">
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</button>
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-secondary-container shadow-sm p-6 flex flex-col gap-5 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-full h-1 bg-secondary-container"></div>
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-container text-on-surface-variant border border-outline-variant/50">
+                        User
+                    </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-[11px] font-bold tracking-wider uppercase bg-[#fef3c7] text-[#92400e]">
+                        Awaiting Approval
+                    </span>
+</div>
+<div class="flex items-center gap-4">
+<img alt="Sarah Jenkins" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container" data-alt="A detailed, realistic portrait of a professional female. The image is brightly lit, conforming to a modern light-mode interface. The color grading emphasizes clean whites, deep slates, and subtle amber tones, ensuring it perfectly matches a high-stakes, industrial corporate design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAg_q_0zYgG44BtSjmcIKf4i1VVdVT2AehBkd-fE2CLfhNTmzSw30Ot9gkXEEAXqyVXw6wKZMz-VEPsSl1XvbJ3qg37tA7C2Z1IJAG5bL9TULT017rKfpebNA5m3uDvisjBldT1sHtxTbzFMEuE40-XxgXp6uqLDeThbbcV_61jeBuvDRkZGN1v7YO198WmUwhKQJO6tY1TN1EnIAmgb1aGx3XxmJ6lgKzQ0NWuTaDssf7lfZVMbTKxLzOpl6Ydks_luj_KEFLlIeY"/>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Sarah Jenkins</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">@sjenkins_fld</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                        Gemeinde Weigenheim
+                    </span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                        Sector 4B
+                    </span>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex gap-3">
+<button class="flex-1 py-2 rounded-lg bg-secondary-container text-on-secondary-container font-label-md text-label-md hover:bg-secondary-fixed transition-colors">
+                        Review Access
+                    </button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col gap-5 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-container text-on-surface-variant border border-outline-variant/50">
+                        User
+                    </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-[11px] font-bold tracking-wider uppercase bg-[#d1fae5] text-[#065f46]">
+                        Active
+                    </span>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-headline-md text-headline-md font-bold">
+                        DT
+                    </div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">David Torres</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">@dtorres_tech</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                        City Core Fiber
+                    </span>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex gap-3">
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</button>
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col gap-5 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-container text-on-surface-variant border border-outline-variant/50">
+                        User
+                    </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-[11px] font-bold tracking-wider uppercase bg-[#d1fae5] text-[#065f46]">
+                        Active
+                    </span>
+</div>
+<div class="flex items-center gap-4">
+<img alt="Elena Rostova" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container" data-alt="A sharp, high-resolution portrait of a corporate employee in a brightly lit environment. The composition utilizes a clean, modern aesthetic with a color palette grounded in deep navy and bright slate backgrounds. The overall mood conveys authoritative professionalism and industrial efficiency." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApdkB4wp4khhxpXV-tOzavVANFP1IwwPqlRfxh-wFdOM7bFnNRmZTUZDtp4Q4g3pw7Wlv1Z3K-tXFHgIe4Z74YD75kh8VjhnY2JSPKHz3HElKKDnotYEMlYLp9ctgKoLDzoSdz-U3v_epUkqlP5USYOWyNPocq-MR9FdSMwHhH0XF7CvbMCBO5GTIz0sHU4bIW4JwnhxB-l184-ihGVm-Tljyqgydpl1ZhOY4L0Br49Lv8KGfuq4IPAiCZhp8oPCxN032ih4-ENnQ"/>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Elena Rostova</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">@erostova_eng</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                        Gemeinde Weigenheim
+                    </span>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex gap-3">
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</button>
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col gap-5 opacity-60 grayscale relative">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-container text-on-surface-variant border border-outline-variant/50">
+                        User
+                    </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-[11px] font-bold tracking-wider uppercase bg-[#e2e8f0] text-[#475569]">
+                        Revoked
+                    </span>
+</div>
+<div class="flex items-center gap-4">
+<img alt="Michael Chang" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container" data-alt="A portrait of a male professional, styled for a corporate team directory. The lighting is bright and even, characteristic of a high-end web application's light mode. The color scheme is restrained, focusing on slate greys and stark whites to maintain a serious, industrial look." src="https://lh3.googleusercontent.com/aida-public/AB6AXuASA0QblEti25Pmy9jw90g_SiqbArclNHxDhu0foCg57_Bc7fe0SDZEUiUu836qUMO-o5I4LSxcZI-pIsOKEJAklWWta2dDOaS1V9L_1AiIu7hQ2NUm2b0pe4mTUnEXDphyBz5W7bAW70O0b4iOM3gtJ8353cRUId4bI1ihc2fLcQ8apmwnhy_tr6-7xyi2zLTG3XT8mz_trKK8d2Vim8vM3k92oFg323zotlajzJUvy8-1UggFulGCixIL0LhxaNg2bsyd6WroJC0"/>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Michael Chang</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">@mchang_fld</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">block</span>
+                        Access Removed
+                    </span>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex gap-3 pointer-events-none">
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-outline transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</button>
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-outline transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-6 flex flex-col gap-5 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-container text-on-surface-variant border border-outline-variant/50">
+                        User
+                    </span>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full font-label-sm text-[11px] font-bold tracking-wider uppercase bg-[#d1fae5] text-[#065f46]">
+                        Active
+                    </span>
+</div>
+<div class="flex items-center gap-4">
+<img alt="Aisha Patel" class="w-16 h-16 rounded-full object-cover border-2 border-surface-container" data-alt="A highly professional and detailed portrait of a female team member in an office setting. The imagery uses a light-mode aesthetic with bright, clear lighting. The underlying brand colors of navy and slate are subtly present in the wardrobe and background to ensure cohesion with the UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-EoofijcXh_rNz4d5IYl5rKNkjuMhoSUWT0CZAzw6BlCkLNtvANpVf4j6Sf6f_P1yocQnZ1V_eJow3hltJAz9io8bOjWPVYZBV5FlfvCfvPu6okvtBzhk2nvdKTK7owFFoAYEDHvi7PsEXwdYIH4PAbOUoom4yUSoNAsIMBDujunmgmL-6Y-EgpsuGGo0P_L6IomjkdqKqAjOMo9JkJm7iRy34TAOuDQ-QVDS1p8hIltZXizAOFnjcpdjDtvdTMuwKIZboNZtUWA"/>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Aisha Patel</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">@apatel_pm</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-2 mt-2">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                        Gemeinde Weigenheim
+                    </span>
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-low border border-outline-variant/50 font-label-sm text-[11px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">home_work</span>
+                        Sector 1A
+                    </span>
+</div>
+<div class="mt-auto pt-4 border-t border-outline-variant/30 flex gap-3">
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</button>
+<button class="flex-1 py-2 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<nav class="bg-surface-container-lowest dark:bg-inverse-surface fixed bottom-0 w-full z-50 md:hidden shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] flex justify-around items-center h-16 px-2">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+            Home
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">map</span>
+            Map
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">history_edu</span>
+            Logs
+        </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform w-16 h-full font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">notifications</span>
+            Alerts
+        </a>
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform w-16 h-full font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+            User
+        </a>
+</nav>
+</body></html>

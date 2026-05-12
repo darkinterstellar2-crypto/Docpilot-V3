@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Employee Planner - DocPilot</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f7f9fb",
+                        "secondary": "#855300",
+                        "tertiary-container": "#31394e",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-background": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "tertiary-fixed": "#dae2fd",
+                        "secondary-container": "#fea619",
+                        "inverse-surface": "#2d3133",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f7f9fb",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "outline": "#74777f",
+                        "inverse-primary": "#adc8f5",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed-dim": "#adc8f5",
+                        "outline-variant": "#c4c6cf",
+                        "on-tertiary-container": "#9ba3bb",
+                        "on-secondary-container": "#684000",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-primary-fixed": "#001c3b",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f2f4f6",
+                        "surface": "#f7f9fb",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "surface-container": "#eceef0",
+                        "on-surface-variant": "#43474e",
+                        "surface-tint": "#455f87",
+                        "primary": "#022448",
+                        "on-tertiary-fixed": "#131b2e",
+                        "on-surface": "#191c1e",
+                        "inverse-on-surface": "#eff1f3",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d8dadc",
+                        "surface-container-high": "#e6e8ea",
+                        "on-primary-fixed-variant": "#2d486d",
+                        "on-error": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#8aa4cf",
+                        "primary-fixed": "#d5e3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "primary-container": "#1e3a5f",
+                        "tertiary": "#1c2337"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-md": "1rem",
+                        "gutter": "1.5rem",
+                        "container-padding": "2rem",
+                        "sidebar-width": "240px",
+                        "stack-sm": "0.5rem",
+                        "stack-lg": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col w-sidebar-width h-screen fixed left-0 top-0 bg-primary dark:bg-primary text-on-primary dark:text-on-primary border-r border-outline-variant shadow-lg z-50">
+<div class="flex flex-col h-full py-stack-lg">
+<div class="px-4 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden border-2 border-outline-variant">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A professional headshot of a confident telecommunications engineer. The lighting is crisp and clear, typical of a modern corporate ID photo. The background is a muted, out-of-focus server room, contributing to the authoritative industrial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDIKK6C2vx6kAE3u7ZuXnzGflGxQjs5boBJAzXBVvFOh0wd9GAftFGalnUp2b6qfglSKEvziqkLVUlJXH2rlpy0m-IgHk1rLvFVfnMIjx06_g0o47yN1001BRJKmVdK_pGyUuWuYrOfeICPXjgkF7Fw6-_uIBsLNmyFQh_xWAtWxCPll-Iuctsfg8WfJ5b8VShy8SIoDrAhnrTMFDNjNUlvSPHDLxmtnPS6iGV_8eV80FHGg-dB4OOCMwa4l3cr6395xfdkaGaP5_4"/>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">DocPilot</h1>
+<p class="font-label-sm text-label-sm text-on-primary/70">Infrastructure Pro</p>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-2 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary bg-primary-container border-l-4 border-secondary-container hover:bg-primary-container/50 transition-colors duration-200 opacity-90 scale-[0.98]" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-md text-label-md">Map View</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Field Logs</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">inventory_2</span>
+<span class="font-label-md text-label-md">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+</div>
+<div class="px-4 mt-auto flex flex-col gap-4">
+<button class="w-full bg-secondary-container text-on-secondary-container font-label-md text-label-md py-3 rounded-lg shadow-sm hover:opacity-90 transition-opacity">
+                    Submit Log
+                </button>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container hover:text-on-primary hover:bg-primary-container/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-md text-label-md">Logout</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-sidebar-width flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="flex justify-between items-center px-gutter h-16 bg-surface-bright/80 backdrop-blur-md dark:bg-surface-dim/80 text-primary dark:text-primary-fixed border-b border-outline-variant shadow-sm sticky w-full top-0 z-40">
+<div class="flex items-center gap-4">
+<h2 class="font-headline-sm text-headline-sm font-black text-primary md:hidden">DocPilot</h2>
+<div class="hidden md:flex items-center font-headline-sm text-headline-sm text-primary font-bold">
+                    Planner Overview
+                </div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden md:hidden">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A small circular avatar portrait of a telecom professional. The lighting is bright and clean, fitting a modern app interface. The image emphasizes a sturdy, corporate foundation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6iQ2NwjodamjIoBVVCtSHO5ij7Dkht94DkJV-BXtHvaM3k2DDy78_bCzeCvmuhXwx7ia_oOuE_XMdWpAWIzt5sm8FYi-YcAuqEFF_DIHz2MfYItuClC0T-BgbKYxrJVpWlot6-tVmEektpix36hrVoRoxvcrbjpGyKXtU5Dc5IQ6A7pgC0Dm2XjwiwSLtDZcTuvV-9hYA_3ouSQeGRM3ZAKn0Rex4C-yyb6kES3fJVsR4JpQY1_yZKmAnG1WbquxSeTBEKuXUBQ0"/>
+</div>
+</div>
+</header>
+<!-- Main Workspace -->
+<main class="flex-1 p-gutter overflow-y-auto pb-24 md:pb-gutter">
+<div class="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-gutter items-start">
+<!-- Left Column: My Requests -->
+<section class="flex flex-col gap-stack-md">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-headline-md text-headline-md text-on-background font-bold">My Requests</h3>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-4 py-2 rounded-lg hover:bg-primary-container transition-colors shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                            New Request
+                        </button>
+</div>
+<!-- Leave Balance Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-5 shadow-sm">
+<div class="flex justify-between items-end mb-3">
+<h4 class="font-headline-sm text-headline-sm text-on-background">Annual Leave Balance</h4>
+<span class="font-label-md text-label-md text-primary">18 / 25 Days</span>
+</div>
+<div class="h-2 w-full bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[72%]"></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">7 days remaining for current year.</p>
+</div>
+<!-- Requests List -->
+<div class="flex flex-col gap-3">
+<!-- Approved Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-sm flex flex-col gap-3 border-l-4 border-l-primary-fixed-dim">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="font-headline-sm text-headline-sm text-on-background">Vacation</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Oct 12 - Oct 15 • 4 days</p>
+</div>
+<span class="bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm px-2 py-1 rounded">Approved</span>
+</div>
+</div>
+<!-- Submitted Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-sm flex flex-col gap-3 border-l-4 border-l-outline-variant">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="font-headline-sm text-headline-sm text-on-background">Sick Leave</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Sep 28 • 1 day</p>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-label-sm text-label-sm px-2 py-1 rounded">Submitted</span>
+</div>
+</div>
+<!-- Pending Card -->
+<div class="bg-surface rounded-xl border border-outline-variant p-4 shadow-sm flex flex-col gap-3 border-l-4 border-l-secondary-fixed">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="font-headline-sm text-headline-sm text-on-background">Vacation</h5>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Dec 20 - Jan 2 • 10 days</p>
+</div>
+<span class="bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm px-2 py-1 rounded">Pending</span>
+</div>
+<div class="mt-1">
+<a class="font-label-sm text-label-sm text-error hover:text-on-error-container transition-colors" href="#">Cancel Request</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Team Availability -->
+<section class="flex flex-col gap-stack-md">
+<div class="flex justify-between items-center mb-2">
+<h3 class="font-headline-md text-headline-md text-on-background font-bold">Team Availability</h3>
+<div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md bg-surface px-3 py-1.5 rounded-lg border border-outline-variant">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                            Oct 12 - Oct 18
+                        </div>
+</div>
+<div class="bg-surface rounded-xl border border-outline-variant overflow-hidden shadow-sm">
+<div class="overflow-x-auto">
+<div class="min-w-[700px]">
+<!-- Grid Header -->
+<div class="grid grid-cols-[160px_repeat(7,1fr)] border-b border-outline-variant bg-surface-container-lowest">
+<div class="p-3 font-label-md text-label-md text-on-surface-variant">Team Member</div>
+<div class="p-3 text-center border-l border-outline-variant font-label-md text-label-md text-on-surface-variant">Mon 12</div>
+<div class="p-3 text-center border-l border-outline-variant font-label-md text-label-md text-on-surface-variant">Tue 13</div>
+<div class="p-3 text-center border-l border-outline-variant font-label-md text-label-md text-on-surface-variant">Wed 14</div>
+<div class="p-3 text-center border-l border-outline-variant font-label-md text-label-md text-on-surface-variant">Thu 15</div>
+<div class="p-3 text-center border-l border-outline-variant font-label-md text-label-md text-on-surface-variant">Fri 16</div>
+<div class="p-3 text-center border-l border-outline-variant font-label-md text-label-md text-on-surface-variant bg-surface-container-low">Sat 17</div>
+<div class="p-3 text-center border-l border-outline-variant font-label-md text-label-md text-on-surface-variant bg-surface-container-low">Sun 18</div>
+</div>
+<!-- Rows -->
+<div class="grid grid-cols-[160px_repeat(7,1fr)] border-b border-outline-variant/50 hover:bg-surface-container-lowest transition-colors">
+<div class="p-3 font-body-md text-body-md font-semibold text-on-background flex items-center">Lars Müller</div>
+<div class="p-1 border-l border-outline-variant"><div class="h-full w-full bg-primary-fixed-dim rounded-sm opacity-80"></div></div>
+<div class="p-1 border-l border-outline-variant"><div class="h-full w-full bg-primary-fixed-dim rounded-sm opacity-80"></div></div>
+<div class="p-1 border-l border-outline-variant"><div class="h-full w-full bg-primary-fixed-dim rounded-sm opacity-80"></div></div>
+<div class="p-1 border-l border-outline-variant"><div class="h-full w-full bg-primary-fixed-dim rounded-sm opacity-80"></div></div>
+<div class="p-1 border-l border-outline-variant"><div class="h-full w-full bg-primary-fixed-dim rounded-sm opacity-80"></div></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+</div>
+<div class="grid grid-cols-[160px_repeat(7,1fr)] border-b border-outline-variant/50 hover:bg-surface-container-lowest transition-colors">
+<div class="p-3 font-body-md text-body-md font-semibold text-on-background flex items-center">Sarah Klein</div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-1 border-l border-outline-variant"><div class="h-full w-full bg-secondary-fixed rounded-sm opacity-90"></div></div>
+<div class="p-1 border-l border-outline-variant"><div class="h-full w-full bg-secondary-fixed rounded-sm opacity-90"></div></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+</div>
+<div class="grid grid-cols-[160px_repeat(7,1fr)] border-b border-outline-variant/50 hover:bg-surface-container-lowest transition-colors">
+<div class="p-3 font-body-md text-body-md font-semibold text-on-background flex items-center">John Doe</div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+</div>
+<div class="grid grid-cols-[160px_repeat(7,1fr)] border-b border-outline-variant/50 hover:bg-surface-container-lowest transition-colors">
+<div class="p-3 font-body-md text-body-md font-semibold text-on-background flex items-center">Emma Smith</div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+</div>
+<div class="grid grid-cols-[160px_repeat(7,1fr)] hover:bg-surface-container-lowest transition-colors">
+<div class="p-3 font-body-md text-body-md font-semibold text-on-background flex items-center">Mike Johnson</div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+<div class="p-3 border-l border-outline-variant bg-surface-container-low"></div>
+</div>
+</div>
+</div>
+<!-- Legend -->
+<div class="p-4 bg-surface-container-lowest border-t border-outline-variant flex gap-6">
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-sm bg-primary-fixed-dim opacity-80"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Approved</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-sm bg-secondary-fixed opacity-90"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Pending</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-4 h-4 rounded-sm bg-error-container"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Rejected</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center h-16 px-2 bg-surface-container-lowest dark:bg-inverse-surface text-primary dark:text-primary-fixed-dim border-t border-outline-variant shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+<a class="flex flex-col items-center justify-center text-secondary font-bold active:bg-surface-container scale-95 transition-transform p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container transition-transform p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="font-label-sm text-label-sm">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container transition-transform p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-sm text-label-sm">Logs</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container transition-transform p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-label-sm text-label-sm">Alerts</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container transition-transform p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-sm text-label-sm">User</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Check your email</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f7f9fb",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "tertiary-container": "#31394e",
+                    "on-tertiary-fixed": "#131b2e",
+                    "tertiary-fixed": "#dae2fd",
+                    "surface-tint": "#455f87",
+                    "secondary-container": "#fea619",
+                    "outline": "#74777f",
+                    "primary": "#022448",
+                    "on-surface": "#191c1e",
+                    "on-error-container": "#93000a",
+                    "on-secondary-fixed-variant": "#653e00",
+                    "on-primary-container": "#8aa4cf",
+                    "on-primary-fixed-variant": "#2d486d",
+                    "surface": "#f7f9fb",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-background": "#191c1e",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed-dim": "#adc8f5",
+                    "on-tertiary-container": "#9ba3bb",
+                    "surface-container": "#eceef0",
+                    "on-secondary-container": "#684000",
+                    "outline-variant": "#c4c6cf",
+                    "secondary-fixed": "#ffddb8",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "surface-container-lowest": "#ffffff",
+                    "on-surface-variant": "#43474e",
+                    "on-error": "#ffffff",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a",
+                    "secondary": "#855300",
+                    "primary-container": "#1e3a5f",
+                    "on-secondary-fixed": "#2a1700",
+                    "background": "#f7f9fb",
+                    "primary-fixed": "#d5e3ff",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-variant": "#e0e3e5",
+                    "tertiary": "#1c2337",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed": "#001c3b",
+                    "inverse-primary": "#adc8f5",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-dim": "#d8dadc",
+                    "secondary-fixed-dim": "#ffb95f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "0.5rem",
+                    "stack-lg": "1.5rem",
+                    "stack-md": "1rem",
+                    "gutter": "1.5rem",
+                    "sidebar-width": "240px",
+                    "container-padding": "2rem"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "label-sm": [
+                            "Inter"
+                    ],
+                    "body-lg": [
+                            "Inter"
+                    ],
+                    "headline-md": [
+                            "Inter"
+                    ],
+                    "headline-lg": [
+                            "Inter"
+                    ],
+                    "label-md": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "label-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-lg": [
+                            "18px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-md": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "-0.01em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "headline-sm": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .material-symbols-outlined {
+                font-family: 'Material Symbols Outlined';
+                font-weight: normal;
+                font-style: normal;
+                font-size: 24px;
+                line-height: 1;
+                letter-spacing: normal;
+                text-transform: none;
+                display: inline-block;
+                white-space: nowrap;
+                word-wrap: normal;
+                direction: ltr;
+                font-feature-settings: 'liga';
+                -webkit-font-smoothing: antialiased;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen flex items-center justify-center px-4 md:px-0">
+<main class="w-full max-w-[440px] bg-surface-container-lowest rounded-[12px] shadow-[0px_2px_4px_rgba(15,23,42,0.05)] border border-outline-variant/30 p-8">
+<!-- Brand / Identity -->
+<div class="flex justify-center mb-8">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[28px]" style="font-variation-settings: 'FILL' 1;">cell_tower</span>
+<span class="font-headline-md text-headline-md font-bold text-primary tracking-tight">DocPilot</span>
+</div>
+</div>
+<!-- Header -->
+<div class="text-center mb-8">
+<h1 class="font-headline-lg text-headline-lg text-primary mb-2">Check your email</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                We've sent a 6-digit verification code to your email address.
+            </p>
+</div>
+<!-- Verification Form -->
+<form class="space-y-8 flex flex-col items-center">
+<!-- OTP Inputs -->
+<div class="flex justify-between w-full max-w-[340px] gap-2">
+<input aria-label="Digit 1" class="w-12 h-14 text-center font-headline-sm text-headline-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all" maxlength="1" type="text" value="8"/>
+<input aria-label="Digit 2" class="w-12 h-14 text-center font-headline-sm text-headline-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all" maxlength="1" type="text" value="2"/>
+<input aria-label="Digit 3" class="w-12 h-14 text-center font-headline-sm text-headline-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all" maxlength="1" type="text" value="4"/>
+<input aria-label="Digit 4" class="w-12 h-14 text-center font-headline-sm text-headline-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all" maxlength="1" type="text"/>
+<input aria-label="Digit 5" class="w-12 h-14 text-center font-headline-sm text-headline-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all" maxlength="1" type="text"/>
+<input aria-label="Digit 6" class="w-12 h-14 text-center font-headline-sm text-headline-sm bg-surface-container-lowest border border-outline-variant rounded-lg text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-primary-container transition-all" maxlength="1" type="text"/>
+</div>
+<!-- Primary Action -->
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2" type="button">
+                Verify
+            </button>
+</form>
+<!-- Footer Context -->
+<div class="mt-8 flex flex-col items-center gap-3">
+<div class="font-body-md text-body-md text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+                Expires in <span class="font-bold text-on-surface">14:32</span>
+</div>
+<div class="font-body-md text-body-md text-on-surface-variant">
+                Didn't receive it? 
+                <a class="font-label-md text-label-md text-secondary-container hover:text-secondary-fixed transition-colors ml-1" href="#">
+                    Resend code
+                </a>
+</div>
+</div>
+</main>
+</body></html>
