@@ -7,74 +7,260 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="src/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                        primary: '#022448',
+                        'primary-container': '#1E3A5F',
+                        'on-primary': '#ffffff',
+                        'on-primary-container': '#8aa4cf',
+                        'primary-fixed-dim': '#adc8f5',
+                        'secondary-container': '#fea619',
+                        'surface': '#F8FAFC',
+                        'on-surface': '#191c1e',
+                        'on-surface-variant': '#43474e',
+                        'outline': '#74777f',
+                        'outline-variant': '#c4c6cf',
+                        'error': '#ba1a1a',
+                        'error-container': '#ffdad6',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        .btn-primary { background-color: #111827; color: white; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .btn-primary:hover { background-color: #374151; transform: translateY(-1px); }
-        .input-field { background: #fff; border: 1px solid #e5e7eb; transition: all 0.2s; }
-        .input-field:focus { border-color: #111827; box-shadow: 0 0 0 1px #111827; outline: none; }
-        .auth-card { background: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        /* Left panel dot grid pattern */
+        .dot-grid {
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0);
+            background-size: 28px 28px;
+        }
+
+        /* Input styles */
+        .input-field {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #c4c6cf;
+            border-radius: 8px;
+            padding: 14px 14px 14px 44px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #191c1e;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-height: 48px;
+        }
+        .input-field::placeholder { color: #74777f; }
+        .input-field:focus {
+            outline: none;
+            border-color: #022448;
+            box-shadow: 0 0 0 2px rgba(2, 36, 72, 0.15);
+        }
+        .input-field.pr-icon { padding-right: 44px; }
+
+        /* Primary button */
+        .btn-primary {
+            width: 100%;
+            background-color: #022448;
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 14px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s, transform 0.1s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-primary:hover { background-color: #1E3A5F; }
+        .btn-primary:active { transform: scale(0.99); }
+
+        /* Icon inside input */
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #74777f;
+            font-size: 20px;
+            pointer-events: none;
+            user-select: none;
+        }
+        .input-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #74777f;
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.15s;
+        }
+        .input-toggle:hover { color: #022448; }
+
+        /* Error message */
+        #loginError {
+            display: none;
+            background: #ffdad6;
+            color: #ba1a1a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 400;
+            align-items: center;
+            gap: 8px;
+        }
+        #loginError.visible { display: flex; }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-[100dvh] p-4 selection:bg-gray-200">
+<body class="bg-surface min-h-screen flex">
 
-    <div class="w-full max-w-sm auth-card rounded-2xl sm:rounded-3xl p-8 sm:p-10 flex flex-col gap-8 animate-fade-in relative z-10">
-        
-        <!-- Header -->
-        <div class="text-center flex flex-col items-center">
-            <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center mb-5 shadow-sm">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <!-- ─── Split layout wrapper ─── -->
+    <div class="flex w-full min-h-screen">
+
+        <!-- ══════════════════════════════════════
+             LEFT PANEL — Branding (desktop only)
+        ══════════════════════════════════════ -->
+        <div class="hidden lg:flex lg:w-1/2 bg-primary flex-col justify-between p-12 relative overflow-hidden">
+            <!-- Dot grid texture -->
+            <div class="dot-grid absolute inset-0 pointer-events-none"></div>
+
+            <!-- Top: Logo + tagline -->
+            <div class="relative z-10">
+                <div class="flex items-center gap-3 mb-8">
+                    <span class="material-symbols-outlined text-on-primary" style="font-size:36px;">satellite_alt</span>
+                    <span class="text-on-primary font-black tracking-tight" style="font-size:32px;font-weight:700;">DocPilot</span>
+                </div>
+                <p class="text-primary-fixed-dim font-semibold leading-relaxed max-w-xs" style="font-size:20px;color:#adc8f5;">
+                    Field data.<br>Simplified.
+                </p>
+                <p class="mt-4 text-sm leading-relaxed max-w-sm" style="color:rgba(173,200,245,0.65);font-weight:400;">
+                    Streamline fiber documentation, track crew progress, and manage infrastructure data — all in one secure platform.
+                </p>
             </div>
-            <h1 class="text-2xl font-black text-gray-900 tracking-tight uppercase">DocPilot</h1>
-            <p class="text-gray-500 text-[10px] font-bold mt-1.5 tracking-widest uppercase">Fiber Management</p>
+
+            <!-- Decorative amber accent bar -->
+            <div class="relative z-10">
+                <div class="w-12 h-1 rounded-full mb-6" style="background:#fea619;"></div>
+                <p class="text-sm" style="color:rgba(173,200,245,0.55);font-size:12px;font-weight:400;">
+                    © 2024 DocPilot Infrastructure Systems.<br>Secure access required.
+                </p>
+            </div>
         </div>
 
-        <!-- Form -->
-        <form id="loginForm" class="flex flex-col gap-5 mt-2">
-            <div>
-                <label class="block text-gray-700 text-xs font-semibold mb-2 tracking-wide" data-i18n="auth.usernameOrEmail">Username or Email</label>
-                <input type="text" id="loginId" required placeholder="username or email" class="input-field w-full px-4 py-3 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
-            </div>
+        <!-- ══════════════════════════════════════
+             RIGHT PANEL — Login form
+        ══════════════════════════════════════ -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 bg-white">
+            <div class="w-full max-w-md">
 
-            <div>
-                <div class="flex justify-between items-center mb-2">
-                    <label class="block text-gray-700 text-xs font-semibold tracking-wide" data-i18n="auth.password">Password</label>
+                <!-- Mobile logo (hidden on desktop) -->
+                <div class="lg:hidden flex flex-col items-center mb-8">
+                    <div class="w-14 h-14 rounded-xl flex items-center justify-center mb-3" style="background:#022448;">
+                        <span class="material-symbols-outlined text-white" style="font-size:28px;">satellite_alt</span>
+                    </div>
+                    <span class="font-black tracking-tight text-primary" style="font-size:24px;font-weight:700;color:#022448;">DocPilot</span>
+                    <span class="text-xs font-semibold tracking-widest uppercase mt-1" style="color:#74777f;letter-spacing:0.1em;">Fiber Management</span>
                 </div>
-                <div class="relative">
-                    <input type="password" id="loginPass" required placeholder="••••••••" class="input-field w-full px-4 py-3 pr-12 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
-                    <button type="button" onclick="togglePass()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors p-1" tabindex="-1">
-                        <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+
+                <!-- Heading -->
+                <div class="mb-8 text-center lg:text-left">
+                    <h1 class="font-bold text-on-surface mb-2" style="font-size:32px;font-weight:700;letter-spacing:-0.02em;color:#191c1e;">Welcome Back</h1>
+                    <p style="font-size:16px;font-weight:400;color:#43474e;">Enter your credentials to access the secure field portal.</p>
+                </div>
+
+                <!-- Error message (JS-controlled: id="loginError") -->
+                <div id="loginError" role="alert" class="mb-5">
+                    <span class="material-symbols-outlined" style="font-size:18px;">error</span>
+                    <span id="loginErrorMsg"></span>
+                </div>
+
+                <!-- ─── Form ─── -->
+                <form id="loginForm" class="flex flex-col gap-5">
+
+                    <!-- Username / Email -->
+                    <div>
+                        <label class="block mb-2" style="font-size:14px;font-weight:600;letter-spacing:0.05em;color:#191c1e;" data-i18n="auth.usernameOrEmail">
+                            Username or Email
+                        </label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined input-icon">person</span>
+                            <input
+                                type="text"
+                                id="loginId"
+                                required
+                                placeholder="username or email"
+                                class="input-field"
+                                autocomplete="username"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block mb-2" style="font-size:14px;font-weight:600;letter-spacing:0.05em;color:#191c1e;" data-i18n="auth.password">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined input-icon">lock</span>
+                            <input
+                                type="password"
+                                id="loginPass"
+                                required
+                                placeholder="••••••••"
+                                class="input-field pr-icon"
+                                autocomplete="current-password"
+                            >
+                            <!-- Show/hide toggle — preserving eyeIcon / eyeOffIcon IDs and togglePass() -->
+                            <button type="button" onclick="togglePass()" class="input-toggle" tabindex="-1" aria-label="Toggle password visibility">
+                                <!-- eyeIcon = visible (default) -->
+                                <svg id="eyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                <!-- eyeOffIcon = hidden (password visible state) -->
+                                <svg id="eyeOffIcon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-primary mt-2">
+                        Sign In
+                        <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
                     </button>
+
+                </form>
+
+                <!-- Footer link -->
+                <div class="mt-8 text-center">
+                    <p style="font-size:14px;font-weight:400;color:#43474e;">
+                        Need access?
+                        <a href="register.html" class="font-semibold ml-1 hover:underline" style="color:#022448;font-weight:600;">Create Account</a>
+                    </p>
                 </div>
+
             </div>
-
-            <button type="submit" class="w-full btn-primary font-semibold py-3.5 rounded-xl mt-4 text-sm tracking-wide">
-                Sign In
-            </button>
-        </form>
-
-        <!-- Footer -->
-        <div class="text-center pt-2 mt-2">
-            <p class="text-gray-500 text-sm font-medium">
-                Need access? 
-                <a href="register.html" class="text-gray-900 font-bold hover:underline ml-1">Create Account</a>
-            </p>
         </div>
-    </div>
-    
+
+    </div><!-- end split wrapper -->
+
     <script>
         function togglePass() {
             const p = document.getElementById('loginPass');
@@ -88,6 +274,6 @@
     </script>
     <script src="src/js/api.js"></script>
     <script src="src/js/auth.js"></script>
-<script src="src/js/i18n.js"></script>
+    <script src="src/js/i18n.js"></script>
 </body>
 </html>

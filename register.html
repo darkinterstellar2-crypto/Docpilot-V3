@@ -7,111 +7,324 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="src/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                        primary: '#022448',
+                        'primary-container': '#1E3A5F',
+                        'on-primary': '#ffffff',
+                        'on-primary-container': '#8aa4cf',
+                        'primary-fixed-dim': '#adc8f5',
+                        accent: '#fea619',
+                        'surface-bright': '#F8FAFC',
+                        'surface-container-lowest': '#ffffff',
+                        'outline-variant': '#c4c6cf',
+                        'on-surface': '#191c1e',
+                        'on-surface-variant': '#43474e',
+                        outline: '#74777f',
+                        error: '#ba1a1a',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        .btn-primary { background-color: #111827; color: white; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .btn-primary:hover { background-color: #374151; transform: translateY(-1px); }
-        .btn-secondary { background-color: #f3f4f6; color: #111827; transition: all 0.2s; }
-        .btn-secondary:hover { background-color: #e5e7eb; transform: translateY(-1px); }
-        .input-field { background: #fff; border: 1px solid #e5e7eb; transition: all 0.2s; }
-        .input-field:focus { border-color: #111827; box-shadow: 0 0 0 1px #111827; outline: none; }
-        .auth-card { background: #ffffff; border: 1px solid #e5e7eb; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Inter', sans-serif; }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 20px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Input fields */
+        .input-field {
+            background: #ffffff;
+            border: 1px solid #c4c6cf;
+            border-radius: 8px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-height: 48px;
+        }
+        .input-field:focus {
+            border-color: #022448;
+            box-shadow: 0 0 0 2px rgba(2, 36, 72, 0.15);
+            outline: none;
+        }
+
+        /* Branding panel */
+        .brand-panel {
+            background: #022448;
+            background-image: linear-gradient(160deg, #022448 0%, #1E3A5F 100%);
+        }
+
+        /* Form card */
+        .form-card {
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            box-shadow: 0px 2px 4px rgba(15, 23, 42, 0.05);
+        }
+
+        /* Primary button */
+        .btn-primary {
+            background-color: #1E3A5F;
+            color: #ffffff;
+            border-radius: 8px;
+            min-height: 48px;
+            transition: background-color 0.2s, transform 0.1s;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.04em;
+        }
+        .btn-primary:hover { background-color: #022448; transform: translateY(-1px); }
+        .btn-primary:active { transform: translateY(0); }
+
+        /* Step indicator */
+        .step-dot {
+            width: 8px; height: 8px; border-radius: 9999px;
+            background: #c4c6cf; transition: background 0.3s;
+        }
+        .step-dot.active { background: #022448; width: 24px; }
+
+        /* OTP boxes */
+        .otp-box {
+            width: 48px; height: 56px;
+            border: 1.5px solid #c4c6cf;
+            border-radius: 8px;
+            background: #ffffff;
+            text-align: center;
+            font-size: 20px; font-weight: 700; color: #191c1e;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            min-width: 0;
+        }
+        .otp-box:focus {
+            border-color: #022448;
+            box-shadow: 0 0 0 2px rgba(2, 36, 72, 0.15);
+            outline: none;
+        }
+        .otp-box.filled { border-color: #022448; }
+
+        @media (max-width: 380px) {
+            .otp-box { width: 40px; height: 50px; font-size: 18px; }
+        }
+
+        /* Password strength bars */
+        .pass-bar { height: 4px; border-radius: 9999px; background: #e0e3e5; transition: background 0.3s; flex: 1; }
+
+        /* Animate fade in */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="bg-gray-50 flex items-center justify-center min-h-[100dvh] p-4 sm:py-12 selection:bg-gray-200">
+<body class="bg-surface-bright min-h-screen flex">
 
-    <div class="w-full max-w-sm auth-card rounded-2xl sm:rounded-3xl p-6 sm:p-10 flex flex-col gap-6 animate-fade-in relative z-10">
-        
-        <!-- Header -->
-        <div class="text-center flex flex-col items-center">
-            <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center mb-4 shadow-sm">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+    <!-- Split Layout Container -->
+    <div class="flex flex-col md:flex-row w-full min-h-screen">
+
+        <!-- ===== LEFT: Branding Panel (desktop only) ===== -->
+        <div class="hidden md:flex flex-col flex-1 brand-panel relative overflow-hidden">
+            <!-- Decorative background circles -->
+            <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full opacity-10" style="background: radial-gradient(circle, #fea619, transparent);"></div>
+            <div class="absolute bottom-0 right-0 w-80 h-80 rounded-full opacity-10" style="background: radial-gradient(circle, #adc8f5, transparent);"></div>
+
+            <div class="relative z-10 flex flex-col h-full p-12 justify-between">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <span class="material-symbols-outlined text-white" style="font-size:36px; font-variation-settings:'FILL' 1;">hub</span>
+                    <span class="text-white font-bold text-3xl tracking-tight">DocPilot</span>
+                </div>
+
+                <!-- Headline -->
+                <div class="max-w-md">
+                    <h1 class="text-white font-bold text-4xl leading-tight mb-4 tracking-tight">Precision Field Data.<br>Delivered.</h1>
+                    <p class="text-primary-fixed-dim text-lg leading-relaxed" style="color: #adc8f5;">Join the definitive platform for telecom infrastructure management and streamline your field deployments.</p>
+                </div>
+
+                <!-- Trust badges -->
+                <div class="flex items-center gap-6 text-sm font-semibold tracking-wide" style="color: #8aa4cf;">
+                    <span class="flex items-center gap-2">
+                        <span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:'FILL' 1; color: #adc8f5;">verified</span>
+                        Verified Secure
+                    </span>
+                    <span class="flex items-center gap-2">
+                        <span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:'FILL' 1; color: #adc8f5;">speed</span>
+                        Real-time Sync
+                    </span>
+                </div>
             </div>
-            <h1 class="text-2xl font-black text-gray-900 tracking-tight uppercase">DocPilot</h1>
-            <p id="formTitle" class="text-gray-500 text-[10px] font-bold mt-1.5 tracking-widest uppercase">Create Account</p>
         </div>
 
-        <!-- Registration Form -->
-        <form id="registerForm" class="flex flex-col gap-3.5 mt-2">
-            <div>
-                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Full Name</label>
-                <input type="text" id="regName" required placeholder="John Doe" class="input-field w-full px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
+        <!-- ===== RIGHT: Form Panel ===== -->
+        <div class="flex flex-col flex-1 justify-center items-center p-6 md:p-10 bg-surface-bright">
+
+            <!-- Mobile logo -->
+            <div class="md:hidden flex items-center gap-2 mb-8">
+                <span class="material-symbols-outlined text-primary" style="font-size:28px; font-variation-settings:'FILL' 1; color:#022448;">hub</span>
+                <span class="font-bold text-2xl tracking-tight" style="color:#022448;">DocPilot</span>
             </div>
 
-            <div>
-                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Username</label>
-                <input type="text" id="regUser" required placeholder="johndoe" class="input-field w-full px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
-            </div>
+            <!-- Form card -->
+            <div class="w-full max-w-md form-card rounded-xl p-8 animate-fade-in">
 
-            <div>
-                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Email</label>
-                <input type="email" id="regEmail" required placeholder="john@company.com" class="input-field w-full px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
-            </div>
-
-            <div>
-                <label class="block text-gray-700 text-xs font-semibold mb-1.5 tracking-wide">Password</label>
-                <div class="relative">
-                    <input type="password" id="regPass" required placeholder="••••••••" class="input-field w-full px-4 py-2.5 pr-12 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400">
-                    <button type="button" onclick="togglePass('regPass','eyeReg','eyeOffReg')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700 transition-colors p-1" tabindex="-1">
-                        <svg id="eyeReg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                        <svg id="eyeOffReg" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
-                    </button>
+                <!-- Step indicator -->
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="step-dot active" id="stepDot1"></div>
+                    <div class="step-dot" id="stepDot2"></div>
+                    <span class="text-xs font-semibold tracking-widest uppercase ml-1" style="color:#74777f;" id="stepLabel">Step 1 of 2</span>
                 </div>
-                <!-- Password strength indicator -->
-                <div id="passStrengthWrap" class="mt-2 hidden">
-                    <div class="flex gap-1 h-1 rounded-full overflow-hidden">
-                        <div id="passBar1" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
-                        <div id="passBar2" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
-                        <div id="passBar3" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
-                        <div id="passBar4" class="flex-1 bg-gray-200 rounded-full transition-colors duration-300"></div>
+
+                <!-- Header -->
+                <div class="mb-7">
+                    <h2 class="font-bold text-2xl tracking-tight mb-1" style="color:#022448;">Create Account</h2>
+                    <p class="text-sm" style="color:#43474e;" id="formTitle">Let's get your profile set up.</p>
+                </div>
+
+                <!-- ===== Registration Form ===== -->
+                <form id="registerForm" class="space-y-4">
+
+                    <!-- Full Name -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1.5 tracking-wide uppercase" style="color:#43474e;" for="regName">Full Name</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="color:#74777f; font-size:18px;">person</span>
+                            <input type="text" id="regName" required placeholder="Jane Doe"
+                                class="input-field w-full pl-10 pr-4 py-3 text-sm font-medium"
+                                style="color:#191c1e;">
+                        </div>
                     </div>
-                    <p id="passStrengthLabel" class="text-[10px] font-semibold mt-1 tracking-wide transition-colors duration-300"></p>
+
+                    <!-- Username -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1.5 tracking-wide uppercase" style="color:#43474e;" for="regUser">Username</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="color:#74777f; font-size:18px;">badge</span>
+                            <input type="text" id="regUser" required placeholder="janedoe"
+                                class="input-field w-full pl-10 pr-4 py-3 text-sm font-medium"
+                                style="color:#191c1e;">
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1.5 tracking-wide uppercase" style="color:#43474e;" for="regEmail">Email</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="color:#74777f; font-size:18px;">mail</span>
+                            <input type="email" id="regEmail" required placeholder="jane@company.com"
+                                class="input-field w-full pl-10 pr-4 py-3 text-sm font-medium"
+                                style="color:#191c1e;">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-1.5 tracking-wide uppercase" style="color:#43474e;" for="regPass">Password</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style="color:#74777f; font-size:18px;">lock</span>
+                            <input type="password" id="regPass" required placeholder="••••••••"
+                                class="input-field w-full pl-10 pr-12 py-3 text-sm font-medium"
+                                style="color:#191c1e;">
+                            <button type="button" onclick="togglePass('regPass','eyeReg','eyeOffReg')"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 transition-colors p-1"
+                                style="color:#74777f;" tabindex="-1">
+                                <svg id="eyeReg" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                </svg>
+                                <svg id="eyeOffReg" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <!-- Password strength -->
+                        <div id="passStrengthWrap" class="mt-2 hidden">
+                            <div class="flex gap-1">
+                                <div id="passBar1" class="pass-bar"></div>
+                                <div id="passBar2" class="pass-bar"></div>
+                                <div id="passBar3" class="pass-bar"></div>
+                                <div id="passBar4" class="pass-bar"></div>
+                            </div>
+                            <p id="passStrengthLabel" class="text-[10px] font-semibold mt-1 tracking-wide transition-colors duration-300"></p>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn-primary w-full py-3 mt-2 flex items-center justify-center gap-2">
+                        Create Account
+                        <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                    </button>
+                </form>
+
+                <!-- ===== OTP Form (hidden by default, shown by auth.js) ===== -->
+                <form id="otpForm" class="hidden space-y-6">
+
+                    <!-- Info banner -->
+                    <div class="flex items-start gap-3 rounded-lg p-4" style="background:#f2f4f6; border:1px solid #e0e3e5;">
+                        <span class="material-symbols-outlined mt-0.5" style="color:#022448; font-size:20px; font-variation-settings:'FILL' 1; flex-shrink:0;">mark_email_read</span>
+                        <div>
+                            <p class="text-sm font-semibold" style="color:#191c1e;">Check your inbox</p>
+                            <p class="text-xs mt-0.5" style="color:#43474e;">We sent a 6-digit verification code to your email address.</p>
+                        </div>
+                    </div>
+
+                    <!-- OTP visual boxes + hidden real input -->
+                    <div>
+                        <label class="block text-xs font-semibold mb-3 tracking-wide uppercase" style="color:#43474e;">Verification Code</label>
+
+                        <!-- 6 visual boxes — synced to #otpCode by inline JS below -->
+                        <div class="flex justify-between gap-2" id="otpBoxRow" aria-label="Enter 6-digit code">
+                            <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 1" autocomplete="one-time-code">
+                            <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2">
+                            <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3">
+                            <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4">
+                            <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5">
+                            <input class="otp-box" type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6">
+                        </div>
+
+                        <!-- Hidden input that auth.js reads from -->
+                        <input type="text" id="otpCode" maxlength="6" required
+                            class="sr-only" aria-hidden="true" tabindex="-1">
+                    </div>
+
+                    <!-- Verify button -->
+                    <button type="submit" class="btn-primary w-full py-3 flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined" style="font-size:18px; font-variation-settings:'FILL' 1;">verified</span>
+                        Verify Email
+                    </button>
+
+                    <!-- Resend link -->
+                    <p class="text-center text-sm" style="color:#43474e;">
+                        Didn't receive it?
+                        <a href="#" class="font-semibold ml-1 hover:underline" style="color:#fea619;" id="resendOtp">Resend code</a>
+                    </p>
+                </form>
+
+                <!-- Footer: login link -->
+                <div class="mt-6 pt-5 border-t text-center" style="border-color:#E2E8F0;">
+                    <p class="text-sm" style="color:#43474e;">
+                        Already have an account?
+                        <a href="login.html" class="font-bold ml-1 hover:underline" style="color:#022448;">Sign In</a>
+                    </p>
                 </div>
-            </div>
 
-            <button type="submit" class="w-full btn-primary font-semibold py-3 rounded-xl mt-3 text-sm tracking-wide">
-                Get Code
-            </button>
-        </form>
-
-        <!-- OTP Form (Hidden by default) -->
-        <form id="otpForm" class="hidden flex flex-col gap-4 mt-2">
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-center">
-                <p class="text-xs text-gray-600 font-medium leading-relaxed">We sent a 6-digit code to your email.</p>
-                <p class="text-[10px] text-gray-400 mt-1 uppercase tracking-wider">(Check console if testing)</p>
             </div>
-            
-            <div>
-                <input type="text" id="otpCode" maxlength="6" required placeholder="------" class="input-field w-full px-4 py-3.5 rounded-xl text-center text-xl tracking-[0.5em] font-black text-gray-900 placeholder-gray-300 transition-all">
-            </div>
-            
-            <button type="submit" class="w-full btn-primary font-semibold py-3 rounded-xl mt-1 text-sm tracking-wide">
-                Verify
-            </button>
-        </form>
-
-        <!-- Footer -->
-        <div class="text-center pt-2 mt-1">
-            <p class="text-gray-500 text-sm font-medium">
-                Already have an account? 
-                <a href="login.html" class="text-gray-900 font-bold hover:underline ml-1">Sign In</a>
-            </p>
         </div>
     </div>
-    
+
+    <!-- ===== Inline scripts: UI helpers only, no auth logic ===== -->
     <script>
+        /* Password show/hide toggle — same signature as before */
         function togglePass(inputId, onId, offId) {
             const p = document.getElementById(inputId);
             const on = document.getElementById(onId);
@@ -122,20 +335,25 @@
             off.classList.toggle('hidden', !show);
         }
 
-        // Password strength indicator
-        (function() {
+        /* Password strength indicator */
+        (function () {
             const passInput = document.getElementById('regPass');
             const wrap = document.getElementById('passStrengthWrap');
-            const bars = [document.getElementById('passBar1'), document.getElementById('passBar2'), document.getElementById('passBar3'), document.getElementById('passBar4')];
+            const bars = [
+                document.getElementById('passBar1'),
+                document.getElementById('passBar2'),
+                document.getElementById('passBar3'),
+                document.getElementById('passBar4')
+            ];
             const label = document.getElementById('passStrengthLabel');
 
             const levels = [
-                { min: 0, label: '', bars: 0, color: 'bg-gray-200', text: '' },
-                { min: 1, label: 'Too short', bars: 1, color: 'bg-red-400', text: 'text-red-500' },
-                { min: 2, label: 'Weak', bars: 1, color: 'bg-red-400', text: 'text-red-500' },
-                { min: 3, label: 'Fair', bars: 2, color: 'bg-yellow-400', text: 'text-yellow-600' },
-                { min: 4, label: 'Strong', bars: 3, color: 'bg-blue-400', text: 'text-blue-600' },
-                { min: 5, label: 'Very strong', bars: 4, color: 'bg-green-500', text: 'text-green-600' },
+                { label: '',           bars: 0, color: '#e0e3e5', text: '' },
+                { label: 'Too short',  bars: 1, color: '#ba1a1a', text: '#ba1a1a' },
+                { label: 'Weak',       bars: 1, color: '#ba1a1a', text: '#ba1a1a' },
+                { label: 'Fair',       bars: 2, color: '#fea619', text: '#855300' },
+                { label: 'Strong',     bars: 3, color: '#2563eb', text: '#1d4ed8' },
+                { label: 'Very strong',bars: 4, color: '#16a34a', text: '#15803d' },
             ];
 
             function getStrength(pw) {
@@ -149,24 +367,85 @@
                 return Math.min(score, 5);
             }
 
-            passInput.addEventListener('input', function() {
+            passInput.addEventListener('input', function () {
                 const pw = this.value;
                 if (!pw) { wrap.classList.add('hidden'); return; }
                 wrap.classList.remove('hidden');
-
                 const strength = getStrength(pw);
                 const lvl = levels[strength];
-
                 bars.forEach((bar, i) => {
-                    bar.className = 'flex-1 rounded-full transition-colors duration-300 ' + (i < lvl.bars ? lvl.color : 'bg-gray-200');
+                    bar.style.background = i < lvl.bars ? lvl.color : '#e0e3e5';
                 });
                 label.textContent = lvl.label;
-                label.className = 'text-[10px] font-semibold mt-1 tracking-wide transition-colors duration-300 ' + lvl.text;
+                label.style.color = lvl.text;
             });
         })();
+
+        /* OTP boxes: sync to hidden #otpCode, handle focus-jump */
+        (function () {
+            const row = document.getElementById('otpBoxRow');
+            const hidden = document.getElementById('otpCode');
+            if (!row || !hidden) return;
+
+            const boxes = Array.from(row.querySelectorAll('.otp-box'));
+
+            function sync() {
+                hidden.value = boxes.map(b => b.value).join('');
+            }
+
+            boxes.forEach((box, idx) => {
+                box.addEventListener('input', function (e) {
+                    // Only keep digits
+                    this.value = this.value.replace(/\D/g, '').slice(-1);
+                    this.classList.toggle('filled', this.value.length > 0);
+                    sync();
+                    if (this.value && idx < boxes.length - 1) boxes[idx + 1].focus();
+                });
+
+                box.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && !this.value && idx > 0) {
+                        boxes[idx - 1].value = '';
+                        boxes[idx - 1].classList.remove('filled');
+                        boxes[idx - 1].focus();
+                        sync();
+                    }
+                });
+
+                /* Handle paste on first box */
+                box.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+                    text.split('').forEach((ch, i) => {
+                        if (boxes[i]) {
+                            boxes[i].value = ch;
+                            boxes[i].classList.add('filled');
+                        }
+                    });
+                    sync();
+                    const next = boxes[Math.min(text.length, boxes.length - 1)];
+                    if (next) next.focus();
+                });
+            });
+
+            /* When auth.js switches to OTP view, update step indicators */
+            const observer = new MutationObserver(() => {
+                const otpVisible = !document.getElementById('otpForm').classList.contains('hidden');
+                document.getElementById('stepDot1').classList.toggle('active', !otpVisible);
+                document.getElementById('stepDot2').classList.toggle('active', otpVisible);
+                document.getElementById('stepLabel').textContent = otpVisible ? 'Step 2 of 2' : 'Step 1 of 2';
+                if (otpVisible) {
+                    // Focus first OTP box
+                    setTimeout(() => boxes[0] && boxes[0].focus(), 100);
+                }
+            });
+
+            const otpForm = document.getElementById('otpForm');
+            if (otpForm) observer.observe(otpForm, { attributes: true, attributeFilter: ['class'] });
+        })();
     </script>
+
     <script src="src/js/api.js"></script>
     <script src="src/js/auth.js"></script>
-<script src="src/js/i18n.js"></script>
+    <script src="src/js/i18n.js"></script>
 </body>
 </html>
