@@ -7,55 +7,118 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="src/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        gray: { 50:'#f9fafb',100:'#f3f4f6',200:'#e5e7eb',300:'#d1d5db',800:'#1f2937',900:'#111827' }
+                        primary:   '#022448',
+                        accent:    '#fea619',
+                        surface:   '#F8FAFC',
+                        'sidebar-bg': '#022448',
                     }
                 }
             }
         }
     </script>
     <style>
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        /* ── Base ── */
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-family: 'Inter', sans-serif; }
         ::-webkit-scrollbar { width: 4px; background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c4c6cf; border-radius: 4px; }
+
+        /* ── Material Symbols ── */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal; font-style: normal; font-size: 24px; line-height: 1;
+            letter-spacing: normal; text-transform: none; display: inline-block;
+            white-space: nowrap; direction: ltr;
+            font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Sidebar ── */
+        #sidebar {
+            width: 240px;
+            background: #022448;
+            position: fixed; left: 0; top: 0; bottom: 0;
+            display: flex; flex-direction: column;
+            z-index: 50;
+            border-right: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-logo {
+            padding: 24px 20px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-logo h1 {
+            font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.01em;
+        }
+        .sidebar-logo p {
+            font-size: 11px; font-weight: 600; color: #8aa4cf; margin-top: 2px; letter-spacing: 0.03em;
+        }
+        .sidebar-nav { flex: 1; padding: 12px 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; }
+        .nav-link {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px; font-weight: 600; color: #8aa4cf;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+            cursor: pointer; border: none; background: none; width: 100%; text-align: left;
+        }
+        .nav-link:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-left: 3px solid #fea619;
+            padding-left: 9px;
+        }
+        .nav-link .material-symbols-outlined { font-size: 20px; flex-shrink: 0; }
+        .sidebar-bottom {
+            padding: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
 
         /* ── Header ── */
-        .glass-header {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
+        .app-header {
+            background: rgba(248,250,252,0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid #E2E8F0;
+            position: sticky; top: 0; z-index: 40;
+            height: 60px;
+            display: flex; align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+        }
+        .app-header h1 {
+            font-size: 15px; font-weight: 700; color: #022448;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .app-header .module-label {
+            font-size: 11px; font-weight: 600; color: #74777f;
+            letter-spacing: 0.04em;
         }
 
         /* ── Breadcrumb ── */
         .breadcrumb-bar {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 10px 0 14px;
+            display: flex; align-items: center; gap: 4px;
+            padding: 12px 0 16px;
             flex-wrap: wrap;
         }
         .bc-btn {
-            font-size: 13px;
-            font-weight: 600;
-            color: #6b7280;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 2px 4px;
-            border-radius: 6px;
+            font-size: 13px; font-weight: 600; color: #74777f;
+            background: none; border: none; cursor: pointer;
+            padding: 3px 6px; border-radius: 6px;
             transition: color 0.15s, background 0.15s;
         }
-        .bc-btn:hover { color: #111827; background: #f3f4f6; }
-        .bc-active { color: #111827; }
+        .bc-btn:hover { color: #022448; background: #E2E8F0; }
+        .bc-active { color: #022448; }
         .bc-current { cursor: default; }
         .bc-current:hover { background: none; }
-        .bc-sep { width: 14px; height: 14px; color: #d1d5db; flex-shrink: 0; }
+        .bc-sep { width: 14px; height: 14px; color: #c4c6cf; flex-shrink: 0; }
 
         /* ── Module cards ── */
         .mod-grid {
@@ -65,411 +128,296 @@
         }
         .mod-card {
             background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
             padding: 16px 12px 12px;
             cursor: pointer;
             transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
             user-select: none;
         }
-        .mod-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-            border-color: #d1d5db;
-        }
+        .mod-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(2,36,72,0.08); border-color: #adc8f5; }
         .mod-card:active { transform: scale(0.97); }
         .mod-card-icon { line-height: 0; }
         .mod-card-name {
-            font-size: 12px;
-            font-weight: 700;
-            color: #111827;
-            text-align: center;
-            word-break: break-word;
-            line-height: 1.35;
+            font-size: 12px; font-weight: 700; color: #191c1e;
+            text-align: center; word-break: break-word; line-height: 1.35;
             max-width: 100%;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .mod-card-meta { font-size: 11px; color: #9ca3af; font-weight: 500; }
+        .mod-card-meta { font-size: 11px; color: #74777f; font-weight: 500; }
 
         /* ── Address list ── */
         .addr-list { display: flex; flex-direction: column; gap: 8px; }
         .addr-row {
             background: #fff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #E2E8F0;
             border-radius: 12px;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            padding: 14px 16px;
+            display: flex; align-items: center; gap: 12px;
             cursor: pointer;
-            transition: background 0.12s, box-shadow 0.12s;
+            transition: background 0.12s, box-shadow 0.12s, border-color 0.12s;
             user-select: none;
         }
-        .addr-row:hover { background: #f9fafb; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .addr-row:hover { background: #F2F4F6; box-shadow: 0 2px 10px rgba(2,36,72,0.07); border-color: #c4c6cf; }
         .addr-info { flex: 1; min-width: 0; }
-        .addr-end  { font-size: 13px; font-weight: 700; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .addr-cable{ font-size: 11px; color: #9ca3af; font-weight: 500; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .addr-owner{ font-size: 11px; color: #6b7280; font-weight: 500; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .addr-right{ display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .addr-end { font-size: 14px; font-weight: 700; color: #191c1e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .addr-cable { font-size: 11px; color: #74777f; font-weight: 500; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .addr-owner { font-size: 11px; color: #43474e; font-weight: 500; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .addr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-        /* ── Status badges ── */
+        /* ── Status badges — Design System exact spec ── */
         .mod-badge {
-            display: inline-flex;
-            align-items: center;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 2px 9px;
-            border-radius: 999px;
-            letter-spacing: 0.02em;
+            display: inline-flex; align-items: center;
+            font-size: 11px; font-weight: 700;
+            padding: 3px 10px; border-radius: 9999px; letter-spacing: 0.02em;
+            white-space: nowrap;
         }
-        .mod-badge-done    { background: #dcfce7; color: #15803d; }
-        .mod-badge-pending { background: #fef9c3; color: #a16207; }
-        .mod-badge-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
-        .mod-badge-waiting { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+        .mod-badge-done    { background: #e6f4ea; color: #137333; border: 1px solid #ceead6; }
+        .mod-badge-pending { background: #f1f3f4; color: #5f6368; border: 1px solid #e0e3e5; }
+        .mod-badge-error   { background: #ffdad6; color: #ba1a1a; border: 1px solid #ffb4ab; }
+        .mod-badge-waiting { background: #d5e3ff; color: #1a56db; border: 1px solid #adc8f5; }
 
         /* ── Empty / error states ── */
-        .mod-empty {
-            padding: 64px 24px;
-            text-align: center;
-            color: #9ca3af;
-        }
+        .mod-empty { padding: 64px 24px; text-align: center; color: #74777f; }
         .mod-empty p { font-size: 14px; font-weight: 500; margin-top: 4px; }
         .mod-error {
-            padding: 24px;
-            text-align: center;
-            color: #dc2626;
-            font-size: 13px;
-            font-weight: 600;
-            background: #fee2e2;
-            border-radius: 12px;
+            padding: 24px; text-align: center; color: #ba1a1a;
+            font-size: 13px; font-weight: 600;
+            background: #ffdad6; border-radius: 12px;
         }
 
         /* ── Splice Confirm/Update ── */
-        .splice-value { font-size: 20px; font-weight: 700; color: #111827; margin-bottom: 10px; }
-        .splice-source { font-size: 11px; font-weight: 500; color: #9ca3af; margin-left: 6px; }
-        .splice-confirmed .splice-source { color: #059669; }
-        .splice-updated .splice-source { color: #d97706; }
+        .splice-value { font-size: 20px; font-weight: 700; color: #191c1e; margin-bottom: 10px; }
+        .splice-source { font-size: 11px; font-weight: 500; color: #74777f; margin-left: 6px; }
+        .splice-confirmed .splice-source { color: #137333; }
+        .splice-updated   .splice-source { color: #b06000; }
         .splice-actions { display: flex; gap: 8px; }
         .splice-btn {
             padding: 7px 16px; border: none; border-radius: 8px;
-            font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s;
+            font-size: 12px; font-weight: 600; cursor: pointer;
+            transition: background 0.15s; font-family: inherit;
         }
-        .splice-btn-confirm { background: #dcfce7; color: #15803d; }
-        .splice-btn-confirm:hover { background: #bbf7d0; }
-        .splice-btn-update { background: #fef3c7; color: #92400e; }
-        .splice-btn-update:hover { background: #fde68a; }
-        .splice-btn-cancel { background: #f3f4f6; color: #6b7280; }
-        .splice-btn-cancel:hover { background: #e5e7eb; }
+        .splice-btn-confirm { background: #e6f4ea; color: #137333; }
+        .splice-btn-confirm:hover { background: #ceead6; }
+        .splice-btn-update  { background: #fff8e1; color: #b06000; }
+        .splice-btn-update:hover { background: #fdd8a5; }
+        .splice-btn-cancel  { background: #f1f3f4; color: #5f6368; }
+        .splice-btn-cancel:hover { background: #e0e3e5; }
         .splice-warning {
-            font-size: 12px; color: #92400e; background: #fffbeb;
-            border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px;
+            font-size: 12px; color: #b06000; background: #fff8e1;
+            border: 1px solid #fdd8a5; border-radius: 8px; padding: 10px 14px;
         }
 
         /* ── Date/Time Display + Form Row ── */
         .done-datetime-card { padding: 12px 20px; }
-        .done-datetime { font-size: 13px; color: #374151; display: flex; align-items: center; gap: 4px; }
+        .done-datetime { font-size: 13px; color: #43474e; display: flex; align-items: center; gap: 4px; }
         .form-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
         /* ── Customer Details Card ── */
         .customer-details-card { padding: 16px 20px; }
-        .customer-name { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 8px; }
+        .customer-name { font-size: 14px; font-weight: 600; color: #191c1e; margin-bottom: 8px; }
         .customer-contacts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
         .customer-link {
             display: inline-flex; align-items: center; gap: 4px;
-            font-size: 12px; font-weight: 500; padding: 4px 10px;
+            font-size: 12px; font-weight: 600; padding: 5px 12px;
             border-radius: 8px; text-decoration: none; transition: background 0.15s;
         }
-        .customer-owner { background: #fef3c7; color: #92400e; cursor: default; }
-        .customer-phone { background: #eff6ff; color: #1d4ed8; }
-        .customer-phone:hover { background: #dbeafe; }
-        .customer-email { background: #f0fdf4; color: #15803d; }
-        .customer-email:hover { background: #dcfce7; }
+        .customer-owner { background: #fff8e1; color: #b06000; cursor: default; }
+        .customer-phone { background: #d5e3ff; color: #1a56db; }
+        .customer-phone:hover { background: #adc8f5; }
+        .customer-email { background: #e6f4ea; color: #137333; }
+        .customer-email:hover { background: #ceead6; }
 
-        /* ── APL Custom Form ── */
+        /* ── Card / Glass Card ── */
         .glass-card {
-            background: rgba(255,255,255,0.97);
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 4px rgba(15,23,42,0.05);
         }
 
+        /* ── APL Form Wrap ── */
         .apl-form-wrap {
             max-width: 640px;
             margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
+            display: flex; flex-direction: column; gap: 16px;
         }
 
-        /* Upload zones grid */
+        /* ── Upload Zones ── */
         .upload-zones-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
-        @media (max-width: 480px) {
-            .upload-zones-grid { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 480px) { .upload-zones-grid { grid-template-columns: 1fr; } }
 
         .apl-zone {
-            border: 2px dashed #d1d5db;
-            border-radius: 14px;
+            border: 2px dashed #c4c6cf;
+            border-radius: 12px;
             padding: 16px 12px;
             text-align: center;
             cursor: pointer;
             transition: border-color 0.15s, background 0.15s;
             position: relative;
-            min-height: 130px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            background: #fafafa;
+            min-height: 148px !important;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 6px;
+            background: #F8FAFC;
         }
         .apl-zone:hover, .apl-zone.dz-over {
-            border-color: #6366f1;
-            background: rgba(99,102,241,0.04);
+            border-color: #1a56db;
+            background: rgba(26,86,219,0.04);
         }
         .apl-zone.has-file {
-            border-color: #22c55e;
-            background: rgba(34,197,94,0.04);
+            border-color: #137333;
+            background: rgba(19,115,51,0.04);
         }
         .apl-zone .zone-icon { font-size: 24px; line-height: 1; }
-        .apl-zone .zone-label {
-            font-size: 12px;
-            font-weight: 700;
-            color: #374151;
-        }
+        .apl-zone .zone-label { font-size: 12px; font-weight: 700; color: #43474e; }
         .apl-zone .zone-preview {
-            width: 100%;
-            max-height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            display: none;
+            width: 100%; max-height: 80px; object-fit: cover;
+            border-radius: 8px; display: none;
         }
         .apl-zone.has-file .zone-preview { display: block; }
-        .apl-zone.has-file .zone-icon { display: none; }
-        .apl-zone.has-file .zone-label { font-size: 11px; color: #15803d; margin-top: 4px; }
+        .apl-zone.has-file .zone-icon  { display: none; }
+        .apl-zone.has-file .zone-label { font-size: 11px; color: #137333; margin-top: 4px; }
         .apl-zone .zone-clear {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 20px;
-            height: 20px;
-            background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 10px;
-            color: #6b7280;
-            transition: background 0.12s, color 0.12s;
-            z-index: 2;
+            position: absolute; top: 6px; right: 6px;
+            width: 20px; height: 20px;
+            background: #fff; border: 1px solid #E2E8F0; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 10px; color: #74777f;
+            transition: background 0.12s, color 0.12s; z-index: 2;
         }
         .apl-zone.has-file .zone-clear { display: flex; }
-        .apl-zone .zone-clear:hover { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+        .apl-zone .zone-clear:hover { background: #ffdad6; color: #ba1a1a; border-color: #ffb4ab; }
 
-        /* Extra images */
+        /* ── Zone action buttons ── */
+        .zone-actions { display: flex; gap: 6px; margin-top: 6px; width: 100%; }
+        .apl-zone.has-file .zone-actions { display: none; }
+        .zone-btn {
+            flex: 1; padding: 7px 4px; border-radius: 8px;
+            font-size: 12px; font-weight: 600; border: 1px solid #E2E8F0;
+            background: white; cursor: pointer; transition: all 0.15s;
+            text-align: center; font-family: inherit; line-height: 1.3;
+        }
+        .zone-btn:hover { border-color: #c4c6cf; background: #f1f3f4; }
+        .zone-btn-camera { color: #137333; border-color: #ceead6; background: #e6f4ea; }
+        .zone-btn-camera:hover { background: #ceead6; border-color: #137333; }
+        .zone-btn-upload { color: #1a56db; border-color: #adc8f5; background: #d5e3ff; }
+        .zone-btn-upload:hover { background: #adc8f5; border-color: #1a56db; }
+
+        /* ── Required dot on zones ── */
+        .zone-required-dot {
+            position: absolute; top: 8px; left: 8px;
+            width: 7px; height: 7px; border-radius: 50%; background: #ba1a1a;
+        }
+        .apl-zone.has-file .zone-required-dot { background: #137333; }
+
+        /* ── Extra images ── */
         .extra-file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
         .extra-file-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: #f3f4f6;
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 12px;
-            font-weight: 500;
-            color: #374151;
+            display: flex; align-items: center; gap: 8px;
+            background: #f1f3f4; border-radius: 8px;
+            padding: 6px 10px; font-size: 12px; font-weight: 500; color: #43474e;
         }
         .extra-file-item .remove-extra {
-            margin-left: auto;
-            color: #9ca3af;
-            cursor: pointer;
-            transition: color 0.12s;
+            margin-left: auto; color: #74777f; cursor: pointer; transition: color 0.12s;
         }
-        .extra-file-item .remove-extra:hover { color: #dc2626; }
+        .extra-file-item .remove-extra:hover { color: #ba1a1a; }
 
-        /* Form elements */
-        .form-lbl { font-size: 12px; font-weight: 600; color: #374151; display: block; margin-bottom: 6px; }
+        /* ── Form labels & inputs ── */
+        .form-lbl { font-size: 12px; font-weight: 600; color: #43474e; display: block; margin-bottom: 6px; }
         .form-inp {
-            border: 1.5px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 9px 12px;
-            font-size: 14px;
-            font-weight: 500;
-            color: #111827;
-            background: #f9fafb;
-            outline: none;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px; font-weight: 500; color: #191c1e;
+            background: #F8FAFC; outline: none;
             transition: border-color 0.15s, background 0.15s;
-            width: 100%;
-            font-family: inherit;
+            width: 100%; font-family: inherit;
         }
-        .form-inp:focus { border-color: #6366f1; background: #fff; }
+        .form-inp:focus { border-color: #022448; background: #fff; box-shadow: 0 0 0 3px rgba(2,36,72,0.08); }
 
-        /* Upload button */
-        .apl-upload-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            width: 100%;
-            padding: 12px 20px;
-            background: #16a34a;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.15s, transform 0.1s;
-            font-family: inherit;
-        }
-        .apl-upload-btn:hover:not(:disabled) { background: #15803d; transform: translateY(-1px); }
-        .apl-upload-btn:active:not(:disabled) { transform: scale(0.98); }
-        .apl-upload-btn:disabled { background: #9ca3af; cursor: not-allowed; }
-
-        /* Status message */
-        .upload-status-msg {
-            font-size: 13px;
-            font-weight: 600;
-            padding: 10px 14px;
-            border-radius: 10px;
-            text-align: center;
-        }
-        .upload-ok  { background: #dcfce7; color: #15803d; }
-        .upload-err { background: #fee2e2; color: #dc2626; }
-
-        /* Add extra button — full-width dashed zone rectangle */
+        /* ── Add extra button ── */
         .add-extra-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            min-height: 80px;
-            padding: 20px 16px;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; min-height: 72px;
+            padding: 16px;
             margin-top: 10px;
-            background: #fafafa;
-            border: 2px dashed #d1d5db;
-            border-radius: 14px;
-            font-size: 14px;
-            font-weight: 700;
-            color: #374151;
+            background: #F8FAFC;
+            border: 2px dashed #c4c6cf;
+            border-radius: 12px;
+            font-size: 14px; font-weight: 700; color: #43474e;
             cursor: pointer;
             transition: border-color 0.15s, background 0.15s, color 0.15s;
             font-family: inherit;
         }
-        .add-extra-btn:hover {
-            background: rgba(99,102,241,0.04);
-            border-color: #6366f1;
-            color: #4f46e5;
-        }
+        .add-extra-btn:hover { background: rgba(26,86,219,0.04); border-color: #1a56db; color: #1a56db; }
 
-        /* Required indicator */
-        .zone-required-dot {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: #f87171;
+        /* ── Upload button ── */
+        .apl-upload-btn {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 14px 20px;
+            background: #137333; color: #fff; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: 700; cursor: pointer;
+            transition: background 0.15s, transform 0.1s; font-family: inherit;
+            min-height: 48px;
         }
-        .apl-zone.has-file .zone-required-dot { background: #22c55e; }
+        .apl-upload-btn:hover:not(:disabled) { background: #0d5c28; transform: translateY(-1px); }
+        .apl-upload-btn:active:not(:disabled) { transform: scale(0.98); }
+        .apl-upload-btn:disabled { background: #74777f; cursor: not-allowed; }
 
-        /* ── Zone action buttons (camera / upload) ── */
-        .zone-actions {
-            display: flex;
-            gap: 6px;
-            margin-top: 6px;
-            width: 100%;
+        /* ── Status message ── */
+        .upload-status-msg {
+            font-size: 13px; font-weight: 600;
+            padding: 10px 14px; border-radius: 10px; text-align: center;
         }
-        .apl-zone.has-file .zone-actions {
-            display: none; /* hidden behind preview */
-        }
-        .zone-btn {
-            flex: 1;
-            padding: 7px 4px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid #e5e7eb;
-            background: white;
-            cursor: pointer;
-            transition: all 0.15s;
-            text-align: center;
-            font-family: inherit;
-            line-height: 1.3;
-        }
-        .zone-btn:hover {
-            border-color: #d1d5db;
-            background: #f9fafb;
-        }
-        .zone-btn-camera {
-            color: #059669;
-            border-color: #d1fae5;
-            background: #f0fdf4;
-        }
-        .zone-btn-camera:hover {
-            background: #dcfce7;
-            border-color: #6ee7b7;
-        }
-        .zone-btn-upload {
-            color: #3b82f6;
-            border-color: #dbeafe;
-            background: #eff6ff;
-        }
-        .zone-btn-upload:hover {
-            background: #dbeafe;
-            border-color: #93c5fd;
-        }
-        /* Adjust zone min-height to fit buttons comfortably */
-        .apl-zone {
-            min-height: 148px !important;
-        }
-        /* Choice cards */
+        .upload-ok  { background: #e6f4ea; color: #137333; }
+        .upload-err { background: #ffdad6; color: #ba1a1a; }
+
+        /* ── Choice cards ── */
         .choice-card {
             display: flex; flex-direction: column; align-items: center; gap: 8px;
-            padding: 28px 20px; border-radius: 16px; border: 1px solid #e5e7eb;
-            background: #fff; cursor: pointer; transition: all 0.2s;
-            text-align: center;
+            padding: 28px 20px; border-radius: 12px; border: 1px solid #E2E8F0;
+            background: #fff; cursor: pointer; transition: all 0.2s; text-align: center;
+            min-height: 56px;
         }
-        .choice-card:hover { border-color: #111827; box-shadow: 0 4px 12px rgba(0,0,0,0.06); transform: translateY(-2px); }
+        .choice-card:hover { border-color: #022448; box-shadow: 0 4px 16px rgba(2,36,72,0.1); transform: translateY(-2px); }
         .choice-card:active { transform: scale(0.98); }
         .choice-icon { font-size: 32px; }
-        .choice-label { font-size: 15px; font-weight: 700; color: #111827; }
-        .choice-desc { font-size: 12px; color: #9ca3af; }
+        .choice-label { font-size: 15px; font-weight: 700; color: #191c1e; }
+        .choice-desc  { font-size: 12px; color: #74777f; }
 
-        /* Secondary button */
+        /* ── Secondary button ── */
         .btn-secondary {
-            padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
-            background: transparent; color: #374151; border: 1px solid #e5e7eb;
-            cursor: pointer; transition: all 0.2s; text-align: center;
+            padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+            background: transparent; color: #43474e; border: 1.5px solid #E2E8F0;
+            cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit;
+            min-height: 48px;
         }
-        .btn-secondary:hover { background: #f9fafb; border-color: #d1d5db; }
+        .btn-secondary:hover { background: #f1f3f4; border-color: #c4c6cf; }
 
-        /* Remove appointment */
+        /* ── Remove appointment button ── */
         .btn-remove-termin {
             width: 100%; padding: 8px; border-radius: 8px; font-size: 13px; font-weight: 500;
-            background: transparent; color: #dc2626; border: 1px solid #fecaca;
-            cursor: pointer; transition: all 0.2s; text-align: center;
+            background: transparent; color: #ba1a1a; border: 1px solid #ffb4ab;
+            cursor: pointer; transition: all 0.2s; text-align: center; font-family: inherit;
         }
-        .btn-remove-termin:hover { background: #fef2f2; }
+        .btn-remove-termin:hover { background: #ffdad6; }
+
+        /* ── Layout Helpers ── */
+        @media (min-width: 768px) {
+            #app-shell { margin-left: 240px; }
+            #mobile-bottom-nav { display: none !important; }
+        }
+        @media (max-width: 767px) {
+            #sidebar { display: none !important; }
+            #app-shell { padding-bottom: 72px; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-[100dvh] flex flex-col selection:bg-indigo-100">
+<body class="bg-[#F8FAFC] text-[#191c1e] min-h-[100dvh] selection:bg-[#d5e3ff] selection:text-[#022448]">
 <script>
     (function() {
         var role = localStorage.getItem('userRole');
@@ -477,43 +425,88 @@
     })();
 </script>
 
-    <!-- Glass Header -->
-    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center gap-3">
-        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-            <button id="backBtn" class="p-2 -ml-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors shrink-0" title="Back to Project Hub">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-            </button>
-            <div class="w-px h-5 bg-gray-200 mx-1 shrink-0"></div>
-            <!-- APL icon -->
-            <svg class="w-5 h-5 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-            </svg>
-            <div class="flex flex-col min-w-0">
-                <h1 class="text-base sm:text-lg font-bold tracking-tight leading-none truncate" id="projectNameDisplay">LOADING…</h1>
-                <span class="text-xs text-gray-400 font-medium mt-0.5">APL</span>
-            </div>
+<!-- ═══════════════════════════════════════════════════
+     SIDEBAR (desktop only)
+════════════════════════════════════════════════════ -->
+<aside id="sidebar">
+    <div class="sidebar-logo">
+        <h1>DocPilot</h1>
+        <p>INFRASTRUCTURE PRO</p>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a href="index.html" class="nav-link">
+            <span class="material-symbols-outlined">home</span>
+            Home
+        </a>
+        <a href="admin.html" class="nav-link" id="sidebarAdminLink" style="display:none" data-role="superadmin">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            Admin
+        </a>
+        <a href="superlog.html" class="nav-link" id="sidebarSuperLogLink" style="display:none" data-role="superadmin">
+            <span class="material-symbols-outlined">manage_search</span>
+            Super Logs
+        </a>
+        <a href="profile.html" class="nav-link">
+            <span class="material-symbols-outlined">person</span>
+            Profile
+        </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <button id="sidebarLogoutBtn" class="nav-link" style="color:#ffdad6;">
+            <span class="material-symbols-outlined" style="color:#ffdad6;">logout</span>
+            Logout
+        </button>
+    </div>
+</aside>
+
+<!-- ═══════════════════════════════════════════════════
+     APP SHELL
+════════════════════════════════════════════════════ -->
+<div id="app-shell" class="flex flex-col min-h-[100dvh]">
+
+    <!-- ── Header ── -->
+    <header class="app-header">
+        <!-- Back button -->
+        <button id="backBtn"
+            class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-[#74777f] hover:text-[#022448] hover:bg-[#E2E8F0] transition-colors -ml-1"
+            title="Back">
+            <span class="material-symbols-outlined" style="font-size:20px;">arrow_back</span>
+        </button>
+
+        <div class="w-px h-5 bg-[#E2E8F0] flex-shrink-0"></div>
+
+        <!-- APL module icon -->
+        <div class="w-8 h-8 rounded-lg bg-[#e6f4ea] flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined" style="font-size:18px;color:#137333;">photo_library</span>
         </div>
-        <div class="flex items-center gap-2 shrink-0">
-            <button onclick="window.location.href='profile.html'"
-                class="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Profile">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
-            </button>
+
+        <!-- Title -->
+        <div class="flex flex-col min-w-0 flex-1">
+            <h1 id="projectNameDisplay">LOADING…</h1>
+            <span class="module-label">APL Module</span>
         </div>
+
+        <!-- Profile avatar -->
+        <button onclick="window.location.href='profile.html'"
+            class="flex-shrink-0 w-9 h-9 flex items-center justify-center rounded-lg text-[#74777f] hover:text-[#022448] hover:bg-[#E2E8F0] transition-colors"
+            title="Profile">
+            <span class="material-symbols-outlined" style="font-size:20px;">account_circle</span>
+        </button>
     </header>
 
-    <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-8 py-6">
+    <!-- ── Main Content ── -->
+    <main class="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 py-5">
+
         <!-- Breadcrumb -->
         <nav class="breadcrumb-bar" id="moduleBreadcrumb" aria-label="Navigation">
             <span class="bc-btn bc-active">Cluster</span>
         </nav>
 
-        <!-- Dynamic content area -->
+        <!-- Dynamic content area — JS renders all views here -->
         <div id="moduleContent">
-            <div class="py-16 flex justify-center text-gray-300">
+            <div class="py-20 flex justify-center text-[#74777f]">
                 <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -521,14 +514,73 @@
             </div>
         </div>
     </main>
+</div>
 
-    <script src="src/js/api.js"></script>
-    <script src="src/js/modal.js?v=20260413a"></script>
-    <script src="src/js/appointment-shared.js?v=20260505a"></script>
-    <script src="src/js/module-shared.js?v=20260413a"></script>
-    <script src="src/js/geocam.js?v=20260414b"></script>
-    <script src="src/js/apl.js?v=20260505a"></script>
-    <script src="src/js/logout.js"></script>
+<!-- ═══════════════════════════════════════════════════
+     MOBILE BOTTOM NAV
+════════════════════════════════════════════════════ -->
+<nav id="mobile-bottom-nav"
+    class="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#E2E8F0] shadow-[0_-2px_8px_rgba(2,36,72,0.08)] flex justify-around items-center h-16 px-2"
+    style="padding-bottom: env(safe-area-inset-bottom);">
+    <a href="index.html"
+        class="flex flex-col items-center justify-center text-[#74777f] hover:text-[#022448] active:text-[#022448] transition-colors w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;">home</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Home</span>
+    </a>
+    <a href="profile.html"
+        class="flex flex-col items-center justify-center text-[#74777f] hover:text-[#022448] active:text-[#022448] transition-colors w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;">person</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Profile</span>
+    </a>
+    <button id="mobileBackBtn"
+        class="flex flex-col items-center justify-center text-[#022448] font-bold w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;color:#fea619;">arrow_back</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;color:#fea619;">Back</span>
+    </button>
+    <button id="mobileLogoutBtn"
+        class="flex flex-col items-center justify-center text-[#74777f] hover:text-[#ba1a1a] transition-colors w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;">logout</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Logout</span>
+    </button>
+</nav>
+
+<!-- Wire sidebar superadmin + logout + mobile nav back -->
+<script>
+(function() {
+    var role = localStorage.getItem('userRole');
+    // Show superadmin sidebar links
+    if (role === 'superadmin') {
+        var adminLink = document.getElementById('sidebarAdminLink');
+        var superLogLink = document.getElementById('sidebarSuperLogLink');
+        if (adminLink) adminLink.style.display = '';
+        if (superLogLink) superLogLink.style.display = '';
+    }
+    // Logout
+    function doLogout() { localStorage.clear(); window.location.href = 'login.html'; }
+    var sidebarLogout = document.getElementById('sidebarLogoutBtn');
+    var mobileLogout = document.getElementById('mobileLogoutBtn');
+    if (sidebarLogout) sidebarLogout.addEventListener('click', doLogout);
+    if (mobileLogout) mobileLogout.addEventListener('click', doLogout);
+    // Mobile back (mirrors #backBtn — backBtn.onclick set by apl.js)
+    var mobileBack = document.getElementById('mobileBackBtn');
+    if (mobileBack) {
+        mobileBack.addEventListener('click', function() {
+            var btn = document.getElementById('backBtn');
+            if (btn && btn.onclick) btn.onclick();
+            else window.history.back();
+        });
+    }
+})();
+</script>
+
+<!-- ── Scripts (order must be preserved) ── -->
+<script src="src/js/api.js"></script>
+<script src="src/js/modal.js?v=20260413a"></script>
+<script src="src/js/appointment-shared.js?v=20260505a"></script>
+<script src="src/js/module-shared.js?v=20260413a"></script>
+<script src="src/js/geocam.js?v=20260414b"></script>
+<script src="src/js/apl.js?v=20260505a"></script>
+<script src="src/js/logout.js"></script>
 <script src="src/js/header-avatar.js"></script>
 <script src="src/js/i18n.js"></script>
 <script src="src/js/force-logout.js"></script>
