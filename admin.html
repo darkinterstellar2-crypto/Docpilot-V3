@@ -7,128 +7,664 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="src/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                        primary: '#022448',
+                        accent:  '#fea619',
+                        surface: '#F8FAFC',
                     }
                 }
             }
         }
     </script>
     <style>
+        /* ── Base ─────────────────────────────────────────────────── */
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
-        .btn-primary { background-color: #111827; color: white; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .btn-primary:hover { background-color: #374151; transform: translateY(-1px); }
-        .user-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 16px; padding: 20px; transition: all 0.2s ease; display: flex; flex-direction: column; gap: 12px; }
-        .user-card:hover { border-color: #d1d5db; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transform: translateY(-2px); }
+        ::-webkit-scrollbar { width: 4px; background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 99px; }
+
+        /* ── Material Symbols ─────────────────────────────────────── */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        /* ── Sidebar ──────────────────────────────────────────────── */
+        #sidebar {
+            width: 240px;
+            background: #022448;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s ease;
+        }
+        #sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 40;
+            backdrop-filter: blur(2px);
+        }
+        @media (max-width: 1023px) {
+            #sidebar { transform: translateX(-100%); }
+            #sidebar.open { transform: translateX(0); }
+            #sidebar-overlay.open { display: block; }
+            #main-content { margin-left: 0 !important; }
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            margin: 2px 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+            text-decoration: none;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .nav-item.active { background: rgba(254,166,25,0.12); color: #fff; border-left-color: #fea619; font-weight: 600; }
+        .nav-item .material-symbols-outlined { font-size: 20px; }
+
+        /* ── Main Content ─────────────────────────────────────────── */
+        #main-content { margin-left: 240px; min-height: 100dvh; background: #F8FAFC; }
+
+        /* ── Top bar (mobile) ─────────────────────────────────────── */
+        #topbar {
+            display: none;
+            position: sticky; top: 0; z-index: 30;
+            background: #022448;
+            padding: 0 16px;
+            height: 56px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        @media (max-width: 1023px) { #topbar { display: flex; } }
+
+        /* ── Main Tab Nav ─────────────────────────────────────────── */
+        .main-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+            border: none;
+            background: transparent;
+        }
+        .main-tab-btn:hover { background: #f1f5f9; color: #022448; }
+        .main-tab-btn.active { background: #022448; color: #fff; font-weight: 600; }
+        .main-tab-btn .material-symbols-outlined { font-size: 16px; }
+
+        /* ── Cards ────────────────────────────────────────────────── */
+        .dp-card {
+            background: #fff;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+        }
+
+        /* ── Buttons ──────────────────────────────────────────────── */
+        .btn-primary {
+            background: #022448;
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.15s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+        .btn-primary:hover { background: #0a3460; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(2,36,72,0.2); }
+        .btn-primary:disabled { opacity: 0.5; transform: none; cursor: not-allowed; }
+
+        .btn-danger {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .btn-danger:hover { background: #fee2e2; }
+
+        .btn-secondary {
+            background: #f8fafc;
+            color: #374151;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+        .btn-secondary:hover { background: #f1f5f9; }
+
+        /* ── User Cards ───────────────────────────────────────────── */
+        .user-card {
+            background: #fff;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .user-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transform: translateY(-2px); }
+
+        /* ── Status Badges ────────────────────────────────────────── */
+        .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+        .badge-green  { background: #f0fdf4; color: #16a34a; }
+        .badge-amber  { background: #fffbeb; color: #d97706; }
+        .badge-red    { background: #fef2f2; color: #dc2626; }
+        .badge-purple { background: #faf5ff; color: #7c3aed; }
+        .badge-gray   { background: #f1f5f9; color: #475569; }
+
+        /* ── Status dot ───────────────────────────────────────────── */
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-        .nas-field-cell { padding: 1.25rem; border-bottom: 1px solid #f3f4f6; }
+
+        /* ── NAS grid cells ───────────────────────────────────────── */
+        .nas-field-cell { padding: 1.25rem; border-bottom: 1px solid #f1f5f9; }
         .nas-field-cell:nth-child(n+4) { border-bottom: none; }
         @media (min-width: 640px) {
-            .nas-field-cell { border-right: 1px solid #f3f4f6; }
+            .nas-field-cell { border-right: 1px solid #f1f5f9; }
             .nas-field-cell:nth-child(3n) { border-right: none; }
         }
-        /* Modal overlay */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        .modal-box { background: #fff; border-radius: 20px; padding: 28px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
-        /* Sessions panel — wider */
+
+        /* ── Glassmorphism Modals ─────────────────────────────────── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(2,36,72,0.35);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+        }
+        .modal-box {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.6);
+            border-radius: 20px;
+            padding: 28px;
+            width: 100%; max-width: 480px;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(2,36,72,0.18), 0 4px 16px rgba(0,0,0,0.08);
+            animation: fadeUp 0.2s ease;
+        }
         .modal-box.sessions-box { max-width: 640px; }
-        /* Slide-in animation */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-box { animation: fadeUp 0.2s ease; }
-        /* Form input style */
-        .form-input { width: 100%; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 14px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.15s; }
-        .form-input:focus { border-color: #111827; }
-        /* Session event row */
-        .session-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+
+        /* ── Form Inputs ──────────────────────────────────────────── */
+        .form-input {
+            width: 100%; border: 1px solid #E2E8F0; border-radius: 8px;
+            padding: 10px 14px; font-size: 14px; font-family: inherit;
+            outline: none; transition: border-color 0.15s; background: #fff;
+        }
+        .form-input:focus { border-color: #022448; box-shadow: 0 0 0 3px rgba(2,36,72,0.08); }
+
+        /* ── Session row ──────────────────────────────────────────── */
+        .session-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
         .session-row:last-child { border-bottom: none; }
-        /* Action icon chips */
         .action-chip { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
         .chip-login  { background: #f0fdf4; color: #16a34a; }
         .chip-logout { background: #fef9c3; color: #92400e; }
         .chip-failed { background: #fef2f2; color: #dc2626; }
+
+        /* ── Sub-tab bar (pending / approved / logs) ──────────────── */
+        .sub-tab-bar { display: flex; gap: 2px; background: #f1f5f9; border-radius: 10px; padding: 4px; }
+        .sub-tab-btn {
+            flex: 1; padding: 8px 12px; font-size: 13px; font-weight: 500;
+            border-radius: 7px; border: none; background: transparent;
+            color: #64748b; cursor: pointer; transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .sub-tab-btn.active { background: #fff; color: #022448; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+        /* ── Mobile: bottom nav ───────────────────────────────────── */
+        #bottom-nav {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #022448;
+            z-index: 50;
+            padding: 8px 0 env(safe-area-inset-bottom);
+        }
+        @media (max-width: 1023px) { #bottom-nav { display: flex; } }
+        .bottom-nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            gap: 2px; padding: 6px 4px; color: rgba(255,255,255,0.55);
+            font-size: 10px; font-weight: 500; cursor: pointer; border: none;
+            background: transparent; transition: color 0.15s; text-decoration: none;
+        }
+        .bottom-nav-item.active { color: #fea619; }
+        .bottom-nav-item .material-symbols-outlined { font-size: 22px; }
+
+        /* ── Section heading ──────────────────────────────────────── */
+        .section-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+        .section-title { font-size: 22px; font-weight: 700; color: #022448; letter-spacing: -0.01em; }
+
+        /* ── Scrollable tab strip on mobile ───────────────────────── */
+        .main-tab-strip { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .main-tab-strip::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-[100dvh] flex flex-col selection:bg-gray-200">
+<body class="bg-[#F8FAFC] text-gray-900 min-h-[100dvh] selection:bg-blue-100">
+
 <script>
     const role = localStorage.getItem('userRole');
     if (!role) { window.location.href = 'login.html'; }
     else if (role !== 'superadmin') { window.location.href = 'index.html'; }
 </script>
 
-    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center">
-        <div class="flex items-center gap-2 sm:gap-3">
-            <button onclick="window.location.href='index.html'" class="p-2 -ml-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Back to Hub">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            </button>
-            <div class="w-px h-5 bg-gray-200 mx-1"></div>
-            <h1 class="text-base sm:text-lg font-bold tracking-tight">System Admin</h1>
-        </div>
-        
-        <div class="flex items-center gap-2">
-            <button onclick="window.location.href='profile.html'" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Profile">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            </button>
-        </div>
-    </header>
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR
+═══════════════════════════════════════════════════════════ -->
+<div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
-    <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-8 sm:mb-12">
+<nav id="sidebar">
+    <!-- Logo -->
+    <div class="px-6 py-5 border-b border-white/10 flex items-center gap-3">
+        <div class="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <span class="material-symbols-outlined text-white" style="font-size:18px;">description</span>
+        </div>
+        <span class="text-white font-bold text-lg tracking-tight">DocPilot</span>
+    </div>
+
+    <!-- Nav Items -->
+    <div class="flex-1 py-4 overflow-y-auto">
+        <p class="px-6 mb-2 text-[10px] font-bold uppercase tracking-widest text-white/30">Navigation</p>
+
+        <a href="index.html" class="nav-item">
+            <span class="material-symbols-outlined">home</span>
+            Home
+        </a>
+
+        <a href="admin.html" class="nav-item active">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            Admin
+        </a>
+
+        <a href="superlog.html" class="nav-item" id="sidebarSuperLogsLink" style="display:none">
+            <span class="material-symbols-outlined">terminal</span>
+            Super Logs
+        </a>
+
+        <a href="profile.html" class="nav-item">
+            <span class="material-symbols-outlined">person</span>
+            Profile
+        </a>
+
+        <div class="mt-2 border-t border-white/10 pt-2">
+            <button onclick="if(window.logoutUser){logoutUser();}else{localStorage.clear();window.location.href='login.html';}" class="nav-item w-full text-left">
+                <span class="material-symbols-outlined">logout</span>
+                Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-white/10">
+        <p class="text-[10px] text-white/25 font-mono">DocPilot Admin v2</p>
+    </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     MOBILE TOPBAR
+═══════════════════════════════════════════════════════════ -->
+<div id="topbar">
+    <button onclick="openSidebar()" class="p-2 text-white/70 hover:text-white transition-colors rounded-lg">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
+    <div class="flex items-center gap-2">
+        <div class="w-6 h-6 bg-accent rounded flex items-center justify-center">
+            <span class="material-symbols-outlined text-white" style="font-size:14px;">description</span>
+        </div>
+        <span class="text-white font-bold text-base tracking-tight">DocPilot</span>
+    </div>
+    <a href="profile.html" class="p-2 text-white/70 hover:text-white transition-colors rounded-lg">
+        <span class="material-symbols-outlined">person</span>
+    </a>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MAIN CONTENT
+═══════════════════════════════════════════════════════════ -->
+<div id="main-content" class="pb-24 lg:pb-12">
+
+    <!-- Page header -->
+    <div class="px-6 lg:px-10 pt-8 pb-6 border-b border-[#E2E8F0] bg-white">
+        <p class="section-eyebrow">Superadmin</p>
+        <h1 class="section-title">Admin Control</h1>
+        <p class="text-sm text-slate-500 mt-1">Manage users, permissions, projects, and infrastructure.</p>
+    </div>
+
+    <!-- Main Tab Navigation -->
+    <div class="px-6 lg:px-10 py-4 bg-white border-b border-[#E2E8F0]">
+        <div class="main-tab-strip">
+            <div class="flex gap-2 min-w-max">
+                <button class="main-tab-btn active" onclick="switchMainTab('users', this)">
+                    <span class="material-symbols-outlined">group</span>
+                    Users
+                </button>
+                <button class="main-tab-btn" onclick="switchMainTab('acl', this)">
+                    <span class="material-symbols-outlined">key</span>
+                    Access Control
+                </button>
+                <button class="main-tab-btn" onclick="switchMainTab('nas', this)">
+                    <span class="material-symbols-outlined">sync</span>
+                    NAS / Sync
+                </button>
+                <button class="main-tab-btn" onclick="switchMainTab('generator', this)">
+                    <span class="material-symbols-outlined">settings</span>
+                    Generator
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: USERS ──────────────────────────────────────────── -->
+    <div id="mainTab-users" class="px-6 lg:px-10 py-8">
+
+        <!-- Section header + sub-tabs -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Access Control</h3>
-                <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">User Management</h2>
+                <p class="section-eyebrow">Access Control</p>
+                <h2 class="section-title">User Management</h2>
             </div>
-            
-            <div class="flex bg-gray-100 rounded-lg p-1 w-full sm:w-auto">
-                <button onclick="switchTab('pending')" id="tab-pending" class="flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all">Pending</button>
-                <button onclick="switchTab('approved')" id="tab-approved" class="flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all">Approved</button>
-                <button onclick="switchTab('logs')" id="tab-logs" class="flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all">Audit Logs</button>
+            <div class="sub-tab-bar w-full sm:w-auto">
+                <button onclick="switchTab('pending')" id="tab-pending" class="sub-tab-btn active">Pending</button>
+                <button onclick="switchTab('approved')" id="tab-approved" class="sub-tab-btn">Approved</button>
+                <button onclick="switchTab('logs')" id="tab-logs" class="sub-tab-btn">Audit Logs</button>
             </div>
         </div>
 
-        <div id="usersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            <div class="col-span-full py-12 flex justify-center text-gray-400">
-                <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <!-- Users Grid -->
+        <div id="usersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="col-span-full py-12 flex justify-center text-slate-400">
+                <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
             </div>
         </div>
-        <!-- ── Generator Settings ─────────────────────────────────── -->
-        <div class="mt-12 sm:mt-16 pb-8 sm:pb-12" id="generatorSettingsSection" style="display:none">
+
+        <!-- Super Logs teaser (superadmin only) -->
+        <div id="superLogsSection" class="hidden mt-10">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-4">
+                <div>
+                    <p class="section-eyebrow">System Monitor</p>
+                    <h2 class="section-title">Super Logs</h2>
+                </div>
+                <a href="superlog.html"
+                   style="background:#0d1117; border:1px solid #22c55e; color:#22c55e; font-family:'JetBrains Mono','Cascadia Code','Consolas',monospace; font-size:13px; font-weight:700; padding:10px 20px; border-radius:10px; letter-spacing:0.04em; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all 0.15s;"
+                   onmouseover="this.style.background='#22c55e'; this.style.color='#0d1117';"
+                   onmouseout="this.style.background='#0d1117'; this.style.color='#22c55e';">
+                    <span style="font-size:15px;">▶</span> Open Terminal
+                </a>
+            </div>
+            <div class="dp-card" style="background:#0d1117; border-color:#30363d;">
+                <div class="px-6 py-5">
+                    <p style="font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; color:#4b5563; margin-bottom:8px;">// Live system event monitor — SUPERADMIN ONLY</p>
+                    <p style="font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; color:#22c55e;">
+                        Tracks: <span style="color:#06b6d4;">requests</span> · <span style="color:#60a5fa;">auth</span> · <span style="color:#f59e0b;">files</span> · <span style="color:#a78bfa;">sync</span> · <span style="color:#34d399;">chat</span> · <span style="color:#ef4444;">errors</span> · <span style="color:#6b7280;">system</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TAB: ACCESS CONTROL ─────────────────────────────────── -->
+    <div id="mainTab-acl" class="hidden px-6 lg:px-10 py-8">
+
+        <!-- accessControlSection wrapper (kept for JS compatibility) -->
+        <div id="accessControlSection" class="hidden">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
                 <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Modules</h3>
-                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Generator Settings</h2>
+                    <p class="section-eyebrow">Superadmin</p>
+                    <h2 class="section-title">Access Control</h2>
                 </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="bg-white border border-gray-200 rounded-2xl p-6">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Generator Access Code</label>
+
+            <!-- How it works -->
+            <div class="dp-card mb-5 p-5 text-sm" style="background:#eff6ff; border-color:#bfdbfe;">
+                <p class="font-semibold mb-2 text-blue-900">📋 How Access Control Works</p>
+                <ul class="space-y-1 text-xs leading-relaxed text-blue-800">
+                    <li>• New accounts start with <strong>zero access</strong> — they can't see anything until you grant it here.</li>
+                    <li>• <strong>Master toggle ON</strong> = sees all projects by default. Use project toggles to block specific ones.</li>
+                    <li>• <strong>Master toggle OFF</strong> = sees NO projects. Use project toggles to grant specific ones.</li>
+                    <li>• Module toggles control which tabs are visible within a project.</li>
+                    <li>• Only you (superadmin) can create, delete, or manage projects.</li>
+                </ul>
+            </div>
+
+            <!-- User selector card -->
+            <div class="dp-card p-6 shadow-sm mb-5">
+                <label class="section-eyebrow block mb-3">Select User</label>
+                <select id="aclUserSelect" class="form-input mb-4" onchange="loadUserACL()">
+                    <option value="">— Choose a user —</option>
+                </select>
+
+                <div id="aclUserRoleBanner" class="hidden mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2"></div>
+
+                <div id="aclPanel" class="hidden">
+
+                    <!-- Full Access toggle -->
+                    <div class="flex items-center justify-between py-4 px-4 rounded-xl border border-[#E2E8F0] bg-slate-50 mb-5">
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">🔓 Full Access</p>
+                            <p class="text-xs text-gray-500 mt-1">Grants complete read+write access to everything. All other settings ignored.</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
+                            <input type="checkbox" id="aclFullAccess" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#022448]"></div>
+                        </label>
+                    </div>
+
+                    <div id="aclGranularSections">
+
+                        <!-- Authority Permissions -->
+                        <div class="dp-card p-5 shadow-sm mb-4">
+                            <p class="section-eyebrow mb-1">Authority Permissions</p>
+                            <p class="text-xs text-gray-400 mb-4">These permissions grant elevated control over the project hub. Enable with caution.</p>
+                            <div class="space-y-3" id="aclAuthorityPerms"></div>
+                        </div>
+
+                        <!-- Project Access -->
+                        <div class="dp-card p-5 shadow-sm mb-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <p class="section-eyebrow">Project Access</p>
+                                <div class="flex gap-3">
+                                    <button type="button" onclick="aclSelectAllProjects(true)" class="text-xs font-semibold text-slate-500 hover:text-[#022448] underline">Enable All</button>
+                                    <span class="text-gray-300">|</span>
+                                    <button type="button" onclick="aclSelectAllProjects(false)" class="text-xs font-semibold text-slate-500 hover:text-[#022448] underline">Disable All</button>
+                                </div>
+                            </div>
+                            <div id="aclProjectList" class="space-y-2"></div>
+                        </div>
+
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="flex gap-3 flex-wrap">
+                        <button onclick="saveUserACL()" class="btn-primary px-6 py-2.5 text-sm">
+                            💾 Save Changes
+                        </button>
+                        <button onclick="resetUserACL()" class="btn-secondary px-6 py-2.5 text-sm">
+                            Reset to No Access
+                        </button>
+                    </div>
+
+                    <div id="aclFeedback" class="hidden mt-4 p-3 rounded-xl text-sm font-medium"></div>
+                </div>
+
+                <div id="aclNoUser" class="py-6 text-center text-gray-400 text-sm">
+                    Select a user above to manage their access permissions.
+                </div>
+            </div>
+        </div>
+
+        <!-- Shown when section is hidden (non-superadmin fallback) -->
+        <div id="aclFallback" class="hidden py-20 text-center text-slate-400">
+            <span class="material-symbols-outlined text-4xl mb-3 block">lock</span>
+            <p class="font-medium">Access Control is restricted to superadmins.</p>
+        </div>
+    </div>
+
+    <!-- ── TAB: NAS / SYNC ─────────────────────────────────────── -->
+    <div id="mainTab-nas" class="hidden px-6 lg:px-10 py-8">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+            <div>
+                <p class="section-eyebrow">Infrastructure</p>
+                <h2 class="section-title">NAS Sync Status</h2>
+            </div>
+            <button id="syncNowBtn" onclick="triggerNasSync()"
+                class="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm">
+                <svg id="syncIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span id="syncBtnText">Sync Now</span>
+            </button>
+        </div>
+
+        <div id="nasSyncCard" class="dp-card overflow-hidden shadow-sm">
+            <!-- Loading -->
+            <div id="nasLoading" class="flex justify-center items-center py-12 text-slate-400">
+                <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+
+            <!-- Error fetching -->
+            <div id="nasError" class="hidden text-center py-12 px-6 text-gray-500 font-medium">
+                <svg class="w-8 h-8 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Could not fetch sync status
+            </div>
+
+            <!-- Content -->
+            <div id="nasContent" class="hidden">
+                <!-- Disabled -->
+                <div id="nasDisabledMsg" class="hidden text-center py-12 px-6 text-gray-500 font-medium">
+                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                    </svg>
+                    NAS sync is not configured
+                </div>
+
+                <!-- Active details -->
+                <div id="nasDetails" class="hidden">
+                    <!-- Status header -->
+                    <div class="flex items-center gap-3 px-6 py-4 border-b border-[#E2E8F0] bg-slate-50/60">
+                        <span id="nasStatusDot" class="status-dot bg-gray-300"></span>
+                        <span id="nasStatusText" class="text-sm font-semibold text-gray-700">Checking…</span>
+                    </div>
+
+                    <!-- Stats grid -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3">
+                        <div class="nas-field-cell">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sync Enabled</p>
+                            <p id="nasEnabled" class="text-sm font-semibold text-gray-900">—</p>
+                        </div>
+                        <div class="nas-field-cell">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Connection</p>
+                            <p id="nasConnection" class="text-sm font-semibold text-gray-900">—</p>
+                        </div>
+                        <div class="nas-field-cell">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pending Files</p>
+                            <p id="nasPending" class="text-sm font-semibold text-gray-900">—</p>
+                        </div>
+                        <div class="nas-field-cell">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Last Sync</p>
+                            <p id="nasLastSync" class="text-sm font-semibold text-gray-900">—</p>
+                        </div>
+                        <div class="nas-field-cell">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Last Cleanup</p>
+                            <p id="nasLastCleanup" class="text-sm font-semibold text-gray-900">—</p>
+                        </div>
+                        <div class="nas-field-cell">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Tracked</p>
+                            <p id="nasTotalTracked" class="text-sm font-semibold text-gray-900">—</p>
+                        </div>
+                    </div>
+
+                    <!-- Error log -->
+                    <div id="nasErrorSection" class="hidden border-t border-[#E2E8F0]">
+                        <button onclick="toggleNasErrors()"
+                            class="w-full flex items-center justify-between px-6 py-3.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span id="nasErrorCount">Errors</span>
+                            </span>
+                            <svg id="nasErrorChevron" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        <div id="nasErrorList" class="hidden px-6 pb-5 space-y-2"></div>
+                    </div>
+
+                    <!-- Sync feedback -->
+                    <div id="nasSyncMsg" class="hidden px-6 py-3 text-xs font-medium text-center border-t border-[#E2E8F0]"></div>
+                </div>
+            </div>
+        </div>
+        <p class="text-[10px] text-slate-400 text-right mt-2 font-mono">Auto-refreshes every 30 s</p>
+    </div>
+
+    <!-- ── TAB: GENERATOR ──────────────────────────────────────── -->
+    <div id="mainTab-generator" class="hidden px-6 lg:px-10 py-8">
+
+        <!-- generatorSettingsSection wrapper (kept for JS compatibility) -->
+        <div id="generatorSettingsSection" style="display:none">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
+                <div>
+                    <p class="section-eyebrow">Modules</p>
+                    <h2 class="section-title">Generator Settings</h2>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div class="dp-card p-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Generator Access Code</label>
                     <p class="text-xs text-gray-400 mb-3">Workers enter this code in Einblasen/OTDR to access the protocol generator.</p>
                     <div class="flex gap-2">
-                        <input type="text" id="generatorCodeInput" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono" placeholder="e.g. GEGGOS2026">
-                        <button onclick="saveGeneratorSettings()" class="px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors">Save</button>
+                        <input type="text" id="generatorCodeInput" class="form-input flex-1 font-mono" placeholder="e.g. GEGGOS2026">
+                        <button onclick="saveGeneratorSettings()" class="btn-primary px-4 py-2 text-xs">Save</button>
                     </div>
                 </div>
-                <div class="bg-white border border-gray-200 rounded-2xl p-6">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Generator App URL</label>
+                <div class="dp-card p-6">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Generator App URL</label>
                     <p class="text-xs text-gray-400 mb-3">Frontend URL of the generator app (iframe source).</p>
-                    <input type="text" id="generatorUrlInput" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono mb-3" placeholder="http://localhost:3001">
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Generator API URL</label>
+                    <input type="text" id="generatorUrlInput" class="form-input font-mono mb-4" placeholder="http://localhost:3001">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Generator API URL</label>
                     <p class="text-xs text-gray-400 mb-3">Backend API URL (Python FastAPI).</p>
                     <div class="flex gap-2">
-                        <input type="text" id="generatorApiUrlInput" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm font-mono" placeholder="http://localhost:8000">
-                        <button onclick="saveGeneratorSettings()" class="px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors">Save</button>
+                        <input type="text" id="generatorApiUrlInput" class="form-input flex-1 font-mono" placeholder="http://localhost:8000">
+                        <button onclick="saveGeneratorSettings()" class="btn-primary px-4 py-2 text-xs">Save</button>
                     </div>
                 </div>
             </div>
 
-            <!-- ── Generator Access ──────────────────────────────────── -->
-            <div class="mt-6 bg-white border border-gray-200 rounded-2xl p-6">
+            <!-- Generator Access -->
+            <div class="dp-card p-6">
                 <div class="flex items-center justify-between mb-4">
                     <div>
                         <h3 class="text-sm font-semibold text-gray-900">Generator Access</h3>
@@ -139,336 +675,203 @@
                         Saved
                     </span>
                 </div>
-                <!-- Search & add user -->
+                <!-- Search -->
                 <div class="relative mb-4">
-                    <input type="text" id="genAccessSearch" class="w-full px-3 py-2.5 pr-10 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent" placeholder="Search users to add..." autocomplete="off">
+                    <input type="text" id="genAccessSearch" class="form-input pr-10" placeholder="Search users to add..." autocomplete="off">
                     <svg class="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <div id="genAccessDropdown" class="hidden absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto"></div>
+                    <div id="genAccessDropdown" class="hidden absolute z-50 left-0 right-0 top-full mt-1 bg-white border border-[#E2E8F0] rounded-xl shadow-lg max-h-60 overflow-y-auto"></div>
                 </div>
-                <!-- Allowed users list -->
+                <!-- Allowed users -->
                 <div id="generatorAccessList" class="space-y-2">
                     <p class="text-xs text-gray-400 py-3 text-center">Loading...</p>
                 </div>
             </div>
         </div>
 
-        <!-- ── NAS Sync Status ─────────────────────────────────── -->
-        <div class="mt-12 sm:mt-16 pb-8 sm:pb-12">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Infrastructure</h3>
-                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">NAS Sync Status</h2>
-                </div>
-                <button id="syncNowBtn" onclick="triggerNasSync()"
-                    class="btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold">
-                    <svg id="syncIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    <span id="syncBtnText">Sync Now</span>
-                </button>
-            </div>
-
-            <div id="nasSyncCard" class="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-
-                <!-- Loading -->
-                <div id="nasLoading" class="flex justify-center items-center py-12 text-gray-400">
-                    <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                </div>
-
-                <!-- Error fetching -->
-                <div id="nasError" class="hidden text-center py-12 px-6 text-gray-500 font-medium">
-                    <svg class="w-8 h-8 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    Could not fetch sync status
-                </div>
-
-                <!-- Content -->
-                <div id="nasContent" class="hidden">
-
-                    <!-- Disabled / not configured -->
-                    <div id="nasDisabledMsg" class="hidden text-center py-12 px-6 text-gray-500 font-medium">
-                        <svg class="w-8 h-8 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                        </svg>
-                        NAS sync is not configured
-                    </div>
-
-                    <!-- Active details -->
-                    <div id="nasDetails" class="hidden">
-
-                        <!-- Status header bar -->
-                        <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-100 bg-gray-50/60">
-                            <span id="nasStatusDot" class="status-dot bg-gray-300"></span>
-                            <span id="nasStatusText" class="text-sm font-semibold text-gray-700">Checking…</span>
-                        </div>
-
-                        <!-- Stats grid -->
-                        <div class="grid grid-cols-2 sm:grid-cols-3">
-                            <div class="nas-field-cell">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Sync Enabled</p>
-                                <p id="nasEnabled" class="text-sm font-semibold text-gray-900">—</p>
-                            </div>
-                            <div class="nas-field-cell">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Connection</p>
-                                <p id="nasConnection" class="text-sm font-semibold text-gray-900">—</p>
-                            </div>
-                            <div class="nas-field-cell">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Pending Files</p>
-                                <p id="nasPending" class="text-sm font-semibold text-gray-900">—</p>
-                            </div>
-                            <div class="nas-field-cell">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Last Sync</p>
-                                <p id="nasLastSync" class="text-sm font-semibold text-gray-900">—</p>
-                            </div>
-                            <div class="nas-field-cell">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Last Cleanup</p>
-                                <p id="nasLastCleanup" class="text-sm font-semibold text-gray-900">—</p>
-                            </div>
-                            <div class="nas-field-cell">
-                                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Total Tracked</p>
-                                <p id="nasTotalTracked" class="text-sm font-semibold text-gray-900">—</p>
-                            </div>
-                        </div>
-
-                        <!-- Error log (collapsible) -->
-                        <div id="nasErrorSection" class="hidden border-t border-gray-100">
-                            <button onclick="toggleNasErrors()"
-                                class="w-full flex items-center justify-between px-6 py-3.5 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors">
-                                <span class="flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span id="nasErrorCount">Errors</span>
-                                </span>
-                                <svg id="nasErrorChevron" class="w-4 h-4 transition-transform duration-200"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <div id="nasErrorList" class="hidden px-6 pb-5 space-y-2"></div>
-                        </div>
-
-                        <!-- Sync trigger feedback -->
-                        <div id="nasSyncMsg" class="hidden px-6 py-3 text-xs font-medium text-center border-t border-gray-100"></div>
-
-                    </div>
-                </div>
-            </div>
-            <p class="text-[10px] text-gray-400 text-right mt-2 font-mono">Auto-refreshes every 30 s</p>
-        </div>
-        <!-- ── /NAS Sync Status ─────────────────────────────────── -->
-
-        <!-- ── Access Control (superadmin only) ─────────────────── -->
-        <div id="accessControlSection" class="hidden mt-12 sm:mt-16 pb-8 sm:pb-12">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Superadmin</h3>
-                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Access Control</h2>
-                </div>
-            </div>
-
-            <!-- How it works — explanation card -->
-            <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-5 text-sm text-blue-800">
-                <p class="font-semibold mb-2">📋 How Access Control Works</p>
-                <ul class="space-y-1 text-xs leading-relaxed text-blue-700">
-                    <li>• New accounts start with <strong>zero access</strong> — they can't see anything until you grant it here.</li>
-                    <li>• <strong>Master toggle ON</strong> = sees all projects by default. Use project toggles to block specific ones.</li>
-                    <li>• <strong>Master toggle OFF</strong> = sees NO projects. Use project toggles to grant specific ones.</li>
-                    <li>• Module toggles control which tabs are visible within a project (e.g. disable OTDR for a specific person).</li>
-                    <li>• Only you (superadmin) can create, delete, or manage projects.</li>
-                </ul>
-            </div>
-
-            <!-- User selector -->
-            <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm mb-5">
-                <label class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 block">Select User</label>
-                <select id="aclUserSelect" class="form-input mb-4" onchange="loadUserACL()">
-                    <option value="">— Choose a user —</option>
-                </select>
-
-                <!-- User role info banner — shown when a user is selected -->
-                <div id="aclUserRoleBanner" class="hidden mb-4 p-3 rounded-xl text-xs font-medium flex items-center gap-2"></div>
-
-                <div id="aclPanel" class="hidden">
-
-                    <!-- Full Access toggle -->
-                    <div class="flex items-center justify-between py-4 px-4 bg-gray-50 rounded-xl border border-gray-200 mb-5">
-                        <div>
-                            <p class="text-sm font-semibold text-gray-900">🔓 Full Access</p>
-                            <p class="text-xs text-gray-500 mt-1">Grants complete read+write access to everything. All other settings ignored.</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer ml-4 flex-shrink-0">
-                            <input type="checkbox" id="aclFullAccess" class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gray-900"></div>
-                        </label>
-                    </div>
-
-                    <!-- Granular sections (hidden when fullAccess is ON) -->
-                    <div id="aclGranularSections">
-
-                        <!-- Authority Permissions -->
-                        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm mb-4">
-                            <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Authority Permissions</p>
-                            <p class="text-xs text-gray-400 mb-4">These permissions grant elevated control over the project hub. Enable with caution.</p>
-                            <div class="space-y-3" id="aclAuthorityPerms">
-                                <!-- Rendered by JS -->
-                            </div>
-                        </div>
-
-                        <!-- Project Access -->
-                        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm mb-5">
-                            <div class="flex items-center justify-between mb-4">
-                                <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">Project Access</p>
-                                <div class="flex gap-3">
-                                    <button type="button" onclick="aclSelectAllProjects(true)" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline">Enable All</button>
-                                    <span class="text-gray-300">|</span>
-                                    <button type="button" onclick="aclSelectAllProjects(false)" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline">Disable All</button>
-                                </div>
-                            </div>
-                            <div id="aclProjectList" class="space-y-2"></div>
-                        </div>
-
-                    </div>
-
-                    <!-- Action buttons -->
-                    <div class="flex gap-3 flex-wrap">
-                        <button onclick="saveUserACL()" class="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold">
-                            💾 Save Changes
-                        </button>
-                        <button onclick="resetUserACL()" class="px-6 py-2.5 rounded-xl text-sm font-semibold border border-gray-200 text-gray-700 hover:bg-gray-50 transition-colors">
-                            Reset to No Access
-                        </button>
-                    </div>
-
-                    <!-- Feedback -->
-                    <div id="aclFeedback" class="hidden mt-4 p-3 rounded-xl text-sm font-medium"></div>
-                </div>
-
-                <div id="aclNoUser" class="py-6 text-center text-gray-400 text-sm">
-                    Select a user above to manage their access permissions.
-                </div>
-            </div>
-        </div>
-        <!-- ── /Access Control ────────────────────────────────────── -->
-
-        <!-- ── Super Logs (superadmin only) ──────────────────────── -->
-        <div id="superLogsSection" class="hidden mt-12 sm:mt-16 pb-8 sm:pb-12">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-6">
-                <div>
-                    <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">System Monitor</h3>
-                    <h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-900">Super Logs</h2>
-                </div>
-                <a href="superlog.html"
-                   style="background:#0d1117; border:1px solid #22c55e; color:#22c55e; font-family:'JetBrains Mono','Cascadia Code','Consolas',monospace; font-size:13px; font-weight:700; padding:10px 20px; border-radius:10px; letter-spacing:0.04em; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all 0.15s;"
-                   onmouseover="this.style.background='#22c55e'; this.style.color='#0d1117';"
-                   onmouseout="this.style.background='#0d1117'; this.style.color='#22c55e';">
-                    <span style="font-size:15px;">▶</span> Open Terminal
-                </a>
-            </div>
-            <div style="background:#0d1117; border:1px solid #30363d; border-radius:16px; padding:20px 24px;">
-                <p style="font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; color:#4b5563; margin-bottom:8px;">// Live system event monitor — SUPERADMIN ONLY</p>
-                <p style="font-family:'JetBrains Mono','Consolas',monospace; font-size:12px; color:#22c55e;">
-                    Tracks: <span style="color:#06b6d4;">requests</span> · <span style="color:#60a5fa;">auth</span> · <span style="color:#f59e0b;">files</span> · <span style="color:#a78bfa;">sync</span> · <span style="color:#34d399;">chat</span> · <span style="color:#ef4444;">errors</span> · <span style="color:#6b7280;">system</span>
-                </p>
-            </div>
-        </div>
-        <!-- ── /Super Logs ────────────────────────────────────────── -->
-
-    </main>
-
-    <!-- ══════════════════════════════════════════════════════════
-         EDIT USER MODAL
-    ═══════════════════════════════════════════════════════════ -->
-    <div id="editModal" class="modal-overlay hidden" onclick="if(event.target===this)closeEditModal()">
-        <div class="modal-box">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Admin Action</p>
-                    <h3 class="text-lg font-bold text-gray-900">Edit User</h3>
-                </div>
-                <button onclick="closeEditModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <p class="text-xs text-gray-500 font-mono mb-5" id="editTargetEmail"></p>
-
-            <div class="flex flex-col gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Username</label>
-                    <input id="editUsername" type="text" class="form-input" placeholder="Min. 3 characters" autocomplete="off">
-                    <p class="text-[11px] text-gray-400 mt-1">Leave empty to keep current username.</p>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">New Password</label>
-                    <input id="editPassword" type="password" class="form-input" placeholder="Min. 4 characters (leave blank to keep)">
-                    <p class="text-[11px] text-gray-400 mt-1">Leave blank to keep current password.</p>
-                </div>
-            </div>
-
-            <!-- Feedback message -->
-            <div id="editFeedback" class="hidden mt-4 p-3 rounded-lg text-sm font-medium"></div>
-
-            <div class="flex gap-3 mt-6">
-                <button onclick="closeEditModal()" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-                <button onclick="submitEditUser()" id="editSubmitBtn" class="flex-1 btn-primary py-2.5 rounded-xl text-sm font-semibold">Save Changes</button>
-            </div>
+        <!-- Shown while generatorSettingsSection is hidden -->
+        <div id="generatorFallback" class="py-20 text-center text-slate-400">
+            <span class="material-symbols-outlined text-4xl mb-3 block">settings</span>
+            <p class="font-medium">Loading generator settings…</p>
         </div>
     </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         SESSIONS MODAL
-    ═══════════════════════════════════════════════════════════ -->
-    <div id="sessionsModal" class="modal-overlay hidden" onclick="if(event.target===this)closeSessionsModal()">
-        <div class="modal-box sessions-box">
-            <div class="flex items-center justify-between mb-5">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">Login History</p>
-                    <h3 class="text-lg font-bold text-gray-900" id="sessionsModalTitle">Sessions</h3>
-                </div>
-                <button onclick="closeSessionsModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+</div><!-- /#main-content -->
+
+<!-- ══════════════════════════════════════════════════════════
+     MOBILE BOTTOM NAV
+═══════════════════════════════════════════════════════════ -->
+<div id="bottom-nav">
+    <button class="bottom-nav-item active" onclick="switchMainTab('users', null); setBottomActive(this)">
+        <span class="material-symbols-outlined">group</span>
+        Users
+    </button>
+    <button class="bottom-nav-item" onclick="switchMainTab('acl', null); setBottomActive(this)">
+        <span class="material-symbols-outlined">key</span>
+        ACL
+    </button>
+    <button class="bottom-nav-item" onclick="switchMainTab('nas', null); setBottomActive(this)">
+        <span class="material-symbols-outlined">sync</span>
+        NAS
+    </button>
+    <button class="bottom-nav-item" onclick="switchMainTab('generator', null); setBottomActive(this)">
+        <span class="material-symbols-outlined">settings</span>
+        Generator
+    </button>
+    <a href="profile.html" class="bottom-nav-item">
+        <span class="material-symbols-outlined">person</span>
+        Profile
+    </a>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     EDIT USER MODAL
+═══════════════════════════════════════════════════════════ -->
+<div id="editModal" class="modal-overlay hidden" onclick="if(event.target===this)closeEditModal()">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Admin Action</p>
+                <h3 class="text-lg font-bold text-gray-900">Edit User</h3>
             </div>
+            <button onclick="closeEditModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
 
-            <!-- Device summary chips -->
-            <div id="sessionsDevices" class="flex flex-wrap gap-2 mb-4"></div>
+        <p class="text-xs text-gray-500 font-mono mb-5" id="editTargetEmail"></p>
 
-            <!-- Sessions list -->
-            <div id="sessionsList" class="flex flex-col">
-                <div class="py-8 text-center text-gray-400 text-sm">Loading…</div>
+        <div class="flex flex-col gap-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Username</label>
+                <input id="editUsername" type="text" class="form-input" placeholder="Min. 3 characters" autocomplete="off">
+                <p class="text-[11px] text-gray-400 mt-1">Leave empty to keep current username.</p>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">New Password</label>
+                <input id="editPassword" type="password" class="form-input" placeholder="Min. 4 characters (leave blank to keep)">
+                <p class="text-[11px] text-gray-400 mt-1">Leave blank to keep current password.</p>
             </div>
         </div>
-    </div>
 
-    <!-- ══════════════════════════════════════════════════════════
-         STATS MODAL
-    ═══════════════════════════════════════════════════════════ -->
-    <div id="statsModal" class="modal-overlay hidden" onclick="if(event.target===this)closeStatsModal()">
-        <div class="modal-box">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-0.5">User Activity</p>
-                    <h3 class="text-lg font-bold text-gray-900" id="statsModalTitle">Stats</h3>
-                </div>
-                <button onclick="closeStatsModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            <div id="statsContent" class="grid grid-cols-2 gap-3">
-                <div class="col-span-2 py-6 text-center text-gray-400 text-sm">Loading…</div>
-            </div>
+        <div id="editFeedback" class="hidden mt-4 p-3 rounded-lg text-sm font-medium"></div>
+
+        <div class="flex gap-3 mt-6">
+            <button onclick="closeEditModal()" class="flex-1 btn-secondary py-2.5 text-sm">Cancel</button>
+            <button onclick="submitEditUser()" id="editSubmitBtn" class="flex-1 btn-primary py-2.5 text-sm">Save Changes</button>
         </div>
     </div>
+</div>
 
-    <script src="src/js/api.js"></script>
-    <script src="src/js/logout.js"></script>
-    <script>
+<!-- ══════════════════════════════════════════════════════════
+     SESSIONS MODAL
+═══════════════════════════════════════════════════════════ -->
+<div id="sessionsModal" class="modal-overlay hidden" onclick="if(event.target===this)closeSessionsModal()">
+    <div class="modal-box sessions-box">
+        <div class="flex items-center justify-between mb-5">
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Login History</p>
+                <h3 class="text-lg font-bold text-gray-900" id="sessionsModalTitle">Sessions</h3>
+            </div>
+            <button onclick="closeSessionsModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="sessionsDevices" class="flex flex-wrap gap-2 mb-4"></div>
+        <div id="sessionsList" class="flex flex-col">
+            <div class="py-8 text-center text-gray-400 text-sm">Loading…</div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     STATS MODAL
+═══════════════════════════════════════════════════════════ -->
+<div id="statsModal" class="modal-overlay hidden" onclick="if(event.target===this)closeStatsModal()">
+    <div class="modal-box">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">User Activity</p>
+                <h3 class="text-lg font-bold text-gray-900" id="statsModalTitle">Stats</h3>
+            </div>
+            <button onclick="closeStatsModal()" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div id="statsContent" class="grid grid-cols-2 gap-3">
+            <div class="col-span-2 py-6 text-center text-gray-400 text-sm">Loading…</div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     LAYOUT SCRIPTS (visual only — no functional JS changed)
+═══════════════════════════════════════════════════════════ -->
+<script>
+    // ── Sidebar open/close ─────────────────────────────────────────────
+    function openSidebar() {
+        document.getElementById('sidebar').classList.add('open');
+        document.getElementById('sidebar-overlay').classList.add('open');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+
+    // ── Main tab switching ─────────────────────────────────────────────
+    const mainTabs = ['users', 'acl', 'nas', 'generator'];
+    function switchMainTab(name, btnEl) {
+        mainTabs.forEach(t => {
+            const el = document.getElementById('mainTab-' + t);
+            if (el) el.classList.toggle('hidden', t !== name);
+        });
+        // Update desktop tab buttons
+        document.querySelectorAll('.main-tab-btn').forEach(b => b.classList.remove('active'));
+        if (btnEl) btnEl.classList.add('active');
+        // Close sidebar on mobile
+        closeSidebar();
+    }
+
+    // ── Bottom nav active state ────────────────────────────────────────
+    function setBottomActive(el) {
+        document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    // ── Show superadmin-only links ─────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+        const r = localStorage.getItem('userRole');
+        if (r === 'superadmin') {
+            const lnk = document.getElementById('sidebarSuperLogsLink');
+            if (lnk) lnk.style.display = '';
+        }
+        // Hide fallback once generatorSettingsSection becomes visible
+        // (JS will call style.display='' on it — watch for that)
+        const obs = new MutationObserver(() => {
+            const gs = document.getElementById('generatorSettingsSection');
+            const fb = document.getElementById('generatorFallback');
+            if (gs && fb) {
+                fb.style.display = gs.style.display === 'none' ? '' : 'none';
+            }
+        });
+        const gs = document.getElementById('generatorSettingsSection');
+        if (gs) obs.observe(gs, { attributes: true, attributeFilter: ['style'] });
+
+        // Show ACL section or fallback
+        const aclSec = document.getElementById('accessControlSection');
+        const aclFall = document.getElementById('aclFallback');
+        if (r === 'superadmin') {
+            if (aclSec) aclSec.classList.remove('hidden');
+            if (aclFall) aclFall.classList.add('hidden');
+        } else {
+            if (aclSec) aclSec.classList.add('hidden');
+            if (aclFall) aclFall.classList.remove('hidden');
+        }
+    });
+</script>
+
+<script src="src/js/api.js"></script>
+<script src="src/js/logout.js"></script>
+<script>
         // ── XSS escape helper ─────────────────────────────────────────────────
         function escapeHtml(str) {
             if (str == null) return '';
@@ -502,9 +905,9 @@
 
             window.switchTab = function(tabName) {
                 currentTab = tabName;
-                document.getElementById('tab-pending').className = tabName === 'pending' ? 'flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all' : 'flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all';
-                document.getElementById('tab-approved').className = tabName === 'approved' ? 'flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all' : 'flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all';
-                document.getElementById('tab-logs').className = tabName === 'logs' ? 'flex-1 sm:px-6 py-2 text-sm font-semibold rounded-md bg-white text-gray-900 shadow-sm transition-all' : 'flex-1 sm:px-6 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-900 transition-all';
+                document.getElementById('tab-pending').className = tabName === 'pending' ? 'sub-tab-btn active' : 'sub-tab-btn';
+                document.getElementById('tab-approved').className = tabName === 'approved' ? 'sub-tab-btn active' : 'sub-tab-btn';
+                document.getElementById('tab-logs').className = tabName === 'logs' ? 'sub-tab-btn active' : 'sub-tab-btn';
                 
                 if (tabName === 'logs') {
                     loadLogs();
@@ -526,17 +929,17 @@
                 usersGrid.innerHTML = '';
 
                 if (allLogs.length === 0) {
-                    usersGrid.innerHTML = `<div class="py-16 text-center text-gray-500 font-medium bg-gray-100/50 rounded-2xl border border-gray-200 border-dashed">No logs found.</div>`;
+                    usersGrid.innerHTML = `<div class="py-16 text-center text-gray-500 font-medium dp-card border-dashed">No logs found.</div>`;
                     return;
                 }
 
                 const uniqueUsers = [...new Set(allLogs.map(l => l.user).filter(Boolean))].sort();
 
                 const filterBar = document.createElement('div');
-                filterBar.className = 'flex items-center gap-3 mb-1 p-3 bg-white border border-gray-200 rounded-xl shadow-sm';
+                filterBar.className = 'flex items-center gap-3 mb-1 p-3 dp-card shadow-sm';
                 filterBar.innerHTML = `
                     <label class="text-xs font-semibold text-gray-500 uppercase tracking-wider whitespace-nowrap">Filter by user</label>
-                    <select id="logUserFilter" class="flex-1 text-sm font-medium text-gray-800 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-colors cursor-pointer">
+                    <select id="logUserFilter" class="flex-1 text-sm font-medium text-gray-800 bg-gray-50 border border-[#E2E8F0] rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#022448]/20 transition-colors cursor-pointer">
                         <option value="all">All Users</option>
                         ${uniqueUsers.map(u => `<option value="${u.replace(/"/g, '&quot;')}"${selectedUser === u ? ' selected' : ''}>${u}</option>`).join('')}
                     </select>
@@ -554,7 +957,7 @@
 
                 if (visibleLogs.length === 0) {
                     const empty = document.createElement('div');
-                    empty.className = 'py-16 text-center text-gray-500 font-medium bg-gray-100/50 rounded-2xl border border-gray-200 border-dashed';
+                    empty.className = 'py-16 text-center text-gray-500 font-medium dp-card border-dashed';
                     empty.textContent = `No logs for "${selectedUser}".`;
                     usersGrid.appendChild(empty);
                     return;
@@ -565,7 +968,7 @@
                     const formattedDate = d.toLocaleString();
                     const detailsHtml = (log.details || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
                     const card = document.createElement('div');
-                    card.className = 'bg-white border border-gray-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-gray-300 transition-colors shadow-sm';
+                    card.className = 'dp-card p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-[#cbd5e1] transition-colors shadow-sm';
                     card.innerHTML = `
                         <div class="flex items-start gap-4">
                             <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
@@ -619,18 +1022,18 @@
             function roleBadgeHTML(role) {
                 // Only show badge for superadmin — everyone else is just a regular user, no need to label
                 if (role === 'superadmin') {
-                    return `<span class="px-2 py-0.5 bg-purple-50 text-purple-700 rounded text-[10px] font-bold uppercase tracking-wider">Superadmin</span>`;
+                    return `<span class="badge badge-purple">Superadmin</span>`;
                 }
                 return '';
             }
 
             function renderUsers() {
-                usersGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5';
+                usersGrid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4';
                 usersGrid.innerHTML = '';
                 const filtered = allUsers.filter(u => currentTab === 'pending' ? u.status === 'pending' : u.status === 'approved');
                 
                 if (filtered.length === 0) {
-                    usersGrid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500 font-medium bg-gray-100/50 rounded-2xl border border-gray-200 border-dashed">No ${currentTab} users found.</div>`;
+                    usersGrid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500 font-medium dp-card" style="border-style:dashed">No ${currentTab} users found.</div>`;
                     return;
                 }
 
@@ -647,42 +1050,42 @@
                     let actions;
                     if (currentTab === 'pending') {
                         actions = `
-                        <div class="flex gap-2 mt-2 pt-4 border-t border-gray-100">
-                            <button onclick="updateUserStatus('${jsEmail}', 'approved')" class="flex-1 bg-gray-900 hover:bg-gray-800 text-white text-xs font-semibold py-2 rounded-lg transition-colors">Approve</button>
-                            <button onclick="rejectUser('${jsEmail}', '${jsName}')" class="flex-1 bg-white hover:bg-red-50 text-red-600 border border-gray-200 text-xs font-semibold py-2 rounded-lg transition-colors">Reject</button>
+                        <div class="flex gap-2 mt-2 pt-4 border-t border-[#E2E8F0]">
+                            <button onclick="updateUserStatus('${jsEmail}', 'approved')" class="flex-1 btn-primary text-xs py-2 px-3">Approve</button>
+                            <button onclick="rejectUser('${jsEmail}', '${jsName}')" class="flex-1 btn-danger text-xs py-2 px-3">Reject</button>
                         </div>`;
                     } else {
                         // Approved tab — superadmin gets Edit access
                         const isSuperadminViewer = userRole === 'superadmin';
 
                         const editBtn = isSuperadminViewer
-                            ? `<button onclick="openEditModal('${jsEmail}', '${jsUsername}')" class="flex-1 min-w-[70px] btn-primary text-xs font-semibold py-2 rounded-lg transition-colors">Edit</button>`
+                            ? `<button onclick="openEditModal('${jsEmail}', '${jsUsername}')" class="flex-1 min-w-[70px] btn-primary text-xs py-2 px-3">Edit</button>`
                             : '';
 
                         // No role selector — roles are no longer changeable (everyone is 'user', access via ACL)
                         const roleSelector = '';
 
                         const terminateBtn = isSuperadminViewer
-                            ? `<button onclick="terminateSession('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 text-xs font-semibold py-2 rounded-lg transition-colors">⏻ Terminate</button>`
+                            ? `<button onclick="terminateSession('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] btn-danger text-xs py-2 px-3">⏻ Terminate</button>`
                             : '';
 
                         actions = `
-                        <div class="flex gap-2 mt-2 pt-4 border-t border-gray-100 flex-wrap">
+                        <div class="flex gap-2 mt-2 pt-4 border-t border-[#E2E8F0] flex-wrap">
                             ${editBtn}
-                            <button onclick="openSessionsModal('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 text-xs font-semibold py-2 rounded-lg transition-colors">Sessions</button>
-                            <button onclick="openStatsModal('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs font-semibold py-2 rounded-lg transition-colors">Stats</button>
+                            <button onclick="openSessionsModal('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-100 text-xs font-semibold py-2 rounded-lg transition-colors px-3">Sessions</button>
+                            <button onclick="openStatsModal('${jsEmail}', '${jsName}')" class="flex-1 min-w-[70px] btn-secondary text-xs py-2 px-3">Stats</button>
                             ${terminateBtn}
                         </div>
                         ${roleSelector}
                         <div class="mt-1">
-                            <button onclick="updateUserStatus('${jsEmail}', 'pending')" class="w-full bg-white hover:bg-red-50 text-red-600 border border-gray-200 text-xs font-semibold py-2 rounded-lg transition-colors">Revoke Access</button>
+                            <button onclick="updateUserStatus('${jsEmail}', 'pending')" class="w-full btn-danger text-xs py-2">Revoke Access</button>
                         </div>`;
                     }
 
                     usersGrid.innerHTML += `
                         <div class="user-card">
                             <div class="flex justify-between items-start">
-                                <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-sm">
+                                <div class="w-10 h-10 rounded-full bg-[#022448]/10 flex items-center justify-center text-[#022448] font-bold text-sm">
                                     ${escapeHtml(u.name.charAt(0).toUpperCase())}
                                 </div>
                                 ${roleBadgeHTML(u.role)}
@@ -759,6 +1162,7 @@
                         'x-user-role':  localStorage.getItem('userRole')  || ''
                     },
                     body: JSON.stringify(body)
+
                 });
                 const data = await res.json();
                 if (data.success) {
@@ -1006,8 +1410,8 @@
                 const isSA = (u.role || '').toLowerCase() === 'superadmin';
 
                 return `
-                <div class="flex items-center gap-3 px-3 py-2 rounded-xl ${isSA ? 'bg-gray-50 border border-gray-100' : 'bg-gray-50 border border-gray-100'}">
-                    <div class="w-7 h-7 rounded-full ${isSA ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-700'} flex items-center justify-center text-xs font-bold flex-shrink-0">${escapeHtml(initial)}</div>
+                <div class="flex items-center gap-3 px-3 py-2 rounded-xl bg-gray-50 border border-[#E2E8F0]">
+                    <div class="w-7 h-7 rounded-full ${isSA ? 'bg-[#022448] text-white' : 'bg-gray-200 text-gray-700'} flex items-center justify-center text-xs font-bold flex-shrink-0">${escapeHtml(initial)}</div>
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-900 truncate">${uName}</p>
                         <p class="text-xs text-gray-400 truncate">${uEmail}</p>
@@ -1216,7 +1620,7 @@
                 const res  = await fetch('/api/admin/sync-trigger', { method: 'POST' });
                 const data = await res.json();
 
-                msgEl.className = 'px-6 py-3 text-xs font-medium text-center border-t border-gray-100 ' +
+                msgEl.className = 'px-6 py-3 text-xs font-medium text-center border-t border-[#E2E8F0] ' +
                     (data.success ? 'text-green-600' : 'text-red-600');
                 msgEl.textContent = data.message || (data.success ? 'Sync triggered successfully' : 'Sync failed');
                 msgEl.classList.remove('hidden');
@@ -1224,7 +1628,7 @@
                 await loadNasSyncStatus();
                 setTimeout(() => msgEl.classList.add('hidden'), 5000);
             } catch (e) {
-                msgEl.className = 'px-6 py-3 text-xs font-medium text-center border-t border-gray-100 text-red-600';
+                msgEl.className = 'px-6 py-3 text-xs font-medium text-center border-t border-[#E2E8F0] text-red-600';
                 msgEl.textContent = 'Could not trigger sync';
                 msgEl.classList.remove('hidden');
                 setTimeout(() => msgEl.classList.add('hidden'), 5000);
@@ -1359,7 +1763,7 @@
                 if (banner) {
                     const u = aclAllUsers.find(u => u.email === aclCurrentEmail);
                     if (u) {
-                        banner.className = 'mb-4 p-3 rounded-xl text-xs font-medium flex items-start gap-2 bg-gray-50 border border-gray-200 text-gray-700';
+                        banner.className = 'mb-4 p-3 rounded-xl text-xs font-medium flex items-start gap-2 bg-gray-50 border border-[#E2E8F0] text-gray-700';
                         banner.innerHTML = `<span class="text-base">👤</span><div><strong>${escapeHtml(u.name)}</strong> (${escapeHtml(u.email)})<br><span class="opacity-75">Manage this user's granular access below.</span></div>`;
                         banner.classList.remove('hidden');
                     }
@@ -1435,7 +1839,7 @@
                     <span class="text-sm text-gray-700">${escapeHtml(perm.label)}</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" class="sr-only peer acl-authority-toggle" data-perm="${perm.key}" data-label="${escapeHtml(perm.label)}" ${checked ? 'checked' : ''}>
-                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gray-900"></div>
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#022448]"></div>
                     </label>
                 `;
                 // Confirmation dialog on toggle ON; reverse sync both directions
@@ -1473,7 +1877,7 @@
                 const pCanEdit = pData ? pData.canEdit === true : false;
 
                 const wrapper = document.createElement('div');
-                wrapper.className = 'border border-gray-200 rounded-xl overflow-hidden';
+                wrapper.className = 'border border-[#E2E8F0] rounded-xl overflow-hidden';
                 wrapper.dataset.project = pName;
 
                 // Project row header
@@ -1483,7 +1887,7 @@
                     <div class="flex items-center gap-3">
                         <label class="relative inline-flex items-center cursor-pointer" onclick="event.stopPropagation()">
                             <input type="checkbox" class="sr-only peer acl-project-toggle" data-project="${escapeHtml(pName)}" ${pAccess ? 'checked' : ''}>
-                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gray-900"></div>
+                            <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#022448]"></div>
                         </label>
                         <span class="text-sm font-semibold text-gray-900">${escapeHtml(pName)}</span>
                         <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded acl-access-badge ${pAccess ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-500'}">${pAccess ? 'Allowed' : 'Blocked'}</span>
@@ -1496,11 +1900,11 @@
 
                 // Expanded details section (collapsible)
                 const detailsSection = document.createElement('div');
-                detailsSection.className = 'hidden border-t border-gray-100 bg-white px-4 py-4 acl-detail-section';
+                detailsSection.className = 'hidden border-t border-[#E2E8F0] bg-white px-4 py-4 acl-detail-section';
 
                 // Edit toggle
                 const editRow = document.createElement('div');
-                editRow.className = 'flex items-center justify-between mb-4 pb-3 border-b border-gray-100';
+                editRow.className = 'flex items-center justify-between mb-4 pb-3 border-b border-[#E2E8F0]';
                 editRow.innerHTML = `
                     <div>
                         <span class="text-sm font-semibold text-gray-800">Edit</span>
@@ -1508,7 +1912,7 @@
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" class="sr-only peer acl-canedit-toggle" data-project="${escapeHtml(pName)}" ${pCanEdit ? 'checked' : ''}>
-                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-gray-900"></div>
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#022448]"></div>
                     </label>
                 `;
                 detailsSection.appendChild(editRow);
@@ -1519,9 +1923,9 @@
                 modHeaderRow.innerHTML = `
                     <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Modules</p>
                     <div class="flex gap-3 flex-shrink-0">
-                        <button type="button" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline" onclick="aclSelectAllModules('${escapeHtml(pName)}', true)">All On</button>
+                        <button type="button" class="text-xs font-semibold text-gray-500 hover:text-[#022448] underline" onclick="aclSelectAllModules('${escapeHtml(pName)}', true)">All On</button>
                         <span class="text-gray-300">|</span>
-                        <button type="button" class="text-xs font-semibold text-gray-500 hover:text-gray-900 underline" onclick="aclSelectAllModules('${escapeHtml(pName)}', false)">All Off</button>
+                        <button type="button" class="text-xs font-semibold text-gray-500 hover:text-[#022448] underline" onclick="aclSelectAllModules('${escapeHtml(pName)}', false)">All Off</button>
                     </div>
                 `;
                 detailsSection.appendChild(modHeaderRow);
@@ -1538,7 +1942,7 @@
                     const row = document.createElement('label');
                     row.className = 'flex items-center gap-2 py-1.5 cursor-pointer group';
                     row.innerHTML = `
-                        <input type="checkbox" class="w-4 h-4 acl-module-toggle cursor-pointer accent-gray-900 flex-shrink-0"
+                        <input type="checkbox" class="w-4 h-4 acl-module-toggle cursor-pointer accent-[#022448] flex-shrink-0"
                             data-project="${escapeHtml(pName)}" data-module="${mod.key}" ${mChecked ? 'checked' : ''}>
                         <span class="text-xs text-gray-700 group-hover:text-gray-900">${escapeHtml(mod.label)}</span>
                     `;
@@ -1599,9 +2003,7 @@
          * aclSelectAllModules — set all module checkboxes for a project to on/off
          */
         window.aclSelectAllModules = function(projectName, checked) {
-            document.querySelectorAll(`.acl-module-toggle[data-project="${CSS.escape(projectName)}"]`).forEach(cb => {
-                cb.checked = checked;
-            });
+            document.querySelectorAll(`.acl-module-toggle[data-project="${CSS.escape(projectName)}"]`).forEach(cb => { cb.checked = checked; });
         };
 
         /**
@@ -1639,12 +2041,10 @@
             });
 
             // Preserve stale entries in ACL (projects that no longer exist)
-            // by merging back any existing projects not in the rendered list.
             if (aclCurrentData && aclCurrentData.projects) {
                 const renderedNames = new Set(aclAllProjects.map(p => p.name));
                 for (const [pName, pData] of Object.entries(aclCurrentData.projects)) {
                     if (!renderedNames.has(pName)) {
-                        // Keep stale entry as-is in ACL (don't delete it)
                         projects[pName] = pData;
                     }
                 }
@@ -1680,7 +2080,7 @@
         };
 
         /**
-         * resetUserACL — reset user to a clean zero-access state (NOT full access)
+         * resetUserACL — reset user to a clean zero-access state
          */
         window.resetUserACL = async function() {
             if (!aclCurrentEmail) return;
@@ -1726,30 +2126,31 @@
 
         /**
          * showFullAccessConfirm — confirm before granting Full Access.
-         * If confirmed, turns ON all authority perms + project toggles.
-         * If cancelled, reverts the toggle.
          */
         function showFullAccessConfirm(toggleEl) {
             const backdrop = document.createElement('div');
             backdrop.id = 'fullAccessConfirmBackdrop';
             backdrop.style.cssText = `
                 position:fixed; inset:0; z-index:9999;
-                background:rgba(0,0,0,0.45);
-                backdrop-filter:blur(4px);
-                -webkit-backdrop-filter:blur(4px);
+                background:rgba(2,36,72,0.45);
+                backdrop-filter:blur(8px);
+                -webkit-backdrop-filter:blur(8px);
                 display:flex; align-items:center; justify-content:center;
                 animation:fadeIn 0.15s ease;
             `;
 
             const modal = document.createElement('div');
             modal.style.cssText = `
-                background:#fff;
+                background:rgba(255,255,255,0.95);
+                backdrop-filter:blur(16px);
+                -webkit-backdrop-filter:blur(16px);
+                border:1px solid rgba(255,255,255,0.6);
                 border-radius:20px;
                 padding:28px 28px 24px;
                 max-width:400px;
                 width:calc(100% - 40px);
-                box-shadow:0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
-                animation:slideUp 0.18s ease;
+                box-shadow:0 24px 64px rgba(2,36,72,0.2), 0 4px 16px rgba(0,0,0,0.08);
+                animation:fadeUp 0.18s ease;
             `;
 
             modal.innerHTML = `
@@ -1762,12 +2163,12 @@
                 </p>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
                     <button id="fullAccessConfirmCancel" style="
-                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
-                        border:1px solid #e5e7eb;background:#f9fafb;color:#374151;cursor:pointer;
+                        padding:9px 20px;border-radius:8px;font-size:0.875rem;font-weight:600;
+                        border:1px solid #E2E8F0;background:#f8fafc;color:#374151;cursor:pointer;
                         transition:background 0.15s;
                     ">Cancel</button>
                     <button id="fullAccessConfirmOk" style="
-                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
+                        padding:9px 20px;border-radius:8px;font-size:0.875rem;font-weight:600;
                         border:none;background:#dc2626;color:#fff;cursor:pointer;
                         transition:background 0.15s;
                     ">Grant Full Access</button>
@@ -1785,9 +2186,7 @@
             });
 
             document.getElementById('fullAccessConfirmOk').addEventListener('click', function() {
-                // Turn ON all authority perms
                 document.querySelectorAll('.acl-authority-toggle').forEach(cb => { cb.checked = true; });
-                // Turn ON all project access + sub-toggles
                 document.querySelectorAll('.acl-project-toggle').forEach(cb => {
                     cb.checked = true;
                     cb.dispatchEvent(new Event('change'));
@@ -1806,33 +2205,32 @@
         }
 
         /**
-         * showAuthorityConfirm — show a glassmorphism confirmation modal before granting
-         * an Authority Permission toggle. If cancelled, reverts the toggle to OFF.
-         * @param {string} permLabel - Human-readable permission name
-         * @param {HTMLInputElement} toggleEl - The checkbox element that was just toggled ON
+         * showAuthorityConfirm — confirm before granting an Authority Permission.
          */
         function showAuthorityConfirm(permLabel, toggleEl) {
-            // Create backdrop
             const backdrop = document.createElement('div');
             backdrop.id = 'authorityConfirmBackdrop';
             backdrop.style.cssText = `
                 position:fixed; inset:0; z-index:9999;
-                background:rgba(0,0,0,0.45);
-                backdrop-filter:blur(4px);
-                -webkit-backdrop-filter:blur(4px);
+                background:rgba(2,36,72,0.45);
+                backdrop-filter:blur(8px);
+                -webkit-backdrop-filter:blur(8px);
                 display:flex; align-items:center; justify-content:center;
                 animation:fadeIn 0.15s ease;
             `;
 
             const modal = document.createElement('div');
             modal.style.cssText = `
-                background:#fff;
+                background:rgba(255,255,255,0.95);
+                backdrop-filter:blur(16px);
+                -webkit-backdrop-filter:blur(16px);
+                border:1px solid rgba(255,255,255,0.6);
                 border-radius:20px;
                 padding:28px 28px 24px;
                 max-width:400px;
                 width:calc(100% - 40px);
-                box-shadow:0 20px 60px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.08);
-                animation:slideUp 0.18s ease;
+                box-shadow:0 24px 64px rgba(2,36,72,0.2), 0 4px 16px rgba(0,0,0,0.08);
+                animation:fadeUp 0.18s ease;
             `;
 
             modal.innerHTML = `
@@ -1846,12 +2244,12 @@
                 </p>
                 <div style="display:flex;gap:10px;justify-content:flex-end;">
                     <button id="authorityConfirmCancel" style="
-                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
-                        border:1px solid #e5e7eb;background:#f9fafb;color:#374151;cursor:pointer;
+                        padding:9px 20px;border-radius:8px;font-size:0.875rem;font-weight:600;
+                        border:1px solid #E2E8F0;background:#f8fafc;color:#374151;cursor:pointer;
                         transition:background 0.15s;
                     ">Cancel</button>
                     <button id="authorityConfirmOk" style="
-                        padding:9px 20px;border-radius:10px;font-size:0.875rem;font-weight:600;
+                        padding:9px 20px;border-radius:8px;font-size:0.875rem;font-weight:600;
                         border:none;background:#dc2626;color:#fff;cursor:pointer;
                         transition:background 0.15s;
                     ">Confirm</button>
@@ -1861,22 +2259,18 @@
             backdrop.appendChild(modal);
             document.body.appendChild(backdrop);
 
-            function cleanup() {
-                backdrop.remove();
-            }
+            function cleanup() { backdrop.remove(); }
 
             document.getElementById('authorityConfirmCancel').addEventListener('click', function() {
-                toggleEl.checked = false; // revert
+                toggleEl.checked = false;
                 cleanup();
             });
 
             document.getElementById('authorityConfirmOk').addEventListener('click', function() {
-                // Keep toggle ON — just close
                 cleanup();
                 if (window._checkFullAccessAutoSync) window._checkFullAccessAutoSync();
             });
 
-            // Close on backdrop click (reverts toggle)
             backdrop.addEventListener('click', function(e) {
                 if (e.target === backdrop) {
                     toggleEl.checked = false;
