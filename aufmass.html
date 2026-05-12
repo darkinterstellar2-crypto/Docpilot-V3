@@ -3,171 +3,390 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DocPilot - Data Table</title>
+    <title>DocPilot - Aufmass Table</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Existing stylesheet (keep) -->
     <link rel="stylesheet" href="src/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        gray: { 50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db', 800: '#1f2937', 900: '#111827' }
+                        primary: '#022448',
+                        'primary-container': '#1e3a5f',
+                        'on-primary': '#ffffff',
+                        'on-primary-container': '#8aa4cf',
+                        accent: '#fea619',
+                        'surface': '#F8FAFC',
+                        'surface-lowest': '#ffffff',
+                        'outline-var': '#E2E8F0',
+                        'on-surface': '#191c1e',
+                        'on-surface-var': '#43474e',
+                        'error-bg': '#ffdad6',
+                        'error-text': '#ba1a1a',
+                        'success-bg': '#e6f4ea',
+                        'success-text': '#137333',
+                        'info-bg': '#d5e3ff',
+                        'info-text': '#1a56db',
+                    },
+                    spacing: {
+                        'sidebar': '240px',
                     }
                 }
             }
         }
     </script>
+
     <style>
-        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-        .glass-header { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        /* ── Material Icons size fix ── */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+            line-height: 1;
+            vertical-align: middle;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        /* ── Scrollbar ── */
         .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* ── Table ── */
         #data-table { table-layout: auto; width: max-content; min-width: 100%; }
+        #table-body tr:nth-child(even) { background-color: #F8FAFC; }
+        #table-body tr:hover { background-color: #EEF2FF !important; }
 
-        /* Alternating row colors */
-        #table-body tr:nth-child(even) { background-color: #f9fafb; }
-        #table-body tr:hover { background-color: #f0f4ff !important; }
-
-        /* Inline cell editing */
+        /* ── Inline cell editing (JS depends on these) ── */
         td[contenteditable="true"] { background: #eff6ff !important; outline: none; cursor: text; }
-        td[contenteditable="true"]:focus { background: #dbeafe !important; box-shadow: inset 0 0 0 2px #3b82f6; }
-        .cell-editing { background: #eff6ff !important; box-shadow: inset 0 0 0 2px #3b82f6; }
+        td[contenteditable="true"]:focus { background: #dbeafe !important; box-shadow: inset 0 0 0 2px #022448; }
+        .cell-editing { background: #eff6ff !important; box-shadow: inset 0 0 0 2px #022448; }
         .cell-dirty { background: #fefce8 !important; }
 
-        /* Selection highlights */
-        .col-selected { background: rgba(59, 130, 246, 0.08) !important; }
-        .row-selected { background: rgba(59, 130, 246, 0.08) !important; }
+        /* ── Selection ── */
+        .col-selected { background: rgba(2, 36, 72, 0.06) !important; }
+        .row-selected { background: rgba(2, 36, 72, 0.06) !important; }
 
-        /* Row number column */
+        /* ── Row number ── */
         .row-num-cell { user-select: none; }
-        .row-num-cell:hover { background: #e2e8f0 !important; }
+        .row-num-cell:hover { background: #E2E8F0 !important; }
 
-        /* Floating edit bar */
+        /* ── Floating edit bar ── */
         .edit-bar {
             position: fixed;
-            bottom: 16px;
+            bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid #e5e7eb;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid #E2E8F0;
             border-radius: 16px;
             padding: 10px 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0,0,0,0.06);
-            z-index: 50;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06);
+            z-index: 60;
             display: flex;
             align-items: center;
             gap: 10px;
             min-width: max-content;
             white-space: nowrap;
         }
+
+        /* ── Sidebar active state ── */
+        .nav-item-active {
+            border-left: 4px solid #fea619;
+            background: rgba(254, 166, 25, 0.1);
+            color: #ffffff;
+        }
+
+        /* ── Sticky frozen columns shadow ── */
+        .frozen-shadow { box-shadow: 4px 0 8px -4px rgba(0,0,0,0.12); }
+
+        /* ── Status badge base ── */
+        .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; line-height: 18px; white-space: nowrap; }
+        .badge-done    { background: #e6f4ea; color: #137333; }
+        .badge-pending { background: #f1f3f4; color: #5f6368; }
+        .badge-waiting { background: #d5e3ff; color: #1a56db; }
+        .badge-error   { background: #ffdad6; color: #ba1a1a; }
+
+        /* ── Table header groups ── */
+        .th-group { background: #022448; color: #ffffff; }
+        .th-sub   { background: #1e3a5f; color: #adc8f5; }
+
+        /* ── Gradient scroll hint ── */
+        .scroll-fade-right {
+            position: absolute; top: 0; right: 0; bottom: 0; width: 32px;
+            background: linear-gradient(to left, #ffffff, transparent);
+            pointer-events: none; z-index: 25;
+        }
+
+        /* ── Mobile bottom nav ── */
+        @media (max-width: 767px) {
+            .sidebar-desktop { display: none !important; }
+            .main-content { margin-left: 0 !important; }
+            body { padding-bottom: 64px; }
+        }
+        @media (min-width: 768px) {
+            .bottom-nav-mobile { display: none !important; }
+        }
     </style>
 </head>
-<body class="bg-gray-50 font-sans h-screen flex flex-col text-gray-900 overflow-hidden">
+<body class="bg-surface font-sans text-on-surface h-screen flex overflow-hidden">
 
-    <!-- Glass Header -->
-    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center shrink-0">
-        <div class="flex items-center gap-2 sm:gap-3">
-            <button id="backToHubBtn" class="p-2 -ml-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Back to Project Hub">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            </button>
-            <div class="w-px h-5 bg-gray-200 mx-1"></div>
-            <h1 class="text-base sm:text-lg font-bold tracking-tight truncate max-w-[180px] sm:max-w-md" id="headerProjectName">LOADING...</h1>
-        </div>
-        <div class="flex items-center gap-2">
-            <button onclick="window.location.href='profile.html'" class="p-2 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Profile">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            </button>
-        </div>
-    </header>
-
-    <main class="flex-grow p-4 flex flex-col overflow-hidden gap-4">
-
-        <!-- Toolbar Card -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-4 flex justify-between items-center shrink-0">
-            <div class="relative" style="width: 280px;">
-                <svg class="w-4 h-4 absolute left-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input id="tableSearch" type="text" placeholder="Search records..." class="w-full pl-9 pr-8 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-200 bg-gray-50 focus:bg-white transition-colors" style="min-width: 240px;">
-                <button id="searchClearBtn" type="button" title="Clear search" style="display:none;" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors w-4 h-4 flex items-center justify-center rounded-full">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <h2 id="tableProjectName" class="text-xs font-bold text-gray-400 uppercase tracking-widest">LOADING...</h2>
-
-            <div class="flex gap-2 relative">
-                <button id="addRowBtn" class="flex items-center gap-2 px-4 py-2 border border-blue-200 text-blue-700 rounded-lg text-sm font-semibold hover:bg-blue-50 transition-colors bg-white shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Row
-                </button>
-                <button id="addColBtn" class="flex items-center gap-2 px-4 py-2 border border-purple-200 text-purple-700 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-colors bg-white shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Column
-                </button>
-                <button id="excelBtn" class="flex items-center gap-2 px-4 py-2 border border-green-200 text-green-700 rounded-lg text-sm font-semibold hover:bg-green-50 transition-colors bg-white shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                    Excel
-                </button>
-                <button id="viewFilterBtn" class="flex items-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors bg-white shadow-sm">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    View
-                </button>
-
-                <div id="viewFilterMenu" class="hidden absolute right-0 top-12 w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-3 max-h-96 overflow-y-auto custom-scrollbar">
-                    <div id="viewFilterContent" class="text-sm"></div>
+    <!-- ════════════════════════════════════════
+         SIDEBAR (Desktop)
+    ════════════════════════════════════════ -->
+    <nav class="sidebar-desktop flex flex-col h-screen w-sidebar bg-primary text-on-primary fixed left-0 top-0 z-50 shrink-0 shadow-xl">
+        <!-- Logo -->
+        <div class="px-6 py-6 border-b border-white/10">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-accent text-2xl" style="font-size:28px;">bolt</span>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight text-white">DocPilot</h1>
+                    <p class="text-xs text-on-primary/50 font-medium">Infrastructure Pro</p>
                 </div>
             </div>
         </div>
 
-        <!-- Floating Edit Bar (appears when cells are modified) -->
-        <div id="editPanel" class="edit-bar hidden">
-            <span class="flex items-center gap-2 mr-1">
-                <span class="flex h-2.5 w-2.5 relative">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-                </span>
-                <span class="text-sm font-semibold text-gray-700 tracking-wide">Unsaved Changes</span>
-            </span>
-            <div class="w-px h-5 bg-gray-200 mx-1"></div>
-            <button id="discardBtn" class="px-4 py-1.5 border border-red-300 text-red-600 rounded-lg text-sm font-semibold hover:bg-red-50 transition-colors">Discard</button>
-            <button id="saveBtn" class="px-5 py-1.5 bg-green-600 text-white rounded-lg text-sm font-semibold hover:bg-green-700 transition-colors shadow-sm">Save Changes</button>
+        <!-- Nav Items -->
+        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
+            <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
+                <span class="material-symbols-outlined">home</span>
+                <span>Home</span>
+            </a>
+
+            <!-- Active: Aufmass Table -->
+            <a href="#" class="nav-item-active flex items-center gap-3 pl-3 pr-4 py-2.5 rounded-r-lg text-white font-semibold text-sm">
+                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">edit_note</span>
+                <span>Aufmass</span>
+            </a>
+
+            <!-- Superadmin-only items (visibility controlled by JS/auth) -->
+            <a href="admin.html" id="sidebarAdminLink" class="hidden flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
+                <span class="material-symbols-outlined">admin_panel_settings</span>
+                <span>Admin</span>
+            </a>
+            <a href="superlog.html" id="sidebarSuperLogLink" class="hidden flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
+                <span class="material-symbols-outlined">manage_history</span>
+                <span>Super Logs</span>
+            </a>
         </div>
 
-        <!-- Table Container -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden relative">
-            <div class="overflow-x-auto overflow-y-auto h-full custom-scrollbar relative">
-                <table id="data-table" class="text-left border-collapse">
-                    <thead id="table-head" class="bg-slate-800 text-white sticky top-0 z-20 shadow-sm">
-                    </thead>
-                    <tbody id="table-body" class="divide-y divide-gray-100">
-                    </tbody>
-                </table>
+        <!-- Bottom: Profile + Logout -->
+        <div class="px-3 py-4 border-t border-white/10 space-y-1">
+            <a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
+                <span class="material-symbols-outlined">person</span>
+                <span>Profile</span>
+            </a>
+            <button id="logoutBtn" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-red-300 hover:bg-red-500/10 transition-all duration-150 font-medium text-sm">
+                <span class="material-symbols-outlined">logout</span>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ════════════════════════════════════════
+         MAIN CONTENT
+    ════════════════════════════════════════ -->
+    <div class="main-content flex-1 flex flex-col h-screen overflow-hidden md:ml-sidebar">
+
+        <!-- ── Top Header Bar ── -->
+        <header class="shrink-0 bg-surface-lowest border-b border-outline-var px-4 md:px-6 h-14 flex items-center justify-between gap-4 z-40" style="backdrop-filter: blur(8px);">
+
+            <!-- Left: Back + Breadcrumb -->
+            <div class="flex items-center gap-2 min-w-0">
+                <button id="backToHubBtn"
+                    class="p-1.5 text-on-surface-var hover:text-primary hover:bg-surface rounded-lg transition-colors shrink-0"
+                    title="Back to Project Hub">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <div class="w-px h-4 bg-outline-var mx-1 shrink-0"></div>
+                <nav class="flex items-center gap-1 text-xs text-on-surface-var min-w-0">
+                    <a href="index.html" class="hover:text-primary transition-colors shrink-0">Projects</a>
+                    <span class="material-symbols-outlined" style="font-size:14px;">chevron_right</span>
+                    <span class="font-semibold text-on-surface truncate max-w-[120px] sm:max-w-xs" id="headerProjectName">LOADING...</span>
+                    <span class="material-symbols-outlined shrink-0" style="font-size:14px;">chevron_right</span>
+                    <span class="text-primary font-semibold shrink-0">Aufmass</span>
+                </nav>
             </div>
-        </div>
-    </main>
 
+            <!-- Right: Avatar -->
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="window.location.href='profile.html'"
+                    class="w-8 h-8 rounded-full bg-primary/10 border border-outline-var flex items-center justify-center text-primary font-bold text-xs hover:ring-2 ring-primary/40 transition-all"
+                    title="Profile" id="headerAvatarBtn">
+                    <span class="material-symbols-outlined" style="font-size:18px;">person</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- ── Page Canvas ── -->
+        <main class="flex-1 flex flex-col overflow-hidden p-3 md:p-5 gap-3">
+
+            <!-- Toolbar Card -->
+            <div class="bg-surface-lowest border border-outline-var rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-sm">
+
+                <!-- Search -->
+                <div class="relative" style="min-width:200px; flex:1; max-width:320px;">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-var" style="font-size:18px;">search</span>
+                    <input id="tableSearch" type="text" placeholder="Search records..."
+                        class="w-full pl-9 pr-8 py-2 border border-outline-var rounded-lg text-sm bg-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"/>
+                    <button id="searchClearBtn" type="button" title="Clear search"
+                        style="display:none;"
+                        class="absolute right-2.5 top-1/2 -translate-y-1/2 text-on-surface-var hover:text-primary transition-colors">
+                        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+                    </button>
+                </div>
+
+                <!-- Center: Project Name Label -->
+                <h2 id="tableProjectName" class="hidden md:block text-xs font-bold text-on-surface-var uppercase tracking-widest truncate max-w-[160px]">LOADING...</h2>
+
+                <!-- Right: Action Buttons -->
+                <div class="flex items-center gap-2 flex-wrap relative">
+                    <!-- Add Row -->
+                    <button id="addRowBtn"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-outline-var text-on-surface-var hover:bg-surface hover:border-primary hover:text-primary text-xs font-semibold transition-all">
+                        <span class="material-symbols-outlined" style="font-size:16px;">add_row_below</span>
+                        <span class="hidden sm:inline">Row</span>
+                    </button>
+
+                    <!-- Add Column -->
+                    <button id="addColBtn"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-outline-var text-on-surface-var hover:bg-surface hover:border-primary hover:text-primary text-xs font-semibold transition-all">
+                        <span class="material-symbols-outlined" style="font-size:16px;">add_column_right</span>
+                        <span class="hidden sm:inline">Column</span>
+                    </button>
+
+                    <!-- Separator -->
+                    <div class="w-px h-6 bg-outline-var mx-1 hidden sm:block"></div>
+
+                    <!-- Export Excel -->
+                    <button id="excelBtn"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-outline-var text-on-surface-var hover:bg-surface hover:border-success-text hover:text-success-text text-xs font-semibold transition-all">
+                        <span class="material-symbols-outlined" style="font-size:16px;">download</span>
+                        <span>Excel</span>
+                    </button>
+
+                    <!-- View / Filter Toggle -->
+                    <button id="viewFilterBtn"
+                        class="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-outline-var text-on-surface-var hover:bg-surface hover:border-primary hover:text-primary text-xs font-semibold transition-all">
+                        <span class="material-symbols-outlined" style="font-size:16px;">tune</span>
+                        <span class="hidden sm:inline">View</span>
+                    </button>
+
+                    <!-- View Filter Dropdown Menu -->
+                    <div id="viewFilterMenu"
+                        class="hidden absolute right-0 top-11 w-64 bg-surface-lowest border border-outline-var rounded-xl shadow-2xl z-50 p-3 max-h-96 overflow-y-auto custom-scrollbar">
+                        <div id="viewFilterContent" class="text-sm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Floating Edit Bar (shown when cells dirty) ── -->
+            <div id="editPanel" class="edit-bar hidden">
+                <span class="flex items-center gap-2 mr-1">
+                    <span class="flex h-2.5 w-2.5 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent"></span>
+                    </span>
+                    <span class="text-sm font-semibold text-on-surface tracking-wide">Unsaved Changes</span>
+                </span>
+                <div class="w-px h-5 bg-outline-var mx-1"></div>
+                <button id="discardBtn"
+                    class="px-4 py-1.5 border border-error-text/30 text-error-text rounded-lg text-sm font-semibold hover:bg-error-bg transition-colors">
+                    Discard
+                </button>
+                <button id="saveBtn"
+                    class="px-5 py-1.5 bg-accent text-primary rounded-lg text-sm font-bold hover:bg-amber-400 transition-colors shadow-sm">
+                    Save Changes
+                </button>
+            </div>
+
+            <!-- ── Table Container ── -->
+            <div class="flex-1 bg-surface-lowest border border-outline-var rounded-xl shadow-sm overflow-hidden flex flex-col relative min-h-0">
+                <!-- Scroll fade hint -->
+                <div class="scroll-fade-right pointer-events-none"></div>
+
+                <div class="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar">
+                    <table id="data-table" class="text-left border-collapse">
+                        <thead id="table-head" class="sticky top-0 z-20">
+                            <!-- Dynamically rendered by table.js -->
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-outline-var text-sm">
+                            <!-- Dynamically rendered by table.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ════════════════════════════════════════
+         BOTTOM NAV (Mobile only)
+    ════════════════════════════════════════ -->
+    <nav class="bottom-nav-mobile fixed bottom-0 left-0 right-0 z-50 bg-surface-lowest border-t border-outline-var h-16 flex items-center justify-around px-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+        <a href="index.html" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
+            <span class="material-symbols-outlined" style="font-size:22px;">home</span>
+            <span class="text-[10px] font-semibold">Home</span>
+        </a>
+        <a href="#" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-accent bg-accent/10 font-bold">
+            <span class="material-symbols-outlined" style="font-size:22px; font-variation-settings:'FILL' 1;">edit_note</span>
+            <span class="text-[10px] font-semibold">Aufmass</span>
+        </a>
+        <a href="profile.html" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
+            <span class="material-symbols-outlined" style="font-size:22px;">person</span>
+            <span class="text-[10px] font-semibold">Profile</span>
+        </a>
+        <button id="mobileExcelBtn" onclick="document.getElementById('excelBtn').click()"
+            class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
+            <span class="material-symbols-outlined" style="font-size:22px;">download</span>
+            <span class="text-[10px] font-semibold">Export</span>
+        </button>
+        <button id="mobileSaveBtn" onclick="document.getElementById('saveBtn').click()"
+            class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl bg-accent text-primary font-bold hover:bg-amber-400 transition-all">
+            <span class="material-symbols-outlined" style="font-size:22px;">save</span>
+            <span class="text-[10px] font-semibold">Save</span>
+        </button>
+    </nav>
+
+    <!-- ════════════════════════════════════════
+         Inline init: project name before table.js
+    ════════════════════════════════════════ -->
     <script>
-        // Set header project name from URL (before table.js loads)
-        (function() {
+        (function () {
             const urlParams = new URLSearchParams(window.location.search);
             const projectName = urlParams.get('project') || 'Data Table';
             const el = document.getElementById('headerProjectName');
             if (el) el.innerText = projectName;
         })();
     </script>
+
+    <!-- ════════════════════════════════════════
+         Scripts (preserve exactly)
+    ════════════════════════════════════════ -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <script src="src/js/api.js"></script>
     <script src="src/js/modal.js"></script>
     <script src="src/js/table.js?v=20260413b"></script>
     <script src="src/js/logout.js"></script>
-<script src="src/js/header-avatar.js"></script>
-<script src="src/js/i18n.js"></script>
-<script src="src/js/force-logout.js"></script>
-<script src="src/js/idle-logout.js?v=20260414a"></script>
+    <script src="src/js/header-avatar.js"></script>
+    <script src="src/js/i18n.js"></script>
+    <script src="src/js/force-logout.js"></script>
+    <script src="src/js/idle-logout.js?v=20260414a"></script>
 </body>
 </html>
