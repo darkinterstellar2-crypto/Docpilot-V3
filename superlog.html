@@ -4,252 +4,183 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Logs — DocPilot System Monitor</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        :root {
-            --bg:       #0d1117;
-            --bg2:      #161b22;
-            --bg3:      #21262d;
-            --border:   #30363d;
-            --text:     #e6edf3;
-            --dim:      #4b5563;
-            --cyan:     #06b6d4;
-            --green:    #22c55e;
-            --amber:    #f59e0b;
-            --red:      #ef4444;
-            --blue:     #60a5fa;
-            --gray:     #6b7280;
-            --white:    #f0f6fc;
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/css/styles.css">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "background": "#F8FAFC",
+                        "primary": "#022448",
+                        "primary-container": "#1e3a5f",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#8aa4cf",
+                        "primary-fixed": "#d5e3ff",
+                        "primary-fixed-dim": "#adc8f5",
+                        "secondary-container": "#fea619",
+                        "on-secondary-container": "#684000",
+                        "secondary-fixed": "#ffddb8",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
+                        "surface": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-surface": "#191c1e",
+                        "on-surface-variant": "#43474e",
+                        "outline": "#74777f",
+                        "outline-variant": "#c4c6cf",
+                        "secondary": "#855300",
+                        "tertiary": "#1c2337",
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                    },
+                    width: {
+                        "sidebar": "240px",
+                    },
+                    spacing: {
+                        "sidebar": "240px",
+                    }
+                }
+            }
         }
-
-        html, body {
-            height: 100%;
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
-            font-size: 13px;
-            overflow: hidden;
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
 
         /* ── Auth guard ── */
-        #authGuard { display: none; position: fixed; inset: 0; background: var(--bg);
-            z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 12px; }
+        #authGuard {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 36, 72, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+        }
         #authGuard.visible { display: flex; }
 
-        /* ── Layout ── */
-        #app { display: flex; flex-direction: column; height: 100vh; }
-
-        /* ── Header ── */
-        #header {
-            background: var(--bg2);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 16px;
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        #headerTop {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        #headerTitle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 14px;
-            font-weight: 700;
-            color: var(--green);
-            letter-spacing: 0.05em;
-        }
-
-        #headerTitle span.dim { color: var(--dim); font-weight: 400; }
-
-        .blink { animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* ── Stats bar ── */
-        #statsBar {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            font-size: 11px;
-            color: var(--dim);
-        }
-        .stat-item { display: flex; align-items: center; gap: 4px; }
-        .stat-item .stat-val { font-weight: 700; }
-        .stat-item.s-request .stat-val { color: var(--cyan); }
-        .stat-item.s-auth    .stat-val { color: var(--blue); }
-        .stat-item.s-file    .stat-val { color: var(--amber); }
-        .stat-item.s-sync    .stat-val { color: #a78bfa; }
-        .stat-item.s-chat    .stat-val { color: #34d399; }
-        .stat-item.s-error   .stat-val { color: var(--red); }
-        .stat-item.s-system  .stat-val { color: var(--gray); }
-
-        /* ── Controls bar ── */
-        #controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .ctrl-label { color: var(--dim); font-size: 11px; white-space: nowrap; }
-
-        /* Type filter checkboxes */
-        #typeFilters {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .type-cb { display: flex; align-items: center; gap: 3px; cursor: pointer; }
-        .type-cb input[type=checkbox] { accent-color: var(--cyan); cursor: pointer; width: 12px; height: 12px; }
-        .type-cb label { font-size: 11px; cursor: pointer; color: var(--text); }
-        .type-cb label.t-request { color: var(--cyan); }
-        .type-cb label.t-auth    { color: var(--blue); }
-        .type-cb label.t-file    { color: var(--amber); }
-        .type-cb label.t-sync    { color: #a78bfa; }
-        .type-cb label.t-chat    { color: #34d399; }
-        .type-cb label.t-error   { color: var(--red); }
-        .type-cb label.t-system  { color: var(--gray); }
-
-        .ctrl-sep { width: 1px; height: 16px; background: var(--border); }
-
-        select.ctrl-select {
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 11px;
-            padding: 3px 6px;
-            border-radius: 4px;
-            cursor: pointer;
-            outline: none;
-        }
-        select.ctrl-select:focus { border-color: var(--cyan); }
-
-        input.ctrl-search {
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 11px;
-            padding: 3px 8px;
-            border-radius: 4px;
-            outline: none;
-            width: 160px;
-        }
-        input.ctrl-search::placeholder { color: var(--dim); }
-        input.ctrl-search:focus { border-color: var(--cyan); }
-
-        button.ctrl-btn {
-            background: var(--bg3);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-family: inherit;
-            font-size: 11px;
-            padding: 3px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-        button.ctrl-btn:hover { border-color: var(--cyan); color: var(--cyan); }
-        button.ctrl-btn.active { border-color: var(--amber); color: var(--amber); }
-        button.ctrl-btn.back { color: var(--dim); }
-        button.ctrl-btn.back:hover { color: var(--text); border-color: var(--dim); }
-
-        /* ── Log viewer ── */
-        #logContainer {
-            flex: 1;
-            overflow-y: auto;
-            padding: 8px 0;
-            scroll-behavior: auto;
-        }
-        #logContainer::-webkit-scrollbar { width: 6px; }
-        #logContainer::-webkit-scrollbar-track { background: var(--bg2); }
-        #logContainer::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
+        /* ── Log entry styles (used by JS-generated DOM) ── */
         .log-entry {
             display: flex;
             align-items: flex-start;
             gap: 0;
-            padding: 2px 16px;
-            line-height: 1.5;
-            font-size: 12px;
+            padding: 6px 16px;
+            line-height: 1.6;
+            font-size: 12.5px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
             white-space: pre-wrap;
             word-break: break-all;
+            border-bottom: 1px solid #E2E8F0;
+            transition: background 0.1s;
         }
-        .log-entry:hover { background: var(--bg2); }
+        .log-entry:hover { background: #F1F5F9; }
 
-        .log-ts    { color: var(--dim); flex-shrink: 0; margin-right: 4px; }
-        .log-type  { color: var(--cyan); flex-shrink: 0; margin-right: 4px; font-weight: 700; min-width: 64px; }
-        .log-level { flex-shrink: 0; margin-right: 8px; font-weight: 700; min-width: 46px; }
-        .log-msg   { color: var(--white); flex: 1; }
+        .log-ts    { color: #94a3b8; flex-shrink: 0; margin-right: 6px; }
+        .log-type  { color: #022448; flex-shrink: 0; margin-right: 6px; font-weight: 700; min-width: 70px; }
+        .log-level { flex-shrink: 0; margin-right: 10px; font-weight: 700; min-width: 52px; }
+        .log-msg   { color: #1e293b; flex: 1; }
 
-        .level-debug .log-level { color: var(--gray); }
-        .level-info  .log-level { color: var(--green); }
-        .level-warn  .log-level { color: var(--amber); }
-        .level-error .log-level { color: var(--red); }
+        .level-debug .log-level { color: #64748b; }
+        .level-info  .log-level { color: #0284c7; }
+        .level-warn  .log-level { color: #d97706; }
+        .level-error .log-level { color: #dc2626; }
 
-        .level-error { background: rgba(239, 68, 68, 0.05); }
-        .level-warn  { background: rgba(245, 158, 11, 0.03); }
+        .level-error { background: rgba(220, 38, 38, 0.04); border-left: 3px solid #dc2626; }
+        .level-warn  { background: rgba(217, 119, 6, 0.04); border-left: 3px solid #d97706; }
+        .level-info  { border-left: 3px solid transparent; }
+        .level-debug { border-left: 3px solid transparent; }
 
         /* Email highlight within message */
-        .em-email { color: var(--blue); }
+        .em-email { color: #2563eb; }
 
-        /* Empty state */
+        /* ── Empty state ── */
         #emptyState {
             display: none;
-            padding: 48px;
+            padding: 64px 24px;
             text-align: center;
-            color: var(--dim);
+            color: #94a3b8;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Pause indicator */
+        /* ── Log container ── */
+        #logContainer {
+            flex: 1;
+            overflow-y: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #E2E8F0;
+        }
+        #logContainer::-webkit-scrollbar { width: 6px; }
+        #logContainer::-webkit-scrollbar-track { background: #f8fafc; }
+        #logContainer::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* ── Blink animation for live dot ── */
+        .blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ── Pause indicator ── */
         #pauseIndicator {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid var(--amber);
-            color: var(--amber);
-            padding: 6px 14px;
-            border-radius: 6px;
-            font-size: 11px;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(254, 166, 25, 0.15);
+            border: 1px solid #fea619;
+            color: #92400e;
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 12px;
             font-weight: 700;
+            font-family: 'Inter', sans-serif;
             display: none;
+            z-index: 60;
         }
         #pauseIndicator.visible { display: block; }
 
-        /* Connection status */
-        #connStatus {
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        /* ── Connection status dot ── */
+        .conn-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            background: #22c55e;
         }
-        .conn-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; background: var(--green); }
-        .conn-dot.offline { background: var(--red); }
-        .conn-dot.connecting { background: var(--amber); animation: blink 0.8s infinite; }
+        .conn-dot.offline { background: #ef4444; }
+        .conn-dot.connecting { background: #f59e0b; animation: blink 0.8s infinite; }
+
+        /* ── Mobile bottom nav active ── */
+        .mobile-nav-active { color: #fea619 !important; }
     </style>
 </head>
-<body>
+<body class="bg-background text-on-surface font-sans antialiased min-h-screen">
 
-<!-- Auth guard overlay -->
+<!-- ── Auth Guard Overlay ── -->
 <div id="authGuard" class="visible">
-    <div style="color: var(--red); font-size: 16px; font-weight: 700;">⛔ Access Denied</div>
-    <div style="color: var(--dim); font-size: 12px;">Super Logs require superadmin access.</div>
-    <button class="ctrl-btn" id="authGuardBtn" onclick="window.location.href='login.html'" style="margin-top: 8px;">← Back to Login</button>
+    <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 flex flex-col items-center gap-4 max-w-sm w-full mx-4 shadow-2xl">
+        <span class="material-symbols-outlined text-red-400" style="font-size: 48px;">block</span>
+        <div class="text-white text-xl font-bold text-center">Access Denied</div>
+        <div class="text-white/60 text-sm text-center">Super Logs require superadmin access.</div>
+        <button id="authGuardBtn"
+            onclick="window.location.href='login.html'"
+            class="mt-2 px-6 py-2.5 bg-primary-fixed text-primary font-semibold rounded-lg hover:bg-white transition-colors text-sm">
+            ← Back to Login
+        </button>
+    </div>
     <script>
-        // Adjust button destination based on session role
         (function() {
             var r = localStorage.getItem('userRole');
             var btn = document.getElementById('authGuardBtn');
@@ -261,73 +192,232 @@
     </script>
 </div>
 
-<div id="app" style="display: none;">
-    <div id="header">
-        <div id="headerTop">
-            <div id="headerTitle">
-                <span class="blink">█</span>
-                <span>DocPilot SYSTEM MONITOR</span>
-                <span class="dim">// superadmin</span>
+<!-- ── App Shell ── -->
+<div id="app" style="display: none;" class="flex h-screen overflow-hidden">
+
+    <!-- ── Sidebar ── -->
+    <nav class="hidden md:flex flex-col w-[240px] h-screen fixed left-0 top-0 bg-primary text-on-primary border-r border-primary-container shadow-lg py-6 z-50 flex-shrink-0">
+        <!-- Logo -->
+        <div class="px-5 mb-8 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center font-black text-sm">DP</div>
+            <div>
+                <div class="text-lg font-black text-white leading-tight">DocPilot</div>
+                <div class="text-xs text-primary-fixed-dim font-medium">Infrastructure Pro</div>
             </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <div id="connStatus">
-                    <span class="conn-dot connecting" id="connDot"></span>
-                    <span id="connText" style="color: var(--dim);">connecting…</span>
+        </div>
+
+        <!-- Nav Links -->
+        <div class="flex-1 flex flex-col gap-1 px-3">
+            <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-primary-container hover:text-white hover:bg-primary-container/50 transition-colors duration-150">
+                <span class="material-symbols-outlined text-xl">home</span>
+                <span class="text-sm font-semibold">Home</span>
+            </a>
+            <a href="admin.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-primary-container hover:text-white hover:bg-primary-container/50 transition-colors duration-150">
+                <span class="material-symbols-outlined text-xl">admin_panel_settings</span>
+                <span class="text-sm font-semibold">Admin</span>
+            </a>
+            <!-- ACTIVE: Super Logs -->
+            <a href="superlog.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-white bg-primary-container border-l-4 border-secondary-container">
+                <span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">terminal</span>
+                <span class="text-sm font-semibold">Super Logs</span>
+            </a>
+            <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-primary-container hover:text-white hover:bg-primary-container/50 transition-colors duration-150">
+                <span class="material-symbols-outlined text-xl">person</span>
+                <span class="text-sm font-semibold">Profile</span>
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-3 mt-auto flex flex-col gap-2">
+            <a href="login.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-primary-container hover:text-red-300 hover:bg-red-900/20 transition-colors duration-150">
+                <span class="material-symbols-outlined text-xl">logout</span>
+                <span class="text-sm font-semibold">Logout</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ── Main Content ── -->
+    <div class="flex-1 flex flex-col md:ml-[240px] overflow-hidden">
+
+        <!-- ── Top Bar ── -->
+        <div id="header" class="flex-shrink-0 bg-white border-b border-outline-variant px-6 py-4 z-40">
+            <!-- Top Row -->
+            <div id="headerTop" class="flex items-center justify-between gap-4 mb-4">
+                <div id="headerTitle" class="flex items-center gap-3">
+                    <h1 class="text-xl font-black text-primary tracking-tight">System Logs</h1>
+                    <span class="bg-red-100 text-red-700 border border-red-200 px-2.5 py-0.5 rounded-full text-xs font-bold tracking-widest uppercase">SUPERADMIN</span>
+                    <span class="hidden sm:flex items-center gap-1.5 ml-2">
+                        <span class="conn-dot connecting" id="connDot"></span>
+                        <span id="connText" class="text-xs font-medium text-on-surface-variant">connecting…</span>
+                    </span>
                 </div>
-                <button class="ctrl-btn back" onclick="window.location.href='admin.html'">← Admin</button>
+                <div class="flex items-center gap-2">
+                    <!-- Pause button -->
+                    <button id="pauseBtn" onclick="togglePause()"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors text-sm font-semibold">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">pause</span>
+                        <span>Pause</span>
+                    </button>
+                    <!-- Clear button -->
+                    <button onclick="clearDisplay()"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors text-sm font-semibold">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">delete_sweep</span>
+                        <span class="hidden sm:inline">Clear</span>
+                    </button>
+                    <!-- Back to Admin -->
+                    <button onclick="window.location.href='admin.html'"
+                        class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container transition-colors text-sm font-semibold">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span>
+                        <span class="hidden sm:inline">Admin</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ── Stats Bar ── -->
+            <div id="statsBar" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-4">
+                <div class="stat-item s-request bg-blue-50 border border-blue-100 rounded-xl px-3 py-2 flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-blue-600 uppercase tracking-wide">Requests</span>
+                    <span class="stat-val text-xl font-black text-blue-700" id="stat-request">0</span>
+                </div>
+                <div class="stat-item s-auth bg-indigo-50 border border-indigo-100 rounded-xl px-3 py-2 flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Auth</span>
+                    <span class="stat-val text-xl font-black text-indigo-700" id="stat-auth">0</span>
+                </div>
+                <div class="stat-item s-file bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-amber-600 uppercase tracking-wide">File</span>
+                    <span class="stat-val text-xl font-black text-amber-700" id="stat-file">0</span>
+                </div>
+                <div class="stat-item s-sync bg-purple-50 border border-purple-100 rounded-xl px-3 py-2 flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-purple-600 uppercase tracking-wide">Sync</span>
+                    <span class="stat-val text-xl font-black text-purple-700" id="stat-sync">0</span>
+                </div>
+                <div class="stat-item s-chat bg-emerald-50 border border-emerald-100 rounded-xl px-3 py-2 flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-emerald-600 uppercase tracking-wide">Chat</span>
+                    <span class="stat-val text-xl font-black text-emerald-700" id="stat-chat">0</span>
+                </div>
+                <div class="stat-item s-error bg-red-50 border border-red-200 rounded-xl px-3 py-2 flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-red-600 uppercase tracking-wide">Errors</span>
+                    <span class="stat-val text-xl font-black text-red-700" id="stat-error">0</span>
+                </div>
+                <div class="stat-item s-system bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 flex flex-col gap-0.5">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wide">System</span>
+                    <span class="stat-val text-xl font-black text-slate-700" id="stat-system">0</span>
+                </div>
+            </div>
+
+            <!-- ── Controls ── -->
+            <div id="controls" class="flex flex-col lg:flex-row gap-3 items-start lg:items-center bg-surface-container-low rounded-xl border border-outline-variant px-4 py-3">
+                <!-- Type checkboxes -->
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-2 flex-1">
+                    <span class="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Type:</span>
+                    <div id="typeFilters" class="flex flex-wrap gap-x-3 gap-y-1.5 items-center">
+                        <label class="type-cb flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="cb-request" checked class="accent-blue-600 w-3.5 h-3.5 cursor-pointer rounded">
+                            <span class="text-xs font-semibold text-blue-600 cursor-pointer">REQUEST</span>
+                        </label>
+                        <label class="type-cb flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="cb-auth" checked class="accent-indigo-600 w-3.5 h-3.5 cursor-pointer rounded">
+                            <span class="text-xs font-semibold text-indigo-600 cursor-pointer">AUTH</span>
+                        </label>
+                        <label class="type-cb flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="cb-file" checked class="accent-amber-600 w-3.5 h-3.5 cursor-pointer rounded">
+                            <span class="text-xs font-semibold text-amber-600 cursor-pointer">FILE</span>
+                        </label>
+                        <label class="type-cb flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="cb-sync" checked class="accent-purple-600 w-3.5 h-3.5 cursor-pointer rounded">
+                            <span class="text-xs font-semibold text-purple-600 cursor-pointer">SYNC</span>
+                        </label>
+                        <label class="type-cb flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="cb-chat" checked class="accent-emerald-600 w-3.5 h-3.5 cursor-pointer rounded">
+                            <span class="text-xs font-semibold text-emerald-600 cursor-pointer">CHAT</span>
+                        </label>
+                        <label class="type-cb flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="cb-error" checked class="accent-red-600 w-3.5 h-3.5 cursor-pointer rounded">
+                            <span class="text-xs font-semibold text-red-600 cursor-pointer">ERROR</span>
+                        </label>
+                        <label class="type-cb flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" id="cb-system" checked class="accent-slate-500 w-3.5 h-3.5 cursor-pointer rounded">
+                            <span class="text-xs font-semibold text-slate-500 cursor-pointer">SYSTEM</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="hidden lg:block w-px h-6 bg-outline-variant self-center"></div>
+
+                <!-- Right side controls -->
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+                    <!-- Level filter -->
+                    <div class="relative">
+                        <select id="levelFilter"
+                            class="appearance-none bg-white border border-outline-variant rounded-lg px-3 py-1.5 pr-7 text-sm text-on-surface focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer font-medium">
+                            <option value="">All Levels</option>
+                            <option value="debug">Debug</option>
+                            <option value="info">Info</option>
+                            <option value="warn">Warn</option>
+                            <option value="error">Error</option>
+                        </select>
+                        <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant" style="font-size: 16px;">expand_more</span>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="relative flex-1 lg:flex-none">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 16px;">search</span>
+                        <input id="searchBox" type="text" placeholder="Search logs…" autocomplete="off" spellcheck="false"
+                            class="w-full lg:w-52 pl-9 pr-3 py-1.5 bg-white border border-outline-variant rounded-lg text-sm text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all">
+                    </div>
+
+                    <!-- Total / Displayed counters -->
+                    <div class="flex items-center gap-2 text-xs text-on-surface-variant font-medium ml-1">
+                        <span>Total: <strong class="text-on-surface" id="stat-total">0</strong></span>
+                        <span class="text-outline-variant">·</span>
+                        <span>Shown: <strong class="text-on-surface" id="stat-displayed">0</strong></span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="statsBar">
-            <div class="stat-item s-request"><span>REQ</span><span class="stat-val" id="stat-request">0</span></div>
-            <div class="stat-item s-auth"><span>AUTH</span><span class="stat-val" id="stat-auth">0</span></div>
-            <div class="stat-item s-file"><span>FILE</span><span class="stat-val" id="stat-file">0</span></div>
-            <div class="stat-item s-sync"><span>SYNC</span><span class="stat-val" id="stat-sync">0</span></div>
-            <div class="stat-item s-chat"><span>CHAT</span><span class="stat-val" id="stat-chat">0</span></div>
-            <div class="stat-item s-error"><span>ERR</span><span class="stat-val" id="stat-error">0</span></div>
-            <div class="stat-item s-system"><span>SYS</span><span class="stat-val" id="stat-system">0</span></div>
-            <div class="stat-item" style="margin-left: auto;">
-                <span style="color: var(--dim);">total:</span>
-                <span class="stat-val" id="stat-total" style="color: var(--text);">0</span>
-                <span style="color: var(--dim);">displayed:</span>
-                <span class="stat-val" id="stat-displayed" style="color: var(--text);">0</span>
+        <!-- ── Log Stream Area ── -->
+        <div class="flex-1 overflow-hidden flex flex-col p-4 md:p-6 gap-4 bg-background">
+            <!-- Log Container -->
+            <div id="logContainer" class="flex-1 overflow-y-auto rounded-xl border border-outline-variant bg-white shadow-sm">
+                <div id="emptyState" class="flex flex-col items-center justify-center h-48 gap-3">
+                    <span class="material-symbols-outlined text-on-surface-variant" style="font-size: 48px; opacity: 0.4;">terminal</span>
+                    <p class="text-sm text-on-surface-variant font-medium">No logs yet. Waiting for activity…</p>
+                </div>
             </div>
         </div>
 
-        <div id="controls">
-            <span class="ctrl-label">TYPE:</span>
-            <div id="typeFilters">
-                <div class="type-cb"><input type="checkbox" id="cb-request" checked><label for="cb-request" class="t-request">REQUEST</label></div>
-                <div class="type-cb"><input type="checkbox" id="cb-auth" checked><label for="cb-auth" class="t-auth">AUTH</label></div>
-                <div class="type-cb"><input type="checkbox" id="cb-file" checked><label for="cb-file" class="t-file">FILE</label></div>
-                <div class="type-cb"><input type="checkbox" id="cb-sync" checked><label for="cb-sync" class="t-sync">SYNC</label></div>
-                <div class="type-cb"><input type="checkbox" id="cb-chat" checked><label for="cb-chat" class="t-chat">CHAT</label></div>
-                <div class="type-cb"><input type="checkbox" id="cb-error" checked><label for="cb-error" class="t-error">ERROR</label></div>
-                <div class="type-cb"><input type="checkbox" id="cb-system" checked><label for="cb-system" class="t-system">SYSTEM</label></div>
-            </div>
-            <div class="ctrl-sep"></div>
-            <span class="ctrl-label">LEVEL:</span>
-            <select class="ctrl-select" id="levelFilter">
-                <option value="">all</option>
-                <option value="debug">debug</option>
-                <option value="info">info</option>
-                <option value="warn">warn</option>
-                <option value="error">error</option>
-            </select>
-            <div class="ctrl-sep"></div>
-            <input class="ctrl-search" id="searchBox" type="text" placeholder="search…" autocomplete="off" spellcheck="false">
-            <div class="ctrl-sep"></div>
-            <button class="ctrl-btn" id="pauseBtn" onclick="togglePause()">⏸ Pause</button>
-            <button class="ctrl-btn" onclick="clearDisplay()">✕ Clear</button>
-        </div>
-    </div>
+    </div><!-- /main content -->
 
-    <div id="logContainer">
-        <div id="emptyState">No logs yet. Waiting for activity…</div>
-    </div>
-</div>
+</div><!-- /app -->
 
+<!-- ── Pause Indicator ── -->
 <div id="pauseIndicator">⏸ PAUSED — scroll down to resume</div>
+
+<!-- ── Mobile Bottom Nav ── -->
+<nav class="fixed bottom-0 w-full z-50 md:hidden bg-white border-t border-outline-variant shadow-lg flex justify-around items-center h-16 px-2">
+    <a href="index.html" class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-full rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined mb-0.5" style="font-size: 22px;">home</span>
+        <span class="text-xs font-semibold">Home</span>
+    </a>
+    <a href="admin.html" class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-full rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined mb-0.5" style="font-size: 22px;">admin_panel_settings</span>
+        <span class="text-xs font-semibold">Admin</span>
+    </a>
+    <a href="superlog.html" class="flex flex-col items-center justify-center mobile-nav-active w-16 h-full rounded-lg">
+        <span class="material-symbols-outlined mb-0.5" style="font-size: 22px; font-variation-settings: 'FILL' 1;">terminal</span>
+        <span class="text-xs font-bold">Logs</span>
+    </a>
+    <a href="profile.html" class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-full rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined mb-0.5" style="font-size: 22px;">person</span>
+        <span class="text-xs font-semibold">Profile</span>
+    </a>
+    <a href="login.html" class="flex flex-col items-center justify-center text-on-surface-variant w-16 h-full rounded-lg hover:bg-surface-container transition-colors">
+        <span class="material-symbols-outlined mb-0.5" style="font-size: 22px;">logout</span>
+        <span class="text-xs font-semibold">Logout</span>
+    </a>
+</nav>
 
 <script>
 // ─── Auth check ───────────────────────────────────────────────────────────────
@@ -572,11 +662,11 @@ function initApp() {
         if (ok) {
             dot.className = 'conn-dot';
             txt.textContent = 'live';
-            txt.style.color = 'var(--green)';
+            txt.style.color = '#22c55e';
         } else {
             dot.className = 'conn-dot offline';
             txt.textContent = 'offline';
-            txt.style.color = 'var(--red)';
+            txt.style.color = '#ef4444';
         }
     }
 
@@ -585,12 +675,14 @@ function initApp() {
         paused = !paused;
         const btn = document.getElementById('pauseBtn');
         if (paused) {
-            btn.textContent = '▶ Resume';
-            btn.classList.add('active');
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">play_arrow</span><span>Resume</span>';
+            btn.classList.add('border-amber-400', 'text-amber-700', 'bg-amber-50');
+            btn.classList.remove('bg-surface-container-lowest', 'text-on-surface');
             pauseIndicator.classList.add('visible');
         } else {
-            btn.textContent = '⏸ Pause';
-            btn.classList.remove('active');
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px;">pause</span><span>Pause</span>';
+            btn.classList.remove('border-amber-400', 'text-amber-700', 'bg-amber-50');
+            btn.classList.add('bg-surface-container-lowest', 'text-on-surface');
             if (!userScrolledUp) pauseIndicator.classList.remove('visible');
             scrollToBottom();
         }
@@ -602,7 +694,7 @@ function initApp() {
         entries.forEach(el => el.remove());
         displayedCount = 0;
         updateDisplayedCount();
-        if (emptyState) emptyState.style.display = 'block';
+        if (emptyState) emptyState.style.display = 'flex';
     };
 
     // Re-render on filter change: reload from scratch (reset lastId, clear display)
@@ -645,7 +737,7 @@ function initApp() {
                 document.getElementById('stat-total').textContent = data.total;
                 scrollToBottom();
             } else {
-                if (emptyState) emptyState.style.display = 'block';
+                if (emptyState) emptyState.style.display = 'flex';
             }
 
             setConnected(true);
