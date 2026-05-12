@@ -7,29 +7,186 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="src/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        gray: { 50:'#f9fafb',100:'#f3f4f6',200:'#e5e7eb',300:'#d1d5db',800:'#1f2937',900:'#111827' }
+                        brand: {
+                            navy:  '#022448',
+                            amber: '#fea619',
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
+        *, *::before, *::after { box-sizing: border-box; }
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
         ::-webkit-scrollbar { width: 4px; background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #c4c6cf; border-radius: 4px; }
 
-        /* ── Header ── */
-        .glass-header {
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(0,0,0,0.06);
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            line-height: 1;
+            vertical-align: middle;
+        }
+
+        /* ── Sidebar ── */
+        #sidebar {
+            width: 240px;
+            background: #022448;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 40;
+            transition: transform 0.25s ease;
+        }
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 20px 20px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .sidebar-logo-icon {
+            width: 32px; height: 32px;
+            background: #fea619;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .sidebar-logo-text {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.01em;
+        }
+        .sidebar-logo-sub {
+            font-size: 10px;
+            color: rgba(255,255,255,0.45);
+            font-weight: 500;
+            margin-top: 1px;
+        }
+        .sidebar-nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+        .sidebar-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.35);
+            text-transform: uppercase;
+            padding: 8px 10px 4px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.65);
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s, color 0.15s;
+            margin-bottom: 2px;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .nav-item.active {
+            background: rgba(254,166,25,0.12);
+            color: #fea619;
+            border-left-color: #fea619;
+            font-weight: 600;
+        }
+        .nav-item .material-symbols-outlined { font-size: 20px; opacity: 0.85; }
+        .nav-item.active .material-symbols-outlined { opacity: 1; }
+        .sidebar-footer {
+            padding: 12px 10px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* ── Main layout ── */
+        #mainWrapper {
+            margin-left: 240px;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background: #F8FAFC;
+        }
+
+        /* ── Top bar ── */
+        #topBar {
+            background: #fff;
+            border-bottom: 1px solid #E2E8F0;
+            padding: 0 28px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        #hamburgerBtn {
+            display: none;
+            padding: 6px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #43474e;
+            border-radius: 8px;
+        }
+        #hamburgerBtn:hover { background: #F2F4F6; }
+        .topbar-module-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(2,36,72,0.07);
+            color: #022448;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            letter-spacing: 0.03em;
+        }
+        .topbar-module-badge .material-symbols-outlined { font-size: 14px; }
+        #projectNameDisplay {
+            font-size: 15px;
+            font-weight: 700;
+            color: #191c1e;
+            letter-spacing: -0.01em;
+            truncate: true;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .icon-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px;
+            border: none; background: none;
+            border-radius: 8px;
+            color: #74777f;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            text-decoration: none;
+        }
+        .icon-btn:hover { background: #F2F4F6; color: #191c1e; }
+
+        /* ── Content ── */
+        #pageContent {
+            flex: 1;
+            padding: 24px 28px 40px;
+            max-width: 1100px;
+            width: 100%;
         }
 
         /* ── Breadcrumb ── */
@@ -37,104 +194,128 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            padding: 10px 0 14px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
         .bc-btn {
             font-size: 13px;
             font-weight: 600;
-            color: #6b7280;
+            color: #74777f;
             background: none;
             border: none;
             cursor: pointer;
-            padding: 2px 4px;
+            padding: 3px 6px;
             border-radius: 6px;
             transition: color 0.15s, background 0.15s;
         }
-        .bc-btn:hover { color: #111827; background: #f3f4f6; }
-        .bc-active { color: #111827; }
+        .bc-btn:hover { color: #191c1e; background: #eceef0; }
+        .bc-active { color: #191c1e; }
         .bc-current { cursor: default; }
         .bc-current:hover { background: none; }
-        .bc-sep { width: 14px; height: 14px; color: #d1d5db; flex-shrink: 0; }
+        .bc-sep { width: 14px; height: 14px; color: #c4c6cf; flex-shrink: 0; }
 
-        /* ── Module cards (cluster / knotenpunkt) ── */
+        /* ── Module grid ── */
         .mod-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
             gap: 12px;
         }
         .mod-card {
             background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
-            padding: 16px 12px 12px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
+            padding: 18px 14px 14px;
             cursor: pointer;
             transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             user-select: none;
         }
         .mod-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-            border-color: #d1d5db;
+            box-shadow: 0 6px 20px rgba(2,36,72,0.08);
+            border-color: #adc8f5;
         }
         .mod-card:active { transform: scale(0.97); }
-        .mod-card-icon { line-height: 0; }
+        .mod-card-icon {
+            width: 44px; height: 44px;
+            background: rgba(2,36,72,0.07);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: #022448;
+        }
+        .mod-card-icon .material-symbols-outlined { font-size: 22px; }
         .mod-card-name {
             font-size: 12px;
             font-weight: 700;
-            color: #111827;
+            color: #191c1e;
             text-align: center;
             word-break: break-word;
-            line-height: 1.35;
-            max-width: 100%;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            line-height: 1.4;
         }
-        .mod-card-meta { font-size: 11px; color: #9ca3af; font-weight: 500; }
+        .mod-card-meta { font-size: 11px; color: #74777f; font-weight: 500; }
 
         /* ── Address list ── */
         .addr-list { display: flex; flex-direction: column; gap: 8px; }
         .addr-row {
             background: #fff;
-            border: 1px solid #e5e7eb;
+            border: 1px solid #E2E8F0;
             border-radius: 12px;
-            padding: 12px 16px;
+            padding: 14px 16px;
             display: flex;
             align-items: center;
             gap: 12px;
             cursor: pointer;
-            transition: background 0.12s, box-shadow 0.12s;
+            transition: background 0.12s, box-shadow 0.12s, border-color 0.12s;
             user-select: none;
+            min-height: 56px;
         }
-        .addr-row:hover { background: #f9fafb; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .addr-row:hover {
+            background: #f7f9fb;
+            box-shadow: 0 2px 8px rgba(2,36,72,0.06);
+            border-color: #c4c6cf;
+        }
+        .addr-row-icon {
+            width: 36px; height: 36px;
+            background: #F2F4F6;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            color: #74777f;
+            flex-shrink: 0;
+        }
+        .addr-row-icon .material-symbols-outlined { font-size: 18px; }
         .addr-info { flex: 1; min-width: 0; }
-        .addr-end  { font-size: 13px; font-weight: 700; color: #111827; truncate: true; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .addr-cable{ font-size: 11px; color: #9ca3af; font-weight: 500; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .addr-right{ display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+        .addr-end {
+            font-size: 13px; font-weight: 700; color: #191c1e;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .addr-cable {
+            font-size: 11px; color: #74777f; font-weight: 500; margin-top: 2px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .addr-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
         /* ── Status badges ── */
         .mod-badge {
             display: inline-flex;
             align-items: center;
+            gap: 4px;
             font-size: 11px;
             font-weight: 700;
-            padding: 2px 9px;
+            padding: 3px 10px;
             border-radius: 999px;
             letter-spacing: 0.02em;
         }
-        .mod-badge-done    { background: #dcfce7; color: #15803d; }
-        .mod-badge-pending { background: #fef9c3; color: #a16207; }
+        .mod-badge .material-symbols-outlined { font-size: 12px; }
+        .mod-badge-done    { background: #e6f4ea; color: #137333; }
+        .mod-badge-pending { background: #F2F4F6; color: #43474e; }
+        .mod-badge-error   { background: #ffdad6; color: #93000a; }
 
         /* ── Upload form ── */
         .upload-wrap {
-            max-width: 520px;
-            margin: 0 auto;
+            max-width: 560px;
             display: flex;
             flex-direction: column;
             gap: 16px;
@@ -143,8 +324,8 @@
         /* Address detail card */
         .addr-detail-card {
             background: #fff;
-            border: 1px solid #e5e7eb;
-            border-radius: 14px;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
             padding: 16px 20px;
         }
         .detail-row {
@@ -152,85 +333,122 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 12px;
-            padding: 7px 0;
-            border-bottom: 1px solid #f3f4f6;
+            padding: 8px 0;
+            border-bottom: 1px solid #F2F4F6;
             font-size: 13px;
         }
         .detail-row:last-child { border-bottom: none; }
-        .detail-lbl { color: #6b7280; font-weight: 500; flex-shrink: 0; }
-        .detail-val { color: #111827; font-weight: 600; text-align: right; word-break: break-word; }
+        .detail-lbl { color: #74777f; font-weight: 500; flex-shrink: 0; }
+        .detail-val { color: #191c1e; font-weight: 600; text-align: right; word-break: break-word; }
 
         /* Existing file info */
         .existing-info {
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
+            background: #e6f4ea;
+            border: 1px solid #a8d5b0;
             border-radius: 12px;
             padding: 12px 16px;
             font-size: 13px;
+            color: #137333;
         }
+        .existing-info .material-symbols-outlined { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
 
         /* Upload card */
         .upload-card {
-            background: rgba(255,255,255,0.97);
-            border: 1px solid #e5e7eb;
-            border-radius: 18px;
+            background: #fff;
+            border: 1px solid #E2E8F0;
+            border-radius: 12px;
             padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+            gap: 18px;
+            box-shadow: 0 2px 8px rgba(15,23,42,0.05);
         }
         .upload-card-title {
             font-size: 15px;
             font-weight: 700;
-            color: #111827;
+            color: #191c1e;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .upload-card-title .material-symbols-outlined {
+            font-size: 20px;
+            color: #022448;
         }
 
         /* Form elements */
         .form-grp { display: flex; flex-direction: column; gap: 6px; }
-        .form-lbl { font-size: 12px; font-weight: 600; color: #374151; }
+        .form-lbl {
+            font-size: 12px;
+            font-weight: 600;
+            color: #43474e;
+            letter-spacing: 0.02em;
+        }
         .form-sel, .form-inp {
-            border: 1.5px solid #e5e7eb;
-            border-radius: 10px;
-            padding: 9px 12px;
+            border: 1.5px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 10px 12px;
             font-size: 13px;
             font-weight: 500;
-            color: #111827;
-            background: #f9fafb;
+            color: #191c1e;
+            background: #F8FAFC;
             outline: none;
-            transition: border-color 0.15s, background 0.15s;
+            transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
             width: 100%;
             font-family: inherit;
         }
         .form-sel:focus, .form-inp:focus {
-            border-color: #6366f1;
+            border-color: #022448;
             background: #fff;
+            box-shadow: 0 0 0 3px rgba(2,36,72,0.08);
         }
 
         /* Drop zone */
         .drop-zone {
-            border: 2px dashed #e5e7eb;
-            border-radius: 14px;
-            padding: 32px 24px;
+            border: 2px dashed #E2E8F0;
+            border-radius: 12px;
+            padding: 36px 24px;
             text-align: center;
             transition: border-color 0.15s, background 0.15s;
             cursor: pointer;
             position: relative;
+            background: #F8FAFC;
         }
+        .drop-zone:hover { border-color: #adc8f5; background: rgba(2,36,72,0.02); }
         .drop-zone.dz-over {
-            border-color: #6366f1;
-            background: rgba(99,102,241,0.04);
+            border-color: #022448;
+            background: rgba(2,36,72,0.04);
         }
+        .drop-zone-icon {
+            display: flex; align-items: center; justify-content: center;
+            width: 52px; height: 52px;
+            background: rgba(2,36,72,0.07);
+            border-radius: 12px;
+            margin: 0 auto 12px;
+            color: #022448;
+        }
+        .drop-zone-icon .material-symbols-outlined { font-size: 26px; }
+        .drop-zone-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #191c1e;
+            margin-bottom: 4px;
+        }
+        .drop-zone-sub { font-size: 12px; color: #74777f; }
         .sel-file-info {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 4px 0;
+            padding: 6px 0;
+            font-size: 13px;
+            font-weight: 600;
+            color: #022448;
         }
+        .sel-file-info .material-symbols-outlined { font-size: 20px; color: #137333; }
 
         /* Upload button */
         .upload-btn {
@@ -239,51 +457,136 @@
             justify-content: center;
             gap: 8px;
             width: 100%;
-            padding: 11px 20px;
-            background: #111827;
+            padding: 12px 20px;
+            background: #022448;
             color: #fff;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.15s, transform 0.1s;
+            transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
             font-family: inherit;
+            letter-spacing: 0.01em;
         }
-        .upload-btn:hover:not(:disabled) { background: #374151; transform: translateY(-1px); }
+        .upload-btn:hover:not(:disabled) {
+            background: #1e3a5f;
+            box-shadow: 0 4px 12px rgba(2,36,72,0.2);
+            transform: translateY(-1px);
+        }
         .upload-btn:active:not(:disabled) { transform: scale(0.98); }
-        .upload-btn:disabled { background: #9ca3af; cursor: not-allowed; }
+        .upload-btn:disabled { background: #c4c6cf; cursor: not-allowed; }
+        .upload-btn .material-symbols-outlined { font-size: 18px; }
 
         /* Status message */
         .upload-status-msg {
             font-size: 13px;
             font-weight: 600;
             padding: 10px 14px;
-            border-radius: 10px;
+            border-radius: 8px;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
         }
-        .upload-ok  { background: #dcfce7; color: #15803d; }
-        .upload-err { background: #fee2e2; color: #dc2626; }
+        .upload-ok  { background: #e6f4ea; color: #137333; }
+        .upload-err { background: #ffdad6; color: #93000a; }
 
         /* Empty / error states */
         .mod-empty {
             padding: 64px 24px;
             text-align: center;
-            color: #9ca3af;
+            color: #74777f;
         }
+        .mod-empty .material-symbols-outlined { font-size: 48px; opacity: 0.3; margin-bottom: 12px; }
         .mod-empty p { font-size: 14px; font-weight: 500; margin-top: 4px; }
         .mod-error {
-            padding: 24px;
-            text-align: center;
-            color: #dc2626;
+            padding: 16px 20px;
+            color: #93000a;
             font-size: 13px;
             font-weight: 600;
-            background: #fee2e2;
+            background: #ffdad6;
             border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
+
+        /* Section heading */
+        .section-heading {
+            font-size: 16px;
+            font-weight: 700;
+            color: #191c1e;
+            letter-spacing: -0.01em;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-heading .material-symbols-outlined { font-size: 20px; color: #022448; }
+
+        /* Mobile sidebar overlay */
+        #sidebarOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 39;
+        }
+
+        /* ── Mobile ── */
+        @media (max-width: 768px) {
+            #sidebar {
+                transform: translateX(-100%);
+                box-shadow: 4px 0 24px rgba(0,0,0,0.2);
+            }
+            #sidebar.open { transform: translateX(0); }
+            #sidebarOverlay.open { display: block; }
+            #mainWrapper { margin-left: 0; }
+            #hamburgerBtn { display: flex; align-items: center; justify-content: center; }
+            #pageContent { padding: 16px 16px 80px; }
+            #topBar { padding: 0 16px; }
+            .mod-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+            .addr-row { min-height: 64px; padding: 14px 14px; }
+            .upload-wrap { max-width: 100%; }
+            .form-sel, .form-inp { padding: 12px 14px; font-size: 14px; }
+            .upload-btn { padding: 14px 20px; font-size: 15px; }
+            .drop-zone { padding: 40px 20px; }
+        }
+
+        /* ── Bottom nav (mobile) ── */
+        #bottomNav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 64px;
+            background: #022448;
+            z-index: 50;
+            align-items: center;
+            justify-content: space-around;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            color: rgba(255,255,255,0.5);
+            text-decoration: none;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: color 0.15s;
+        }
+        .bottom-nav-item .material-symbols-outlined { font-size: 22px; }
+        .bottom-nav-item.active { color: #fea619; }
+        @media (max-width: 768px) { #bottomNav { display: flex; } }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-[100dvh] flex flex-col selection:bg-indigo-100">
+<body class="font-sans min-h-[100dvh] bg-[#F8FAFC] text-[#191c1e]">
 <script>
     (function() {
         var role = localStorage.getItem('userRole');
@@ -291,35 +594,86 @@
     })();
 </script>
 
-    <!-- Glass Header -->
-    <header class="glass-header sticky top-0 z-50 w-full px-4 sm:px-8 py-3 flex justify-between items-center gap-3">
-        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-            <button id="backBtn" class="p-2 -ml-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors shrink-0" title="Back to Project Hub">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-            </button>
-            <div class="w-px h-5 bg-gray-200 mx-1 shrink-0"></div>
-            <!-- Module icon -->
-            <svg class="w-5 h-5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <div class="flex flex-col min-w-0">
-                <h1 class="text-base sm:text-lg font-bold tracking-tight leading-none truncate" id="projectNameDisplay">LOADING…</h1>
-                <span class="text-xs text-gray-400 font-medium mt-0.5">Druckprüfung</span>
-            </div>
+<!-- Sidebar overlay (mobile) -->
+<div id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ══ SIDEBAR ══ -->
+<nav id="sidebar">
+    <div class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+            <span class="material-symbols-outlined" style="font-size:18px;color:#022448;">description</span>
         </div>
-        <div class="flex items-center gap-2 shrink-0">
-            <button onclick="window.location.href='profile.html'"
-                class="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors" title="Profile">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
+        <div>
+            <div class="sidebar-logo-text">DocPilot</div>
+            <div class="sidebar-logo-sub">Field Operations</div>
+        </div>
+    </div>
+
+    <div class="sidebar-nav">
+        <div class="sidebar-section-label">Navigation</div>
+
+        <a href="index.html" class="nav-item">
+            <span class="material-symbols-outlined">home</span>
+            Home
+        </a>
+
+        <a href="admin.html" class="nav-item" id="navAdmin" style="display:none">
+            <span class="material-symbols-outlined">admin_panel_settings</span>
+            Admin
+        </a>
+
+        <a href="superlog.html" class="nav-item" id="navSuperlog" style="display:none">
+            <span class="material-symbols-outlined">monitoring</span>
+            Super Logs
+        </a>
+
+        <div class="sidebar-section-label" style="margin-top:12px;">Account</div>
+
+        <a href="profile.html" class="nav-item">
+            <span class="material-symbols-outlined">account_circle</span>
+            Profile
+        </a>
+
+        <button class="nav-item w-full text-left" id="sidebarLogoutBtn">
+            <span class="material-symbols-outlined">logout</span>
+            Logout
+        </button>
+    </div>
+
+    <div class="sidebar-footer">
+        <div style="font-size:10px;color:rgba(255,255,255,0.25);font-weight:500;">DocPilot v2 · Druckprüfung</div>
+    </div>
+</nav>
+
+<!-- ══ MAIN WRAPPER ══ -->
+<div id="mainWrapper">
+
+    <!-- Top bar -->
+    <header id="topBar">
+        <div class="topbar-left">
+            <button id="hamburgerBtn" onclick="toggleSidebar()" title="Menu">
+                <span class="material-symbols-outlined" style="font-size:22px;">menu</span>
             </button>
+            <!-- backBtn preserved for JS -->
+            <button id="backBtn" class="icon-btn" title="Back">
+                <span class="material-symbols-outlined" style="font-size:20px;">arrow_back</span>
+            </button>
+            <div style="width:1px;height:20px;background:#E2E8F0;flex-shrink:0;"></div>
+            <span class="topbar-module-badge">
+                <span class="material-symbols-outlined">compress</span>
+                Druckprüfung
+            </span>
+            <span id="projectNameDisplay" style="font-size:14px;font-weight:600;color:#74777f;"></span>
+        </div>
+        <div class="topbar-right">
+            <a href="profile.html" class="icon-btn" title="Profile">
+                <span class="material-symbols-outlined" style="font-size:22px;">account_circle</span>
+            </a>
         </div>
     </header>
 
-    <main class="flex-grow w-full max-w-5xl mx-auto px-4 sm:px-8 py-6">
+    <!-- Page content -->
+    <main id="pageContent">
         <!-- Breadcrumb -->
         <nav class="breadcrumb-bar" id="moduleBreadcrumb" aria-label="Navigation">
             <span class="bc-btn bc-active">Cluster</span>
@@ -327,22 +681,73 @@
 
         <!-- Dynamic content area -->
         <div id="moduleContent">
-            <div class="py-16 flex justify-center text-gray-300">
+            <div class="py-16 flex flex-col items-center justify-center gap-3 text-[#c4c6cf]">
                 <svg class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
+                <span style="font-size:13px;font-weight:500;">Laden…</span>
             </div>
         </div>
     </main>
+</div>
 
-    <script src="src/js/api.js"></script>
-    <script src="src/js/module-shared.js"></script>
-    <script src="src/js/druckprufung.js"></script>
-    <script src="src/js/logout.js"></script>
+<!-- Bottom nav (mobile) -->
+<nav id="bottomNav">
+    <a href="index.html" class="bottom-nav-item">
+        <span class="material-symbols-outlined">home</span>
+        Home
+    </a>
+    <a href="#" class="bottom-nav-item active">
+        <span class="material-symbols-outlined">compress</span>
+        Druck
+    </a>
+    <a href="profile.html" class="bottom-nav-item">
+        <span class="material-symbols-outlined">account_circle</span>
+        Profile
+    </a>
+</nav>
+
+<script>
+    // Sidebar toggle
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('sidebarOverlay').classList.toggle('open');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.remove('open');
+        document.getElementById('sidebarOverlay').classList.remove('open');
+    }
+
+    // Show superadmin links
+    (function() {
+        var role = localStorage.getItem('userRole');
+        if (role === 'superadmin') {
+            var a = document.getElementById('navAdmin');
+            var s = document.getElementById('navSuperlog');
+            if (a) a.style.display = 'flex';
+            if (s) s.style.display = 'flex';
+        }
+    })();
+</script>
+
+<script src="src/js/api.js"></script>
+<script src="src/js/module-shared.js"></script>
+<script src="src/js/druckprufung.js"></script>
+<script src="src/js/logout.js"></script>
 <script src="src/js/header-avatar.js"></script>
 <script src="src/js/i18n.js"></script>
 <script src="src/js/force-logout.js"></script>
 <script src="src/js/idle-logout.js?v=20260414a"></script>
+<script>
+    // Wire sidebar logout button after logout.js loads
+    document.addEventListener('DOMContentLoaded', function() {
+        var btn = document.getElementById('sidebarLogoutBtn');
+        if (btn) btn.addEventListener('click', function() {
+            if (typeof doLogout === 'function') doLogout();
+            else { localStorage.clear(); window.location.href = 'login.html'; }
+        });
+    });
+</script>
 </body>
 </html>
