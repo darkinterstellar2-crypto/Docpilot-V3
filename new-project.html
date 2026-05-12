@@ -107,40 +107,59 @@
 
 <!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center">
-                <span class="material-symbols-outlined text-white" style="font-size:18px">description</span>
-            </div>
-            <span class="text-white font-bold text-lg tracking-tight">DocPilot</span>
-        </div>
+    <!-- Brand -->
+    <div class="px-6 py-5 border-b border-white/10">
+        <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
+        <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
     </div>
 
-    <nav class="sidebar-nav">
-        <div class="section-label">Navigation</div>
-        <a href="index.html" class="nav-item">
-            <span class="material-symbols-outlined">home</span>
-            Home
+    <!-- Nav Items -->
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="projects">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">folder_open</span>
+            <span class="text-sm font-medium">Projects</span>
         </a>
-        <a href="admin.html" class="nav-item superadmin-only" style="display:none">
-            <span class="material-symbols-outlined">admin_panel_settings</span>
-            Admin
+        <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="teams">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">group</span>
+            <span class="text-sm font-medium">Teams</span>
         </a>
-        <a href="superlog.html" class="nav-item superadmin-only" style="display:none">
-            <span class="material-symbols-outlined">manage_history</span>
-            Super Logs
+        <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="calendar">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">calendar_month</span>
+            <span class="text-sm font-medium">Calendar</span>
         </a>
-
-        <div class="section-label" style="margin-top:8px">Account</div>
-        <a href="profile.html" class="nav-item">
-            <span class="material-symbols-outlined">account_circle</span>
-            Profile
+        <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="planner">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">event_note</span>
+            <span class="text-sm font-medium">Planner</span>
         </a>
-        <a href="#" class="nav-item" id="sidebarLogoutBtn">
-            <span class="material-symbols-outlined">logout</span>
-            Logout
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="settings">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">settings</span>
+            <span class="text-sm font-medium">Settings</span>
         </a>
+        <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="profile">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">person</span>
+            <span class="text-sm font-medium">Profile</span>
+        </a>
+        <div id="adminNavLinks" style="display:none" class="space-y-0.5">
+            <div class="px-3 pt-3 pb-1">
+                <p class="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p>
+            </div>
+            <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="admin">
+                <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">admin_panel_settings</span>
+                <span class="text-sm font-medium">Admin</span>
+            </a>
+            <a href="superlog.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="superlogs">
+                <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">manage_search</span>
+                <span class="text-sm font-medium">Super Logs</span>
+            </a>
+        </div>
     </nav>
+
+    <div class="px-3 py-4 border-t border-white/10">
+        <button id="sidebarLogoutBtn" onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150 group">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300 transition-colors">logout</span>
+            <span class="text-sm font-medium">Logout</span>
+        </button>
+    </div>
 </aside>
 
 <!-- Main Content -->
@@ -335,5 +354,41 @@
 <script src="src/js/i18n.js"></script>
 <script src="src/js/force-logout.js"></script>
 <script src="src/js/idle-logout.js?v=20260414a"></script>
+<nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 flex items-center justify-around px-2"
+     style="background:#fff; border-top:1px solid #E2E8F0; box-shadow:0 -2px 8px rgba(0,0,0,0.06); padding-bottom:env(safe-area-inset-bottom);">
+    <a href="index.html" class="flex flex-col items-center justify-center text-[#74777f] hover:text-[#022448] transition-colors w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;">folder_open</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Projects</span>
+    </a>
+    <a href="calendar.html" class="flex flex-col items-center justify-center text-[#74777f] hover:text-[#022448] transition-colors w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;">calendar_month</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Calendar</span>
+    </a>
+    <a href="planner.html" class="flex flex-col items-center justify-center text-[#74777f] hover:text-[#022448] transition-colors w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;">event_note</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Planner</span>
+    </a>
+    <a href="profile.html" class="flex flex-col items-center justify-center text-[#74777f] hover:text-[#022448] transition-colors w-full h-full rounded-lg gap-0.5">
+        <span class="material-symbols-outlined" style="font-size:22px;">person</span>
+        <span style="font-size:10px;font-weight:600;letter-spacing:0.03em;">Profile</span>
+    </a>
+</nav>
+<script>
+(function(){
+  var page = window.location.pathname.split('/').pop() || 'index.html';
+  var map = {'index.html':'projects','dashboard.html':'projects','aufmass.html':'projects','files.html':'projects','apl.html':'projects','einblasen.html':'projects','druckprufung.html':'projects','kalibrieren.html':'projects','knotenpunkt-vorbereitung.html':'projects','otdr.html':'projects','planner.html':'planner','admin.html':'admin','superlog.html':'superlogs','profile.html':'profile','teams.html':'teams','calendar.html':'calendar','settings.html':'settings','new-project.html':'projects'};
+  var active = map[page];
+  document.querySelectorAll('.sidebar-link').forEach(function(el){
+    if(el.dataset.page === active){
+      el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400');
+      el.classList.remove('text-blue-100');
+    }
+  });
+  try{
+    var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
+    if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';}}
+  }catch(e){}
+})();
+</script>
 </body>
 </html>

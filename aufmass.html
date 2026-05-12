@@ -151,51 +151,60 @@
          SIDEBAR (Desktop)
     ════════════════════════════════════════ -->
     <nav class="sidebar-desktop flex flex-col h-screen w-sidebar bg-primary text-on-primary fixed left-0 top-0 z-50 shrink-0 shadow-xl">
-        <!-- Logo -->
-        <div class="px-6 py-6 border-b border-white/10">
-            <div class="flex items-center gap-2">
-                <span class="material-symbols-outlined text-accent text-2xl" style="font-size:28px;">bolt</span>
-                <div>
-                    <h1 class="text-lg font-bold tracking-tight text-white">DocPilot</h1>
-                    <p class="text-xs text-on-primary/50 font-medium">Infrastructure Pro</p>
-                </div>
-            </div>
+        <!-- Brand -->
+        <div class="px-6 py-5 border-b border-white/10">
+          <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
+          <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
         </div>
 
         <!-- Nav Items -->
-        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
-            <a href="index.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
-                <span class="material-symbols-outlined">home</span>
-                <span>Home</span>
+        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+          <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="projects">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">folder_open</span>
+            <span class="text-sm font-medium">Projects</span>
+          </a>
+          <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="teams">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">group</span>
+            <span class="text-sm font-medium">Teams</span>
+          </a>
+          <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="calendar">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">calendar_month</span>
+            <span class="text-sm font-medium">Calendar</span>
+          </a>
+          <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="planner">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">event_note</span>
+            <span class="text-sm font-medium">Planner</span>
+          </a>
+          <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="settings">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">settings</span>
+            <span class="text-sm font-medium">Settings</span>
+          </a>
+          <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="profile">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">person</span>
+            <span class="text-sm font-medium">Profile</span>
+          </a>
+          <!-- Superadmin only — hidden by default, JS shows them -->
+          <div id="adminNavLinks" style="display:none" class="space-y-0.5">
+            <div class="px-3 pt-3 pb-1">
+              <p class="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p>
+            </div>
+            <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="admin">
+              <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">admin_panel_settings</span>
+              <span class="text-sm font-medium">Admin</span>
             </a>
+            <a href="superlog.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="superlogs">
+              <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">manage_search</span>
+              <span class="text-sm font-medium">Super Logs</span>
+            </a>
+          </div>
+        </nav>
 
-            <!-- Active: Aufmass Table -->
-            <a href="#" class="nav-item-active flex items-center gap-3 pl-3 pr-4 py-2.5 rounded-r-lg text-white font-semibold text-sm">
-                <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">edit_note</span>
-                <span>Aufmass</span>
-            </a>
-
-            <!-- Superadmin-only items (visibility controlled by JS/auth) -->
-            <a href="admin.html" id="sidebarAdminLink" class="hidden flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
-                <span class="material-symbols-outlined">admin_panel_settings</span>
-                <span>Admin</span>
-            </a>
-            <a href="superlog.html" id="sidebarSuperLogLink" class="hidden flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
-                <span class="material-symbols-outlined">manage_history</span>
-                <span>Super Logs</span>
-            </a>
-        </div>
-
-        <!-- Bottom: Profile + Logout -->
-        <div class="px-3 py-4 border-t border-white/10 space-y-1">
-            <a href="profile.html" class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-white hover:bg-white/10 transition-all duration-150 font-medium text-sm">
-                <span class="material-symbols-outlined">person</span>
-                <span>Profile</span>
-            </a>
-            <button id="logoutBtn" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-primary/70 hover:text-red-300 hover:bg-red-500/10 transition-all duration-150 font-medium text-sm">
-                <span class="material-symbols-outlined">logout</span>
-                <span>Logout</span>
-            </button>
+        <!-- Logout at bottom -->
+        <div class="px-3 py-4 border-t border-white/10">
+          <button id="sidebarLogoutBtn" onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150 group">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300 transition-colors">logout</span>
+            <span class="text-sm font-medium">Logout</span>
+          </button>
         </div>
     </nav>
 
@@ -341,27 +350,21 @@
     ════════════════════════════════════════ -->
     <nav class="bottom-nav-mobile fixed bottom-0 left-0 right-0 z-50 bg-surface-lowest border-t border-outline-var h-16 flex items-center justify-around px-2 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
         <a href="index.html" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
-            <span class="material-symbols-outlined" style="font-size:22px;">home</span>
-            <span class="text-[10px] font-semibold">Home</span>
+            <span class="material-symbols-outlined" style="font-size:22px;">folder_open</span>
+            <span class="text-[10px] font-semibold">Projects</span>
         </a>
-        <a href="#" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-accent bg-accent/10 font-bold">
-            <span class="material-symbols-outlined" style="font-size:22px; font-variation-settings:'FILL' 1;">edit_note</span>
-            <span class="text-[10px] font-semibold">Aufmass</span>
+        <a href="calendar.html" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
+            <span class="material-symbols-outlined" style="font-size:22px;">calendar_month</span>
+            <span class="text-[10px] font-semibold">Calendar</span>
+        </a>
+        <a href="planner.html" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
+            <span class="material-symbols-outlined" style="font-size:22px;">event_note</span>
+            <span class="text-[10px] font-semibold">Planner</span>
         </a>
         <a href="profile.html" class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
             <span class="material-symbols-outlined" style="font-size:22px;">person</span>
             <span class="text-[10px] font-semibold">Profile</span>
         </a>
-        <button id="mobileExcelBtn" onclick="document.getElementById('excelBtn').click()"
-            class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl text-on-surface-var hover:text-primary hover:bg-surface transition-all">
-            <span class="material-symbols-outlined" style="font-size:22px;">download</span>
-            <span class="text-[10px] font-semibold">Export</span>
-        </button>
-        <button id="mobileSaveBtn" onclick="document.getElementById('saveBtn').click()"
-            class="flex flex-col items-center justify-center gap-0.5 w-14 h-12 rounded-xl bg-accent text-primary font-bold hover:bg-amber-400 transition-all">
-            <span class="material-symbols-outlined" style="font-size:22px;">save</span>
-            <span class="text-[10px] font-semibold">Save</span>
-        </button>
     </nav>
 
     <!-- ════════════════════════════════════════
@@ -388,5 +391,22 @@
     <script src="src/js/i18n.js"></script>
     <script src="src/js/force-logout.js"></script>
     <script src="src/js/idle-logout.js?v=20260414a"></script>
+<script>
+(function(){
+  var page = window.location.pathname.split('/').pop() || 'index.html';
+  var map = {'index.html':'projects','dashboard.html':'projects','aufmass.html':'projects','files.html':'projects','apl.html':'projects','einblasen.html':'projects','druckprufung.html':'projects','kalibrieren.html':'projects','knotenpunkt-vorbereitung.html':'projects','otdr.html':'projects','planner.html':'planner','admin.html':'admin','superlog.html':'superlogs','profile.html':'profile','teams.html':'teams','calendar.html':'calendar','settings.html':'settings','new-project.html':'projects'};
+  var active = map[page];
+  document.querySelectorAll('.sidebar-link').forEach(function(el){
+    if(el.dataset.page === active){
+      el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400');
+      el.classList.remove('text-blue-100');
+    }
+  });
+  try{
+    var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
+    if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';}}
+  }catch(e){}
+})();
+</script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-# DocPilot — Complete Project Documentation
+# DocPilot — Complete Project Documentation (V2.6)
 
 > Written for complete beginners in IT. Every concept is explained from scratch.
 
@@ -3245,5 +3245,82 @@ Photos taken with GeoCam do NOT get the `_U` (Upload) suffix. Photos uploaded fr
 
 ---
 
-> **Last updated:** Auto-generated from codebase.
+## Changelog
+
+### V2.6 — UI Redesign (2026-05-12)
+
+This release is a full UI overhaul across all 17 HTML pages. No backend logic or API changes — purely frontend.
+
+#### Design System: Industrial Modern
+
+A new, consistent design system was applied across the entire application:
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| **Sidebar background** | `#022448` (dark navy) | Sidebar panel on all pages |
+| **Content background** | `#F8FAFC` (off-white) | Main content area |
+| **Accent color** | `#fea619` (amber) | Buttons, active states, highlights |
+| **Primary font** | Inter (Google Fonts) | All body text and UI labels |
+| **Icon set** | Material Symbols Outlined | All icons throughout the app |
+
+#### Pages Redesigned
+
+All **17 HTML pages** were redesigned with the new system:
+
+1. `index.html` — App hub / routing gate
+2. `login.html` — Login form
+3. `register.html` — Registration + OTP flow
+4. `dashboard.html` — Project list and hub
+5. `aufmass.html` — Main data table
+6. `einblasen.html` — Cable blowing module
+7. `apl.html` — APL / line termination module
+8. `druckprufung.html` — Pressure test module
+9. `kalibrieren.html` — Calibration module
+10. `knotenpunkt-vorbereitung.html` — Node preparation module
+11. `otdr.html` — OTDR test module
+12. `planner.html` — Appointment calendar
+13. `files.html` — File browser
+14. `profile.html` — User profile
+15. `new-project.html` — Project creation wizard
+16. `admin.html` — Admin control panel
+17. `superlog.html` — System log viewer
+
+#### Key Design Decisions
+
+**Mobile-first approach:**
+- All pages designed for mobile use first, then scaled up for desktop
+- 48px+ tap targets on all interactive elements (buttons, nav links, upload zones)
+- Large, thumb-friendly upload zones for field technicians working outdoors
+- Bottom navigation bar on all pages for one-thumb mobile access
+
+**Layout structure:**
+- Desktop: Fixed dark navy sidebar (left) + light content area (right)
+- Mobile: Bottom navigation bar (replaces sidebar) + full-width content
+- Consistent header with project name, back button, and user avatar
+
+**Glassmorphism — controlled usage:**
+- Glassmorphism effects (frosted glass, backdrop-blur) restricted to **modals only**
+- All other UI uses solid, clean surfaces for readability in bright outdoor light
+
+**Status badge system (standardized):**
+
+| Status | Color | Hex |
+|--------|-------|-----|
+| Done | Green | `#16a34a` |
+| Pending | Grey | `#6b7280` |
+| Waiting | Blue | `#2563eb` |
+| Error | Red | `#dc2626` |
+
+**Design tokens applied consistently across all pages** — no page uses one-off color values. All colors reference the design system variables.
+
+#### Other Changes in V2.6
+
+- **`BUGS.md` created** — A running log of known issues discovered during the redesign. Located at `/BUGS.md` in the repo root. Issues are categorized by page and include severity ratings. Nothing was fixed in this sprint — bugs are logged for the next development cycle.
+- **Repo renamed:** `TheApp` (GitHub: `rishi-dumps-here/DataManagement`) → **`Docpilot-V3`** (GitHub: `git@github.com:darkinterstellar2-crypto/Docpilot-V3.git`). All future commits go to the new remote.
+- **Worker-optimized UX:** UI decisions throughout prioritize field-use scenarios — large text, high contrast, minimal gestures required.
+- **Clear status indicators** prominently displayed at the top of each address view, not buried in forms.
+
+---
+
+> **Last updated:** V2.6 — 2026-05-12 (UI Redesign Sprint)
 > **For questions or updates:** Check the source code in `routes/`, `controllers/`, and `src/js/`.

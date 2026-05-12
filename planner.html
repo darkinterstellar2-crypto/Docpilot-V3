@@ -281,60 +281,58 @@
 ═══════════════════════════════════════════════════════════ -->
 <nav class="sidebar hidden md:flex flex-col h-screen fixed left-0 top-0 z-50 shadow-lg"
      style="background:#022448; width:240px;">
-    <div class="flex flex-col h-full">
+    <!-- Brand -->
+    <div class="px-6 py-5 border-b border-white/10">
+        <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
+        <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+    </div>
 
-        <!-- Logo / Brand -->
-        <div class="px-5 pt-6 pb-5 flex items-center gap-3 border-b" style="border-color:rgba(255,255,255,0.08)">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                 style="background:#fea619;">
-                <span class="material-symbols-outlined" style="color:#022448; font-size:20px;">flight_takeoff</span>
+    <!-- Nav Items -->
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+        <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="projects">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">folder_open</span>
+            <span class="text-sm font-medium">Projects</span>
+        </a>
+        <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="teams">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">group</span>
+            <span class="text-sm font-medium">Teams</span>
+        </a>
+        <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="calendar">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">calendar_month</span>
+            <span class="text-sm font-medium">Calendar</span>
+        </a>
+        <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="planner">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">event_note</span>
+            <span class="text-sm font-medium">Planner</span>
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="settings">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">settings</span>
+            <span class="text-sm font-medium">Settings</span>
+        </a>
+        <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="profile">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">person</span>
+            <span class="text-sm font-medium">Profile</span>
+        </a>
+        <div id="adminNavLinks" style="display:none" class="space-y-0.5">
+            <div class="px-3 pt-3 pb-1">
+                <p class="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p>
             </div>
-            <div>
-                <div class="text-white font-bold text-base leading-tight">DocPilot</div>
-                <div class="text-xs font-medium leading-none mt-0.5" style="color:rgba(255,255,255,0.45);">Infrastructure Pro</div>
-            </div>
-        </div>
-
-        <!-- Nav Links -->
-        <div class="flex-1 overflow-y-auto py-3">
-            <a href="index.html" class="sidebar-link">
-                <span class="material-symbols-outlined">home</span>
-                Home
+            <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="admin">
+                <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">admin_panel_settings</span>
+                <span class="text-sm font-medium">Admin</span>
             </a>
-            <a href="planner.html" class="sidebar-link active">
-                <span class="material-symbols-outlined">calendar_month</span>
-                Planner
-            </a>
-            <a href="admin.html" class="sidebar-link superadmin-only" id="sidebarAdminLink">
-                <span class="material-symbols-outlined">admin_panel_settings</span>
-                Admin
-            </a>
-            <a href="superlog.html" class="sidebar-link superadmin-only" id="sidebarSuperlogLink">
-                <span class="material-symbols-outlined">manage_search</span>
-                Super Logs
-            </a>
-            <a href="profile.html" class="sidebar-link">
-                <span class="material-symbols-outlined">person</span>
-                Profile
-            </a>
-        </div>
-
-        <!-- Bottom: User + Logout -->
-        <div class="px-2 py-4 border-t" style="border-color:rgba(255,255,255,0.08)">
-            <div class="flex items-center gap-3 px-3 py-2 mb-1">
-                <div id="sidebarAvatar" class="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden"
-                     style="background:#1e3a5f; border:2px solid rgba(255,255,255,0.2);">
-                </div>
-                <div class="min-w-0">
-                    <div id="sidebarUserName" class="text-white text-xs font-semibold truncate"></div>
-                    <div id="sidebarUserRole" class="text-xs truncate" style="color:rgba(255,255,255,0.45);"></div>
-                </div>
-            </div>
-            <a href="#" id="logoutBtn" class="sidebar-link" style="color:rgba(255,255,255,0.5);">
-                <span class="material-symbols-outlined">logout</span>
-                Logout
+            <a href="superlog.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="superlogs">
+                <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">manage_search</span>
+                <span class="text-sm font-medium">Super Logs</span>
             </a>
         </div>
+    </nav>
+
+    <div class="px-3 py-4 border-t border-white/10">
+        <button id="sidebarLogoutBtn" onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150 group">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300 transition-colors">logout</span>
+            <span class="text-sm font-medium">Logout</span>
+        </button>
     </div>
 </nav>
 
@@ -446,20 +444,20 @@
 <nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 h-16 flex items-center justify-around px-2"
      style="background:#fff; border-top:1px solid #E2E8F0; box-shadow:0 -2px 8px rgba(0,0,0,0.06);">
     <a href="index.html" class="bottom-nav-link">
-        <span class="material-symbols-outlined">home</span>
-        Home
+        <span class="material-symbols-outlined">folder_open</span>
+        Projects
+    </a>
+    <a href="calendar.html" class="bottom-nav-link">
+        <span class="material-symbols-outlined">calendar_month</span>
+        Calendar
     </a>
     <a href="planner.html" class="bottom-nav-link active">
-        <span class="material-symbols-outlined" style="font-variation-settings:'FILL' 1;">calendar_month</span>
+        <span class="material-symbols-outlined">event_note</span>
         Planner
     </a>
     <a href="profile.html" class="bottom-nav-link">
         <span class="material-symbols-outlined">person</span>
         Profile
-    </a>
-    <a href="#" id="mobileLogoutBtn" class="bottom-nav-link">
-        <span class="material-symbols-outlined">logout</span>
-        Logout
     </a>
 </nav>
 
@@ -517,5 +515,22 @@
 <script src="src/js/header-avatar.js?v=20260414a"></script>
 <script src="src/js/planner.js?v=20260414a"></script>
 <script src="src/js/idle-logout.js?v=20260414a"></script>
+<script>
+(function(){
+  var page = window.location.pathname.split('/').pop() || 'index.html';
+  var map = {'index.html':'projects','dashboard.html':'projects','aufmass.html':'projects','files.html':'projects','apl.html':'projects','einblasen.html':'projects','druckprufung.html':'projects','kalibrieren.html':'projects','knotenpunkt-vorbereitung.html':'projects','otdr.html':'projects','planner.html':'planner','admin.html':'admin','superlog.html':'superlogs','profile.html':'profile','teams.html':'teams','calendar.html':'calendar','settings.html':'settings','new-project.html':'projects'};
+  var active = map[page];
+  document.querySelectorAll('.sidebar-link').forEach(function(el){
+    if(el.dataset.page === active){
+      el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400');
+      el.classList.remove('text-blue-100');
+    }
+  });
+  try{
+    var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
+    if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';}}
+  }catch(e){}
+})();
+</script>
 </body>
 </html>

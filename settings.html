@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — DocPilot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    /* Toggle base styles */
+    .toggle-track { transition: background 0.2s; }
+    .toggle-thumb { transition: transform 0.2s; }
+  </style>
+</head>
+<body class="bg-[#F8FAFC]">
+
+  <!-- Sidebar -->
+  <aside class="hidden md:flex flex-col w-60 h-screen fixed left-0 top-0 bg-[#022448] z-50">
+    <div class="px-6 py-5 border-b border-white/10">
+      <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
+      <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+    </div>
+    <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+      <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="projects">
+        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">folder_open</span>
+        <span class="text-sm font-medium">Projects</span>
+      </a>
+      <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="teams">
+        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">group</span>
+        <span class="text-sm font-medium">Teams</span>
+      </a>
+      <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="calendar">
+        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">calendar_month</span>
+        <span class="text-sm font-medium">Calendar</span>
+      </a>
+      <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="planner">
+        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">event_note</span>
+        <span class="text-sm font-medium">Planner</span>
+      </a>
+      <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="settings">
+        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">settings</span>
+        <span class="text-sm font-medium">Settings</span>
+      </a>
+      <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="profile">
+        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">person</span>
+        <span class="text-sm font-medium">Profile</span>
+      </a>
+      <div id="adminNavLinks" style="display:none" class="space-y-0.5">
+        <div class="px-3 pt-3 pb-1"><p class="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p></div>
+        <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="admin">
+          <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">admin_panel_settings</span>
+          <span class="text-sm font-medium">Admin</span>
+        </a>
+        <a href="superlog.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="superlogs">
+          <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">manage_search</span>
+          <span class="text-sm font-medium">Super Logs</span>
+        </a>
+      </div>
+    </nav>
+    <div class="px-3 py-4 border-t border-white/10">
+      <button onclick="localStorage.clear();sessionStorage.clear();window.location.href='login.html';" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all group">
+        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300">logout</span>
+        <span class="text-sm font-medium">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="md:ml-60 min-h-screen pb-20 md:pb-0">
+    <div class="px-4 md:px-8 py-6 max-w-2xl">
+      <!-- Header -->
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-[#022448]">Settings</h2>
+        <p class="text-sm text-slate-500 mt-1">Manage your preferences and account settings</p>
+      </div>
+
+      <!-- Settings Card -->
+      <div class="bg-white border border-[#E2E8F0] rounded-xl divide-y divide-[#E2E8F0]">
+
+        <!-- Appearance -->
+        <div class="px-6 py-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[22px] text-slate-400">contrast</span>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">Appearance</p>
+              <p class="text-xs text-slate-400 mt-0.5">Switch between Light and Dark theme</p>
+            </div>
+          </div>
+          <!-- Theme Toggle -->
+          <button id="themeToggle" type="button" aria-label="Toggle theme" class="relative flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-lg px-1 py-1">
+            <span class="theme-opt px-3 py-1 rounded-md text-xs font-semibold text-white bg-[#022448] transition-all" data-val="light">Light</span>
+            <span class="theme-opt px-3 py-1 rounded-md text-xs font-semibold text-slate-500 transition-all" data-val="dark">Dark</span>
+          </button>
+        </div>
+
+        <!-- Generator Access -->
+        <div class="px-6 py-5">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-[22px] text-slate-400">vpn_key</span>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">Generator Access</p>
+              <p class="text-xs text-slate-400 mt-0.5">Enter your access code to unlock the document generator</p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <input
+              id="generatorCodeInput"
+              type="text"
+              placeholder="Enter access code…"
+              class="flex-1 border border-[#E2E8F0] rounded-lg px-3 py-2 text-sm text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-[#022448]/20 focus:border-[#022448] transition"
+            />
+            <button
+              id="verifyGeneratorBtn"
+              type="button"
+              class="px-4 py-2 bg-[#022448] hover:bg-[#033a6e] text-white text-sm font-semibold rounded-lg transition-colors"
+            >
+              Verify
+            </button>
+          </div>
+          <p id="generatorCodeMsg" class="text-xs text-slate-400 mt-2 hidden"></p>
+        </div>
+
+        <!-- Language -->
+        <div class="px-6 py-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-[22px] text-slate-400">language</span>
+            <div>
+              <p class="text-sm font-semibold text-slate-800">Language</p>
+              <p class="text-xs text-slate-400 mt-0.5">Choose your preferred interface language</p>
+            </div>
+          </div>
+          <!-- Language Toggle -->
+          <button id="langToggle" type="button" aria-label="Toggle language" class="relative flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-lg px-1 py-1">
+            <span class="lang-opt px-3 py-1 rounded-md text-xs font-semibold text-white bg-[#022448] transition-all" data-val="en">EN</span>
+            <span class="lang-opt px-3 py-1 rounded-md text-xs font-semibold text-slate-500 transition-all" data-val="de">DE</span>
+          </button>
+        </div>
+
+      </div>
+      <!-- end settings card -->
+    </div>
+  </main>
+
+  <!-- Mobile Bottom Nav -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E2E8F0] z-50 flex">
+    <a href="index.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
+      <span class="material-symbols-outlined text-[22px]">folder_open</span>
+      <span class="text-[10px] mt-0.5">Projects</span>
+    </a>
+    <a href="calendar.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
+      <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+      <span class="text-[10px] mt-0.5">Calendar</span>
+    </a>
+    <a href="planner.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
+      <span class="material-symbols-outlined text-[22px]">event_note</span>
+      <span class="text-[10px] mt-0.5">Planner</span>
+    </a>
+    <a href="profile.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
+      <span class="material-symbols-outlined text-[22px]">person</span>
+      <span class="text-[10px] mt-0.5">Profile</span>
+    </a>
+  </nav>
+
+  <script src="src/js/api.js"></script>
+  <script>
+  (function(){
+    var page = window.location.pathname.split('/').pop() || 'index.html';
+    var map = {'index.html':'projects','dashboard.html':'projects','aufmass.html':'projects','files.html':'projects','apl.html':'projects','einblasen.html':'projects','druckprufung.html':'projects','kalibrieren.html':'projects','knotenpunkt-vorbereitung.html':'projects','otdr.html':'projects','planner.html':'planner','admin.html':'admin','superlog.html':'superlogs','profile.html':'profile','teams.html':'teams','calendar.html':'calendar','settings.html':'settings','new-project.html':'projects'};
+    var active = map[page];
+    document.querySelectorAll('.sidebar-link').forEach(function(el){
+      if(el.dataset.page === active){
+        el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400');
+        el.classList.remove('text-blue-100');
+      }
+    });
+    try{
+      var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
+      if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';}}
+    }catch(e){}
+  })();
+  </script>
+</body>
+</html>
