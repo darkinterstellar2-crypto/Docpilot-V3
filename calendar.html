@@ -1,127 +1,752 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calendar — DocPilot</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  </style>
-</head>
-<body class="bg-[#F8FAFC]">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DocPilot - Calendar</title>
 
-  <!-- Sidebar -->
-  <aside class="hidden md:flex flex-col w-60 h-screen fixed left-0 top-0 bg-[#022448] z-50">
-    <div class="px-6 py-5 border-b border-white/10">
-      <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
-      <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary:                    '#022448',
+                        'primary-container':        '#1e3a5f',
+                        'on-primary':               '#ffffff',
+                        'on-primary-container':     '#8aa4cf',
+                        'secondary-container':      '#fea619',
+                        'on-secondary-container':   '#684000',
+                        'surface':                  '#f7f9fb',
+                        'surface-container-lowest': '#ffffff',
+                        'surface-container':        '#eceef0',
+                        'surface-container-high':   '#e6e8ea',
+                        'surface-variant':          '#e0e3e5',
+                        'on-surface':               '#191c1e',
+                        'on-surface-variant':       '#43474e',
+                        'outline-variant':          '#c4c6cf',
+                        'outline':                  '#74777f',
+                        error:                      '#ba1a1a',
+                        'primary-fixed':            '#d5e3ff',
+                        'on-primary-fixed':         '#001c3b',
+                    },
+                    spacing: { 'sidebar-width': '240px' }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="src/css/styles.css">
+
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal; font-style: normal; font-size: 24px; line-height: 1;
+            letter-spacing: normal; text-transform: none; display: inline-block;
+            white-space: nowrap; word-wrap: normal; direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        ::-webkit-scrollbar { width: 4px; background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 9999px; }
+
+        /* Topbar */
+        .topbar-glass {
+            background: rgba(247,249,251,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Calendar grid */
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .cal-day-header {
+            text-align: center; font-size: 11px; font-weight: 700;
+            color: #74777f; text-transform: uppercase; letter-spacing: 0.06em;
+            padding: 8px 0; background: #f7f9fb;
+        }
+        .cal-day {
+            min-height: 80px; background: white; border: 1px solid #eceef0;
+            border-radius: 8px; padding: 6px; cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+            position: relative;
+        }
+        .cal-day:hover { background: #f0f4ff; border-color: #8aa4cf; }
+        .cal-day.today { border-color: #fea619; border-width: 2px; }
+        .cal-day.other-month { background: #fafafa; }
+        .cal-day.other-month .cal-day-num { color: #c4c6cf; }
+        .cal-day.selected { background: #e8f0fe; border-color: #022448; border-width: 2px; }
+        .cal-day-num {
+            font-size: 13px; font-weight: 600; color: #191c1e;
+            width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; flex-shrink: 0;
+        }
+        .today .cal-day-num {
+            background: #fea619; color: #684000;
+        }
+        .cal-dots { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 4px; }
+        .cal-dot {
+            width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+        }
+        .cal-pill {
+            font-size: 9px; font-weight: 600; border-radius: 4px;
+            padding: 1px 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 100%; margin-top: 2px;
+        }
+
+        /* Module colors */
+        .mod-einblasen   { background: #3b82f6; }
+        .mod-otdr        { background: #22c55e; }
+        .mod-apl         { background: #fea619; }
+        .mod-druckprufung{ background: #ef4444; }
+        .mod-kalibrieren { background: #a855f7; }
+        .mod-other       { background: #94a3b8; }
+
+        .mod-einblasen-text    { color: #1d4ed8; background: #dbeafe; }
+        .mod-otdr-text         { color: #15803d; background: #dcfce7; }
+        .mod-apl-text          { color: #684000; background: #fff3cd; }
+        .mod-druckprufung-text { color: #b91c1c; background: #fee2e2; }
+        .mod-kalibrieren-text  { color: #7e22ce; background: #f3e8ff; }
+        .mod-other-text        { color: #475569; background: #f1f5f9; }
+
+        /* Day panel */
+        .day-panel {
+            position: fixed; top: 0; right: 0; bottom: 0; z-index: 50;
+            width: 400px; max-width: 100vw;
+            background: white; border-left: 1px solid #e0e3e5;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .day-panel.open { transform: translateX(0); }
+        .day-panel-header {
+            padding: 20px 24px 16px; border-bottom: 1px solid #eceef0;
+            background: #022448; display: flex; justify-content: space-between; align-items: center;
+        }
+        .day-panel-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .appt-card {
+            background: #f7f9fb; border: 1px solid #eceef0; border-radius: 12px;
+            padding: 14px 16px; display: flex; gap: 12px;
+        }
+        .appt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+        .appt-meta { font-size: 11px; color: #74777f; margin-top: 2px; }
+
+        /* Filter pills */
+        .filter-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; border-radius: 9999px; border: 1px solid transparent;
+            font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+        }
+        .filter-pill.active { border-color: transparent; }
+        .filter-pill:not(.active) { background: white !important; color: #74777f !important; border-color: #e0e3e5; }
+        .filter-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+        /* Mobile */
+        #mobileMenuBtn { display: none; }
+        @media (min-width: 768px) {
+            #mobileSidebar { display: none !important; }
+        }
+        @media (max-width: 767px) {
+            #mobileMenuBtn { display: flex; }
+            #mobileSidebar { display: none; position: fixed; inset: 0; z-index: 60; }
+            #mobileSidebar.open { display: flex; }
+            .day-panel { width: 100%; }
+            .cal-day { min-height: 50px; padding: 4px; }
+            .cal-pill { display: none; }
+        }
+        @media (min-width: 1024px) {
+            .main-layout { display: flex; gap: 0; }
+            .cal-area { flex: 1; }
+        }
+
+        /* ── Sidebar Collapse ─────────────────────── */
+        nav.sidebar-nav {
+          transition: width 0.25s ease;
+          overflow: hidden;
+        }
+        nav.sidebar-nav.sidebar-collapsed {
+          width: 64px !important;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-text,
+        nav.sidebar-nav.sidebar-collapsed .sidebar-brand-text {
+          display: none;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-link {
+          justify-content: center;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-admin-label {
+          display: none;
+        }
+        .main-content {
+          transition: margin-left 0.25s ease;
+        }
+        .main-content.sidebar-collapsed {
+          margin-left: 64px !important;
+        }
+        /* ── Pre-collapsed state (anti-flicker) ──────────────── */
+        html.sidebar-pre-collapsed .sidebar-nav {
+          width: 64px !important;
+        }
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-text,
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-brand-text,
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-admin-label {
+          display: none !important;
+        }
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-link {
+          justify-content: center !important;
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+        html.sidebar-pre-collapsed .main-content {
+          margin-left: 64px !important;
+        }
+        /* ── Active link strip ────────────────────── */
+        .sidebar-link {
+          position: relative;
+        }
+        .sidebar-link.active::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 4px;
+          bottom: 4px;
+          width: 3px;
+          border-radius: 3px 0 0 3px;
+          background: #fea619;
+        }
+    </style>
+  <script>
+    /* Apply sidebar state before render to prevent flicker */
+    if (localStorage.getItem('sidebar-collapsed') === 'true') {
+      document.documentElement.classList.add('sidebar-pre-collapsed');
+    }
+  </script>
+</head>
+<body class="bg-surface font-sans text-on-surface antialiased h-screen overflow-hidden flex">
+
+<script>
+    if (!localStorage.getItem('userRole')) { window.location.href = 'login.html'; }
+</script>
+
+<!-- ===================== SIDEBAR (Desktop) ===================== -->
+<nav class="sidebar-nav hidden md:flex flex-col bg-primary text-on-primary w-sidebar-width h-screen fixed left-0 top-0 z-50 shrink-0">
+    <div class="px-4 py-5 border-b border-white/10 flex items-center justify-between">
+        <div>
+            <h1 class="sidebar-brand-text text-xl font-bold text-white tracking-tight">DocPilot</h1>
+            <p class="sidebar-brand-text text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+        </div>
+        <button id="sidebarToggle" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 text-blue-300 hover:text-white transition-colors shrink-0" title="Collapse sidebar">
+            <span class="material-symbols-outlined text-[18px]">menu_open</span>
+        </button>
     </div>
     <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-      <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="projects">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">folder_open</span>
-        <span class="text-sm font-medium">Projects</span>
-      </a>
-      <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="teams">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">group</span>
-        <span class="text-sm font-medium">Teams</span>
-      </a>
-      <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="calendar">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">calendar_month</span>
-        <span class="text-sm font-medium">Calendar</span>
-      </a>
-      <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="planner">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">event_note</span>
-        <span class="text-sm font-medium">Planner</span>
-      </a>
-      <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="settings">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">settings</span>
-        <span class="text-sm font-medium">Settings</span>
-      </a>
-      <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="profile">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">person</span>
-        <span class="text-sm font-medium">Profile</span>
-      </a>
-      <div id="adminNavLinks" style="display:none" class="space-y-0.5">
-        <div class="px-3 pt-3 pb-1"><p class="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p></div>
-        <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="admin">
-          <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">admin_panel_settings</span>
-          <span class="text-sm font-medium">Admin</span>
+        <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="projects">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">folder_open</span>
+            <span class="sidebar-text text-sm font-medium">Projects</span>
         </a>
-        <a href="superlog.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="superlogs">
-          <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">manage_search</span>
-          <span class="text-sm font-medium">Super Logs</span>
+        <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="teams">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">group</span>
+            <span class="sidebar-text text-sm font-medium">Teams</span>
         </a>
-      </div>
+        <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="calendar">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">calendar_month</span>
+            <span class="sidebar-text text-sm font-medium">Calendar</span>
+        </a>
+        <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="planner">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">event_note</span>
+            <span class="sidebar-text text-sm font-medium">Planner</span>
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="settings">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">settings</span>
+            <span class="sidebar-text text-sm font-medium">Settings</span>
+        </a>
+        <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="profile">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">person</span>
+            <span class="sidebar-text text-sm font-medium">Profile</span>
+        </a>
+        <div id="adminNavLinks" style="display:none" class="space-y-0.5">
+            <div class="px-3 pt-3 pb-1">
+                <p class="sidebar-admin-label text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p>
+            </div>
+            <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="admin">
+                <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">admin_panel_settings</span>
+                <span class="sidebar-text text-sm font-medium">Admin</span>
+            </a>
+        </div>
     </nav>
     <div class="px-3 py-4 border-t border-white/10">
-      <button onclick="localStorage.clear();sessionStorage.clear();window.location.href='login.html';" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all group">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300">logout</span>
-        <span class="text-sm font-medium">Logout</span>
-      </button>
+        <button id="sidebarLogoutBtn" onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150 group">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300 transition-colors">logout</span>
+            <span class="sidebar-text text-sm font-medium">Logout</span>
+        </button>
     </div>
-  </aside>
+</nav>
 
-  <!-- Main Content -->
-  <main class="md:ml-60 min-h-screen pb-20 md:pb-0">
-    <div class="px-4 md:px-8 py-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-[#022448]">Calendar</h2>
-        <p class="text-sm text-slate-500 mt-1">Centralized view of all project appointments</p>
-      </div>
-
-      <!-- Placeholder / Coming Soon -->
-      <div id="calendarContent">
-        <div class="bg-white border border-[#E2E8F0] rounded-xl p-12 flex flex-col items-center justify-center text-center">
-          <span class="material-symbols-outlined text-[64px] text-slate-300 mb-4">calendar_month</span>
-          <h3 class="text-lg font-semibold text-slate-600 mb-2">Coming Soon</h3>
-          <p class="text-sm text-slate-400 max-w-sm">The calendar view is under construction. All project appointments and deadlines will appear here once ready.</p>
+<!-- ===================== MOBILE SIDEBAR ===================== -->
+<div id="mobileSidebar">
+    <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('mobileSidebar').classList.remove('open')"></div>
+    <nav class="relative flex flex-col bg-primary text-on-primary w-64 h-full z-10">
+        <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
+                <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+            </div>
+            <button onclick="document.getElementById('mobileSidebar').classList.remove('open')" class="text-blue-300 hover:text-white">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
-      </div>
+        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+            <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">folder_open</span>
+                <span class="sidebar-text text-sm font-medium">Projects</span>
+            </a>
+            <a href="teams.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">group</span>
+                <span class="sidebar-text text-sm font-medium">Teams</span>
+            </a>
+            <a href="calendar.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/15 text-white border-l-2 border-amber-400">
+                <span class="material-symbols-outlined text-[20px] text-amber-400">calendar_month</span>
+                <span class="sidebar-text text-sm font-medium">Calendar</span>
+            </a>
+            <a href="planner.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">event_note</span>
+                <span class="sidebar-text text-sm font-medium">Planner</span>
+            </a>
+            <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">settings</span>
+                <span class="sidebar-text text-sm font-medium">Settings</span>
+            </a>
+            <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">person</span>
+                <span class="sidebar-text text-sm font-medium">Profile</span>
+            </a>
+        </nav>
+        <div class="px-3 py-4 border-t border-white/10">
+            <button onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">logout</span>
+                <span class="sidebar-text text-sm font-medium">Logout</span>
+            </button>
+        </div>
+    </nav>
+</div>
+
+<!-- ===================== MAIN AREA ===================== -->
+<div class="main-content flex-1 flex flex-col h-screen md:ml-sidebar-width overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="topbar-glass sticky top-0 z-40 border-b border-outline-variant/60 shadow-sm">
+        <div class="flex items-center justify-between px-4 md:px-8 h-16 gap-3">
+            <div class="flex items-center gap-3">
+                <button id="mobileMenuBtn" onclick="document.getElementById('mobileSidebar').classList.add('open')"
+                    class="w-9 h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-[22px]">menu</span>
+                </button>
+                <!-- Month nav -->
+                <button onclick="prevMonth()" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">chevron_left</span>
+                </button>
+                <h2 id="monthTitle" class="text-base font-bold text-on-surface min-w-[140px] text-center leading-tight"></h2>
+                <button onclick="nextMonth()" class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">chevron_right</span>
+                </button>
+                <button onclick="goToToday()" class="text-xs font-semibold text-primary bg-primary-fixed px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-colors">Today</button>
+            </div>
+            <div class="flex items-center gap-2">
+                <!-- View toggle (admin) -->
+                <div id="viewToggle" class="hidden items-center gap-1 bg-surface-container rounded-xl p-1">
+                    <button id="btnMySchedule" onclick="setView('mine')" class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all bg-white text-primary shadow-sm">My Schedule</button>
+                    <button id="btnAllSchedule" onclick="setView('all')" class="text-xs font-semibold px-3 py-1.5 rounded-lg transition-all text-on-surface-variant">All</button>
+                </div>
+                <div id="headerAvatar" class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-xs font-bold text-on-primary-fixed cursor-pointer select-none overflow-hidden"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- FILTER BAR -->
+    <div class="px-4 md:px-8 py-3 flex items-center gap-2 flex-wrap border-b border-outline-variant/40 bg-surface-container-lowest">
+        <span class="text-xs font-semibold text-on-surface-variant mr-1">Filter:</span>
+        <button class="filter-pill active mod-einblasen-text" data-module="einblasen" onclick="toggleFilter('einblasen',this)">
+            <span class="dot mod-einblasen"></span> Einblasen
+        </button>
+        <button class="filter-pill active mod-otdr-text" data-module="otdr" onclick="toggleFilter('otdr',this)">
+            <span class="dot mod-otdr"></span> OTDR
+        </button>
+        <button class="filter-pill active mod-apl-text" data-module="apl" onclick="toggleFilter('apl',this)">
+            <span class="dot mod-apl"></span> APL
+        </button>
+        <button class="filter-pill active mod-druckprufung-text" data-module="druckprufung" onclick="toggleFilter('druckprufung',this)">
+            <span class="dot mod-druckprufung"></span> Druckprüfung
+        </button>
+        <button class="filter-pill active mod-kalibrieren-text" data-module="kalibrieren" onclick="toggleFilter('kalibrieren',this)">
+            <span class="dot mod-kalibrieren"></span> Kalibrieren
+        </button>
+        <span id="loadingSpinner" class="ml-auto text-xs text-on-surface-variant hidden">Loading…</span>
+        <span id="apptCount" class="ml-auto text-xs text-on-surface-variant font-semibold"></span>
     </div>
-  </main>
 
-  <!-- Mobile Bottom Nav -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E2E8F0] z-50 flex">
-    <a href="index.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
-      <span class="material-symbols-outlined text-[22px]">folder_open</span>
-      <span class="text-[10px] mt-0.5">Projects</span>
-    </a>
-    <a href="calendar.html" class="flex-1 flex flex-col items-center py-2.5 text-amber-500">
-      <span class="material-symbols-outlined text-[22px]">calendar_month</span>
-      <span class="text-[10px] mt-0.5 font-semibold">Calendar</span>
-    </a>
-    <a href="planner.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
-      <span class="material-symbols-outlined text-[22px]">event_note</span>
-      <span class="text-[10px] mt-0.5">Planner</span>
-    </a>
-    <a href="profile.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
-      <span class="material-symbols-outlined text-[22px]">person</span>
-      <span class="text-[10px] mt-0.5">Profile</span>
-    </a>
-  </nav>
+    <!-- CALENDAR GRID -->
+    <div class="flex-1 overflow-y-auto px-4 md:px-8 py-4">
+        <div class="cal-grid mb-1" id="calHeaders">
+            <!-- Mo–So headers injected by JS -->
+        </div>
+        <div class="cal-grid" id="calGrid">
+            <!-- Day cells injected by JS -->
+        </div>
+    </div>
+</div>
 
-  <script src="src/js/api.js"></script>
-  <script>
-  (function(){
-    var page = window.location.pathname.split('/').pop() || 'index.html';
-    var map = {'index.html':'projects','dashboard.html':'projects','aufmass.html':'projects','files.html':'projects','apl.html':'projects','einblasen.html':'projects','druckprufung.html':'projects','kalibrieren.html':'projects','knotenpunkt-vorbereitung.html':'projects','otdr.html':'projects','planner.html':'planner','admin.html':'admin','superlog.html':'superlogs','profile.html':'profile','teams.html':'teams','calendar.html':'calendar','settings.html':'settings','new-project.html':'projects'};
-    var active = map[page];
+<!-- ===================== DAY PANEL ===================== -->
+<aside class="day-panel" id="dayPanel">
+    <div class="day-panel-header">
+        <div>
+            <p id="dayPanelDate" class="text-base font-bold text-white leading-tight"></p>
+            <p id="dayPanelCount" class="text-xs text-blue-300 mt-0.5"></p>
+        </div>
+        <button onclick="closeDayPanel()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/15 hover:bg-white/25 border-none cursor-pointer text-white">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+        </button>
+    </div>
+    <div class="day-panel-body" id="dayPanelBody">
+        <p class="text-sm text-on-surface-variant italic">No appointments on this day.</p>
+    </div>
+</aside>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script src="src/js/api.js"></script>
+<script src="src/js/logout.js"></script>
+<script src="src/js/header-avatar.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/force-logout.js"></script>
+<script src="src/js/idle-logout.js?v=20260414a"></script>
+
+<script>
+// ─── Sidebar active link ───────────────────────────────────────────────────────
+(function(){
     document.querySelectorAll('.sidebar-link').forEach(function(el){
-      if(el.dataset.page === active){
-        el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400');
-        el.classList.remove('text-blue-100');
-      }
+        if(el.dataset.page === 'calendar'){
+            el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400','active');
+            el.classList.remove('text-blue-100');
+        }
     });
     try{
-      var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
-      if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';}}
+        var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
+        if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){
+            var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';
+        }}
     }catch(e){}
-  })();
-  </script>
+})();
+
+// ─── Auth helpers ──────────────────────────────────────────────────────────────
+function getAuthHeaders() {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+    const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail') || '';
+    const role  = localStorage.getItem('userRole')  || sessionStorage.getItem('userRole')  || '';
+    return { 'Authorization': `Bearer ${token}`, 'x-user-email': email, 'x-user-role': role };
+}
+
+function isSuperadmin() {
+    return (localStorage.getItem('userRole') || sessionStorage.getItem('userRole') || '') === 'superadmin';
+}
+
+// ─── State ─────────────────────────────────────────────────────────────────────
+const today = new Date();
+let currentYear  = today.getFullYear();
+let currentMonth = today.getMonth(); // 0-based
+let allAppointments = [];
+let activeFilters = new Set(['einblasen','otdr','apl','druckprufung','kalibrieren']);
+let currentView = 'mine'; // or 'all'
+let selectedDate = null;
+
+const DE_MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DE_DAYS   = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+
+// ─── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    if (isSuperadmin()) {
+        document.getElementById('viewToggle').classList.remove('hidden');
+        document.getElementById('viewToggle').classList.add('flex');
+    }
+    renderHeaders();
+    loadAndRender();
+});
+
+// ─── Data loading ──────────────────────────────────────────────────────────────
+async function loadAndRender() {
+    document.getElementById('loadingSpinner').classList.remove('hidden');
+    document.getElementById('apptCount').textContent = '';
+
+    try {
+        const resp = await fetch('/api/modules/appointments/all', { headers: getAuthHeaders() });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || 'Failed');
+        allAppointments = data.appointments || [];
+        document.getElementById('apptCount').textContent = `${allAppointments.length} appointment${allAppointments.length !== 1 ? 's' : ''}`;
+    } catch(e) {
+        console.warn('Calendar: could not load appointments:', e.message);
+        allAppointments = [];
+        document.getElementById('apptCount').textContent = 'No data';
+    }
+
+    document.getElementById('loadingSpinner').classList.add('hidden');
+    renderCalendar();
+}
+
+// ─── View toggle ───────────────────────────────────────────────────────────────
+function setView(v) {
+    currentView = v;
+    document.getElementById('btnMySchedule').className = v === 'mine'
+        ? 'text-xs font-semibold px-3 py-1.5 rounded-lg transition-all bg-white text-primary shadow-sm'
+        : 'text-xs font-semibold px-3 py-1.5 rounded-lg transition-all text-on-surface-variant';
+    document.getElementById('btnAllSchedule').className = v === 'all'
+        ? 'text-xs font-semibold px-3 py-1.5 rounded-lg transition-all bg-white text-primary shadow-sm'
+        : 'text-xs font-semibold px-3 py-1.5 rounded-lg transition-all text-on-surface-variant';
+    renderCalendar();
+    if (selectedDate) renderDayPanel(selectedDate);
+}
+
+// ─── Filter ────────────────────────────────────────────────────────────────────
+function toggleFilter(module, btn) {
+    if (activeFilters.has(module)) {
+        activeFilters.delete(module);
+        btn.classList.remove('active');
+    } else {
+        activeFilters.add(module);
+        btn.classList.add('active');
+    }
+    renderCalendar();
+    if (selectedDate) renderDayPanel(selectedDate);
+}
+
+function getFilteredAppointments() {
+    let appts = allAppointments.filter(a => activeFilters.has(a.module) || (activeFilters.size === 0));
+    // "My Schedule" — filter by user email (worker field or notes)
+    // For now we show all if not superadmin since we already filtered by ACL server-side
+    return appts;
+}
+
+// ─── Calendar render ───────────────────────────────────────────────────────────
+function renderHeaders() {
+    const headers = document.getElementById('calHeaders');
+    headers.innerHTML = DE_DAYS.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+}
+
+function renderCalendar() {
+    // Update title
+    document.getElementById('monthTitle').textContent = `${DE_MONTHS[currentMonth]} ${currentYear}`;
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    const filtered = getFilteredAppointments();
+
+    // Build a map: dateStr -> appointments[]
+    const apptByDate = {};
+    filtered.forEach(a => {
+        const d = a.date; // "YYYY-MM-DD"
+        if (!d) return;
+        if (!apptByDate[d]) apptByDate[d] = [];
+        apptByDate[d].push(a);
+    });
+
+    // First day of month (0=Sun), we need Mon-indexed
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    let startDow = firstDay.getDay(); // 0=Sun
+    // Convert to Mon=0: Mon→0, Tue→1, ..., Sun→6
+    startDow = (startDow + 6) % 7;
+
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+
+    // Total cells: fill to 6 rows x 7 = 42
+    const totalCells = 42;
+
+    for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cal-day';
+
+        let day, year, month, isOtherMonth = false;
+
+        if (i < startDow) {
+            // Previous month
+            day = prevMonthDays - startDow + i + 1;
+            month = currentMonth - 1;
+            year = currentYear;
+            if (month < 0) { month = 11; year--; }
+            isOtherMonth = true;
+        } else if (i - startDow < daysInMonth) {
+            day = i - startDow + 1;
+            month = currentMonth;
+            year = currentYear;
+        } else {
+            day = i - startDow - daysInMonth + 1;
+            month = currentMonth + 1;
+            year = currentYear;
+            if (month > 11) { month = 0; year++; }
+            isOtherMonth = true;
+        }
+
+        const dateStr = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const isToday = year === today.getFullYear() && month === today.getMonth() && day === today.getDate();
+        const isSelected = dateStr === selectedDate;
+
+        if (isOtherMonth) cell.classList.add('other-month');
+        if (isToday) cell.classList.add('today');
+        if (isSelected) cell.classList.add('selected');
+
+        cell.dataset.date = dateStr;
+
+        // Day number
+        const numEl = document.createElement('div');
+        numEl.className = 'cal-day-num';
+        numEl.textContent = day;
+        cell.appendChild(numEl);
+
+        // Appointments for this day
+        const dayAppts = apptByDate[dateStr] || [];
+        if (dayAppts.length > 0) {
+            // Dots row
+            const dotsEl = document.createElement('div');
+            dotsEl.className = 'cal-dots';
+
+            // Group by module for dots
+            const modules = [...new Set(dayAppts.map(a => a.module))];
+            modules.slice(0, 6).forEach(mod => {
+                const dot = document.createElement('span');
+                dot.className = `cal-dot mod-${mod}`;
+                dotsEl.appendChild(dot);
+            });
+            cell.appendChild(dotsEl);
+
+            // Pills (desktop only): show up to 2
+            dayAppts.slice(0, 2).forEach(appt => {
+                const pill = document.createElement('div');
+                pill.className = `cal-pill mod-${appt.module}-text`;
+                pill.textContent = (appt.addressStart || appt.knotenpunkt || appt.cluster || appt.module || '—').slice(0,20);
+                cell.appendChild(pill);
+            });
+            if (dayAppts.length > 2) {
+                const more = document.createElement('div');
+                more.className = 'cal-pill mod-other-text';
+                more.textContent = `+${dayAppts.length - 2} more`;
+                cell.appendChild(more);
+            }
+        }
+
+        cell.addEventListener('click', () => {
+            selectedDate = dateStr;
+            // Remove selected from all
+            document.querySelectorAll('.cal-day.selected').forEach(c => c.classList.remove('selected'));
+            cell.classList.add('selected');
+            openDayPanel(dateStr, dayAppts);
+        });
+
+        grid.appendChild(cell);
+    }
+}
+
+// ─── Day Panel ─────────────────────────────────────────────────────────────────
+function openDayPanel(dateStr, appts) {
+    const panel = document.getElementById('dayPanel');
+    renderDayPanel(dateStr);
+    panel.classList.add('open');
+}
+
+function renderDayPanel(dateStr) {
+    selectedDate = dateStr;
+    const filtered = getFilteredAppointments();
+    const appts = filtered.filter(a => a.date === dateStr);
+
+    // Format date for header
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const dateObj = new Date(y, m - 1, d);
+    const fullDays = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+    document.getElementById('dayPanelDate').textContent = `${fullDays[dateObj.getDay()]}, ${d}. ${DE_MONTHS[m-1]} ${y}`;
+    document.getElementById('dayPanelCount').textContent = `${appts.length} appointment${appts.length !== 1 ? 's' : ''}`;
+
+    const body = document.getElementById('dayPanelBody');
+
+    if (!appts.length) {
+        body.innerHTML = '<p class="text-sm text-on-surface-variant italic">No appointments on this day.</p>';
+        return;
+    }
+
+    // Group by project
+    const byProject = {};
+    appts.forEach(a => {
+        const proj = a.project || 'Unknown Project';
+        if (!byProject[proj]) byProject[proj] = [];
+        byProject[proj].push(a);
+    });
+
+    body.innerHTML = Object.entries(byProject).map(([proj, projAppts]) => `
+        <div>
+            <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-2">${escHtml(proj)}</p>
+            ${projAppts.map(a => `
+                <div class="appt-card mb-2">
+                    <span class="appt-dot mod-${a.module}" style="margin-top:5px;flex-shrink:0"></span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-full mod-${a.module}-text">${escHtml(a.module)}</span>
+                            ${a.time ? `<span class="text-xs font-semibold text-on-surface-variant">${escHtml(a.time)}</span>` : ''}
+                        </div>
+                        ${(a.addressStart||a.knotenpunkt||a.cluster) ? `<p class="text-sm font-semibold text-on-surface truncate">${escHtml(a.addressStart || a.knotenpunkt || a.cluster)}</p>` : ''}
+                        ${a.addressEnd ? `<p class="text-xs text-on-surface-variant truncate">→ ${escHtml(a.addressEnd)}</p>` : ''}
+                        ${a.cluster && a.addressStart ? `<p class="appt-meta">Cluster: ${escHtml(a.cluster)}</p>` : ''}
+                        ${a.knotenpunkt && a.addressStart ? `<p class="appt-meta">NVT: ${escHtml(a.knotenpunkt)}</p>` : ''}
+                        ${a.notes ? `<p class="appt-meta mt-1">${escHtml(a.notes)}</p>` : ''}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `).join('');
+}
+
+function closeDayPanel() {
+    document.getElementById('dayPanel').classList.remove('open');
+    selectedDate = null;
+    document.querySelectorAll('.cal-day.selected').forEach(c => c.classList.remove('selected'));
+}
+
+// ─── Month navigation ──────────────────────────────────────────────────────────
+function prevMonth() {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    closeDayPanel();
+    renderCalendar();
+}
+function nextMonth() {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    closeDayPanel();
+    renderCalendar();
+}
+function goToToday() {
+    currentYear  = today.getFullYear();
+    currentMonth = today.getMonth();
+    closeDayPanel();
+    renderCalendar();
+}
+
+function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+
+<script src="/src/js/dobo-loader.js" data-page="calendar" data-module=""></script>
+
+    <script src="src/js/sidebar-toggle.js"></script>
 </body>
 </html>

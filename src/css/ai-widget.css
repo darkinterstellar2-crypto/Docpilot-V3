@@ -1,0 +1,449 @@
+/**
+ * src/css/ai-widget.css
+ * DoBo AI Assistant — Navbar Integration Design
+ * Bunny lives in the header, chat drops down below it.
+ */
+
+/* ── Bunny Button (inside header) ─────────────────────────────────────────── */
+#dobo-rabbit {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+
+#dobo-rabbit img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+#dobo-rabbit:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 2px 8px rgba(244, 114, 182, 0.5));
+}
+
+#dobo-rabbit.open {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 12px rgba(244, 114, 182, 0.6));
+  background: rgba(244, 114, 182, 0.1);
+}
+
+/* Notification dot (for future use) */
+#dobo-rabbit::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  background: #f472b6;
+  border-radius: 50%;
+  border: 2px solid white;
+  display: none;
+}
+#dobo-rabbit.has-notification::after {
+  display: block;
+}
+
+/* ── Thought Bubble ───────────────────────────────────────────────────────── */
+#dobo-thought {
+  position: fixed;
+  max-width: 220px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: #1e293b;
+  line-height: 1.5;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  opacity: 0;
+  transform: translateY(-4px) scale(0.95);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: auto;
+  cursor: pointer;
+  z-index: 9999;
+}
+
+#dobo-thought.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ── Chat Panel (dropdown from header) ────────────────────────────────────── */
+#dobo-chat-panel {
+  position: fixed;
+  top: 56px;
+  right: 16px;
+  width: 380px;
+  max-width: calc(100vw - 16px);
+  height: 70vh;
+  max-height: 550px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.97);
+  pointer-events: none;
+  transition: opacity 0.25s cubic-bezier(0.16,1,0.3,1), transform 0.25s cubic-bezier(0.16,1,0.3,1);
+  z-index: 9998;
+  font-family: 'Inter', sans-serif;
+}
+
+#dobo-chat-panel.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Panel — header */
+.dobo-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  background: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.dobo-panel-header .dobo-avatar-mini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+  border: 1px solid rgba(244,114,182,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.dobo-panel-header .dobo-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.dobo-panel-header .dobo-subtitle {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 400;
+}
+
+.dobo-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dobo-btn-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0,0,0,0.05);
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: background 0.2s, color 0.2s;
+}
+.dobo-btn-icon:hover { background: rgba(0,0,0,0.1); color: #111827; }
+.dobo-btn-icon.active { background: #111827; color: white; }
+.dobo-model-btn { width: auto; padding: 0 8px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+.dobo-memory-badge {
+  display: none;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(99,102,241,0.1);
+  color: #6366f1;
+  font-weight: 600;
+}
+.dobo-memory-badge.visible { display: inline-flex; }
+
+/* Panel — messages area */
+.dobo-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 14px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scroll-behavior: smooth;
+}
+
+.dobo-messages::-webkit-scrollbar { width: 4px; }
+.dobo-messages::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+  border-radius: 4px;
+}
+
+/* Message rows */
+.dobo-msg-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  max-width: 88%;
+}
+.dobo-msg-row.user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+.dobo-msg-row.assistant {
+  align-self: flex-start;
+}
+.dobo-msg-row.grouped { margin-top: -3px; }
+
+.dobo-msg-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.dobo-msg-avatar-spacer { width: 26px; flex-shrink: 0; }
+
+.dobo-msg-bubble {
+  padding: 9px 13px;
+  border-radius: 16px;
+  font-size: 13px;
+  line-height: 1.55;
+  word-wrap: break-word;
+  min-width: 0;
+}
+.dobo-msg-bubble.user {
+  background: #111827;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.dobo-msg-bubble.assistant {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-bottom-left-radius: 4px;
+}
+
+.dobo-msg-time {
+  font-size: 10px;
+  opacity: 0.5;
+  margin-top: 4px;
+  display: block;
+}
+.dobo-msg-bubble.user .dobo-msg-time { text-align: right; }
+
+/* Typing indicator */
+.dobo-typing {
+  display: none;
+  align-self: flex-start;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+.dobo-typing.visible { display: flex; }
+.dobo-typing-dots {
+  background: #f3f4f6;
+  border-radius: 14px;
+  padding: 9px 14px;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.dobo-typing-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #9ca3af;
+  display: block;
+  animation: doboTypingBounce 1.2s infinite;
+}
+.dobo-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.dobo-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes doboTypingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* Date separator */
+.dobo-date-sep {
+  text-align: center;
+  font-size: 11px;
+  color: #9ca3af;
+  font-weight: 500;
+  padding: 6px 0;
+  letter-spacing: 0.02em;
+}
+
+/* Empty state */
+.dobo-empty {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  margin: auto;
+  padding: 20px;
+  line-height: 1.6;
+}
+.dobo-empty strong { color: #6b7280; }
+
+/* Forward-to-admin button */
+.dobo-forward-btn {
+  margin-top: 8px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(99,102,241,0.3);
+  background: rgba(99,102,241,0.06);
+  color: #6366f1;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.2s;
+}
+.dobo-forward-btn:hover { background: rgba(99,102,241,0.12); }
+
+/* Panel — input bar */
+.dobo-input-bar {
+  padding: 10px 12px;
+  border-top: 1px solid rgba(0,0,0,0.06);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.dobo-attach-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(0,0,0,0.05);
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.dobo-attach-btn:hover { background: rgba(0,0,0,0.1); color: #111827; }
+
+.dobo-input-field {
+  flex: 1;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 9px 13px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  outline: none;
+  background: rgba(255,255,255,0.7);
+  color: #111827;
+  transition: border-color 0.2s, background 0.2s;
+  resize: none;
+}
+.dobo-input-field:focus {
+  border-color: #6366f1;
+  background: rgba(255,255,255,0.9);
+}
+.dobo-input-field::placeholder { color: #9ca3af; }
+
+.dobo-send-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: none;
+  background: #111827;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.1s;
+}
+.dobo-send-btn:hover { background: #374151; }
+.dobo-send-btn:active { transform: scale(0.92); }
+
+/* Panel — footer */
+.dobo-panel-footer {
+  padding: 8px 12px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  background: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.dobo-footer-btn {
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: transparent;
+  color: #6b7280;
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.2s, color 0.2s;
+}
+.dobo-footer-btn:hover { background: rgba(0,0,0,0.06); color: #111827; }
+.dobo-footer-btn.danger:hover { background: rgba(239,68,68,0.08); color: #ef4444; border-color: rgba(239,68,68,0.2); }
+
+/* ── Mobile ───────────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  #dobo-chat-panel {
+    left: 8px !important;
+    right: 8px !important;
+    width: calc(100vw - 16px) !important;
+    max-height: 65vh;
+  }
+  .dobo-messages { max-height: calc(65vh - 160px); }
+  
+  #dobo-rabbit img {
+    width: 28px;
+    height: 28px;
+  }
+  #dobo-rabbit {
+    width: 32px;
+    height: 32px;
+  }
+}

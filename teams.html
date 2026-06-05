@@ -1,127 +1,948 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Teams — DocPilot</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-  </style>
-</head>
-<body class="bg-[#F8FAFC]">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DocPilot - Teams</title>
 
-  <!-- Sidebar -->
-  <aside class="hidden md:flex flex-col w-60 h-screen fixed left-0 top-0 bg-[#022448] z-50">
-    <div class="px-6 py-5 border-b border-white/10">
-      <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
-      <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary:                    '#022448',
+                        'primary-container':        '#1e3a5f',
+                        'on-primary':               '#ffffff',
+                        'on-primary-container':     '#8aa4cf',
+                        'secondary-container':      '#fea619',
+                        'on-secondary-container':   '#684000',
+                        'surface':                  '#f7f9fb',
+                        'surface-container-lowest': '#ffffff',
+                        'surface-container':        '#eceef0',
+                        'surface-container-high':   '#e6e8ea',
+                        'surface-variant':          '#e0e3e5',
+                        'on-surface':               '#191c1e',
+                        'on-surface-variant':       '#43474e',
+                        'outline-variant':          '#c4c6cf',
+                        'outline':                  '#74777f',
+                        error:                      '#ba1a1a',
+                        'primary-fixed':            '#d5e3ff',
+                        'on-primary-fixed':         '#001c3b',
+                    },
+                    spacing: { 'sidebar-width': '240px' }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="src/css/styles.css">
+
+    <style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        ::-webkit-scrollbar { width: 4px; background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 9999px; }
+
+        /* Sidebar */
+        .nav-item { border-left: 4px solid transparent; color: #8aa4cf; transition: background 0.15s, color 0.15s; }
+        .nav-item:hover { background-color: rgba(30,58,95,0.6); color: #ffffff; }
+
+        /* Topbar */
+        .topbar-glass {
+            background: rgba(247,249,251,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        /* Team cards */
+        .team-card {
+            background: #ffffff;
+            border: 1px solid #e0e3e5;
+            border-radius: 16px;
+            padding: 24px;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+        .team-card:hover {
+            box-shadow: 0 6px 20px rgba(2,36,72,0.1);
+            transform: translateY(-2px);
+        }
+        .team-avatar {
+            width: 56px; height: 56px; border-radius: 14px;
+            object-fit: cover; background: #d5e3ff;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; font-weight: 700; color: #022448;
+            flex-shrink: 0;
+        }
+        .member-pip {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #d5e3ff; color: #001c3b;
+            font-size: 10px; font-weight: 700;
+            display: inline-flex; align-items: center; justify-content: center;
+            border: 2px solid white; margin-left: -6px;
+            overflow: hidden;
+        }
+        .member-pip:first-child { margin-left: 0; }
+        .member-pip img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* Drawer */
+        .drawer-overlay {
+            position: fixed; inset: 0; z-index: 70;
+            background: rgba(0,0,0,0.25); backdrop-filter: blur(2px);
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+        .team-drawer {
+            position: fixed; top: 0; right: 0; bottom: 0; z-index: 71;
+            width: 420px; max-width: 100vw;
+            background: white; border-left: 1px solid #e0e3e5;
+            box-shadow: -8px 0 40px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+            transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .team-drawer.open { transform: translateX(0); }
+        .drawer-header {
+            padding: 20px 24px 16px; border-bottom: 1px solid #eceef0;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-shrink: 0; background: #022448;
+        }
+        .drawer-body { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+        .drawer-member-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0f2f4; }
+        .drawer-member-row:last-child { border-bottom: none; }
+        .drawer-member-avatar {
+            width: 36px; height: 36px; border-radius: 50%; object-fit: cover;
+            background: #d5e3ff; color: #001c3b; font-size: 12px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            overflow: hidden;
+        }
+        .drawer-member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .role-badge {
+            font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px;
+            text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .role-badge.leader { background: #fea619; color: #684000; }
+        .role-badge.member { background: #eceef0; color: #43474e; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 80;
+            background: rgba(0,0,0,0.35); backdrop-filter: blur(3px);
+            display: none; align-items: center; justify-content: center; padding: 16px;
+        }
+        .modal-overlay.open { display: flex; }
+        .modal-box {
+            background: white; border-radius: 20px; padding: 32px;
+            width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+        }
+        .modal-field { display: flex; flex-direction: column; gap: 6px; }
+        .modal-label { font-size: 12px; font-weight: 600; color: #43474e; }
+        .modal-input {
+            border: 1px solid #e0e3e5; border-radius: 10px; padding: 10px 14px;
+            font-size: 14px; outline: none; transition: border-color 0.2s; font-family: inherit;
+            background: #f7f9fb;
+        }
+        .modal-input:focus { border-color: #022448; background: white; }
+        .btn-primary {
+            background: #fea619; color: #684000; font-weight: 700;
+            border: none; border-radius: 10px; padding: 12px 24px;
+            cursor: pointer; transition: opacity 0.15s; font-size: 14px;
+        }
+        .btn-primary:hover { opacity: 0.85; }
+        .btn-secondary {
+            background: #eceef0; color: #43474e; font-weight: 600;
+            border: none; border-radius: 10px; padding: 12px 24px;
+            cursor: pointer; font-size: 14px;
+        }
+        .btn-secondary:hover { background: #e0e3e5; }
+        .btn-danger {
+            background: #ffdad6; color: #ba1a1a; font-weight: 600;
+            border: none; border-radius: 8px; padding: 6px 12px;
+            cursor: pointer; font-size: 12px;
+        }
+        .btn-danger:hover { background: #ffb4ab; }
+
+        /* Mobile hamburger */
+        #mobileMenuBtn { display: none; }
+        @media (min-width: 768px) {
+            #mobileSidebar { display: none !important; }
+        }
+        @media (max-width: 767px) {
+            #mobileMenuBtn { display: flex; }
+            #mobileSidebar { display: none; position: fixed; inset: 0; z-index: 60; }
+            #mobileSidebar.open { display: flex; }
+        }
+        /* Section label */
+        .section-label {
+            font-size: 11px; font-weight: 700; color: #74777f;
+            text-transform: uppercase; letter-spacing: 0.08em;
+        }
+
+        /* User chip in member select */
+        .user-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #d5e3ff; color: #001c3b; border-radius: 9999px;
+            padding: 4px 10px; font-size: 12px; font-weight: 600;
+            cursor: pointer;
+        }
+        .user-chip .chip-remove { font-size: 14px; line-height: 1; opacity: 0.6; }
+        .user-chip .chip-remove:hover { opacity: 1; }
+        .user-option {
+            padding: 8px 12px; cursor: pointer; border-radius: 8px; font-size: 13px;
+        }
+        .user-option:hover { background: #f0f4ff; }
+        .user-option.selected { background: #d5e3ff; }
+
+        /* Empty state */
+        .empty-state { text-align: center; padding: 60px 20px; }
+        .empty-state .icon { font-size: 48px; color: #c4c6cf; margin-bottom: 16px; }
+
+        /* ── Sidebar Collapse ─────────────────────── */
+        nav.sidebar-nav {
+          transition: width 0.25s ease;
+          overflow: hidden;
+        }
+        nav.sidebar-nav.sidebar-collapsed {
+          width: 64px !important;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-text,
+        nav.sidebar-nav.sidebar-collapsed .sidebar-brand-text {
+          display: none;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-link {
+          justify-content: center;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-admin-label {
+          display: none;
+        }
+        .main-content {
+          transition: margin-left 0.25s ease;
+        }
+        .main-content.sidebar-collapsed {
+          margin-left: 64px !important;
+        }
+        /* ── Pre-collapsed state (anti-flicker) ──────────────── */
+        html.sidebar-pre-collapsed .sidebar-nav {
+          width: 64px !important;
+        }
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-text,
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-brand-text,
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-admin-label {
+          display: none !important;
+        }
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-link {
+          justify-content: center !important;
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+        html.sidebar-pre-collapsed .main-content {
+          margin-left: 64px !important;
+        }
+        /* ── Active link strip ────────────────────── */
+        .sidebar-link {
+          position: relative;
+        }
+        .sidebar-link.active::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 4px;
+          bottom: 4px;
+          width: 3px;
+          border-radius: 3px 0 0 3px;
+          background: #fea619;
+        }
+    </style>
+  <script>
+    /* Apply sidebar state before render to prevent flicker */
+    if (localStorage.getItem('sidebar-collapsed') === 'true') {
+      document.documentElement.classList.add('sidebar-pre-collapsed');
+    }
+  </script>
+</head>
+<body class="bg-surface font-sans text-on-surface antialiased h-screen overflow-hidden flex">
+
+<script>
+    if (!localStorage.getItem('userRole')) { window.location.href = 'login.html'; }
+</script>
+
+<!-- ===================== SIDEBAR (Desktop) ===================== -->
+<nav class="sidebar-nav hidden md:flex flex-col bg-primary text-on-primary w-sidebar-width h-screen fixed left-0 top-0 z-50 shrink-0">
+    <div class="px-4 py-5 border-b border-white/10 flex items-center justify-between">
+        <div>
+            <h1 class="sidebar-brand-text text-xl font-bold text-white tracking-tight">DocPilot</h1>
+            <p class="sidebar-brand-text text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+        </div>
+        <button id="sidebarToggle" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 text-blue-300 hover:text-white transition-colors shrink-0" title="Collapse sidebar">
+            <span class="material-symbols-outlined text-[18px]">menu_open</span>
+        </button>
     </div>
     <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-      <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="projects">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">folder_open</span>
-        <span class="text-sm font-medium">Projects</span>
-      </a>
-      <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="teams">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">group</span>
-        <span class="text-sm font-medium">Teams</span>
-      </a>
-      <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="calendar">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">calendar_month</span>
-        <span class="text-sm font-medium">Calendar</span>
-      </a>
-      <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="planner">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">event_note</span>
-        <span class="text-sm font-medium">Planner</span>
-      </a>
-      <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="settings">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">settings</span>
-        <span class="text-sm font-medium">Settings</span>
-      </a>
-      <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="profile">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">person</span>
-        <span class="text-sm font-medium">Profile</span>
-      </a>
-      <div id="adminNavLinks" style="display:none" class="space-y-0.5">
-        <div class="px-3 pt-3 pb-1"><p class="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p></div>
-        <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="admin">
-          <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">admin_panel_settings</span>
-          <span class="text-sm font-medium">Admin</span>
+        <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="projects">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">folder_open</span>
+            <span class="sidebar-text text-sm font-medium">Projects</span>
         </a>
-        <a href="superlog.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all group" data-page="superlogs">
-          <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white">manage_search</span>
-          <span class="text-sm font-medium">Super Logs</span>
+        <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="teams">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">group</span>
+            <span class="sidebar-text text-sm font-medium">Teams</span>
         </a>
-      </div>
+        <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="calendar">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">calendar_month</span>
+            <span class="sidebar-text text-sm font-medium">Calendar</span>
+        </a>
+        <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="planner">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">event_note</span>
+            <span class="sidebar-text text-sm font-medium">Planner</span>
+        </a>
+        <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="settings">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">settings</span>
+            <span class="sidebar-text text-sm font-medium">Settings</span>
+        </a>
+        <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="profile">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">person</span>
+            <span class="sidebar-text text-sm font-medium">Profile</span>
+        </a>
+        <div id="adminNavLinks" style="display:none" class="space-y-0.5">
+            <div class="px-3 pt-3 pb-1">
+                <p class="sidebar-admin-label text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p>
+            </div>
+            <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="admin">
+                <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">admin_panel_settings</span>
+                <span class="sidebar-text text-sm font-medium">Admin</span>
+            </a>
+        </div>
     </nav>
     <div class="px-3 py-4 border-t border-white/10">
-      <button onclick="localStorage.clear();sessionStorage.clear();window.location.href='login.html';" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all group">
-        <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300">logout</span>
-        <span class="text-sm font-medium">Logout</span>
-      </button>
+        <button id="sidebarLogoutBtn" onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150 group">
+            <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300 transition-colors">logout</span>
+            <span class="sidebar-text text-sm font-medium">Logout</span>
+        </button>
     </div>
-  </aside>
+</nav>
 
-  <!-- Main Content -->
-  <main class="md:ml-60 min-h-screen pb-20 md:pb-0">
-    <div class="px-4 md:px-8 py-6">
-      <!-- Header -->
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-[#022448]">Teams</h2>
-        <p class="text-sm text-slate-500 mt-1">Manage your project teams and members</p>
-      </div>
-
-      <!-- Placeholder / Coming Soon -->
-      <div id="teamsContent">
-        <div class="bg-white border border-[#E2E8F0] rounded-xl p-12 flex flex-col items-center justify-center text-center">
-          <span class="material-symbols-outlined text-[64px] text-slate-300 mb-4">group</span>
-          <h3 class="text-lg font-semibold text-slate-600 mb-2">Coming Soon</h3>
-          <p class="text-sm text-slate-400 max-w-sm">Team management is under construction. Create teams, assign members, and manage roles — all from here, once ready.</p>
+<!-- ===================== MOBILE SIDEBAR ===================== -->
+<div id="mobileSidebar">
+    <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('mobileSidebar').classList.remove('open')"></div>
+    <nav class="relative flex flex-col bg-primary text-on-primary w-64 h-full z-10">
+        <div class="px-6 py-5 border-b border-white/10 flex items-center justify-between">
+            <div>
+                <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
+                <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+            </div>
+            <button onclick="document.getElementById('mobileSidebar').classList.remove('open')" class="text-blue-300 hover:text-white">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
-      </div>
+        <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+            <a href="index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">folder_open</span>
+                <span class="sidebar-text text-sm font-medium">Projects</span>
+            </a>
+            <a href="teams.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-white/15 text-white border-l-2 border-amber-400">
+                <span class="material-symbols-outlined text-[20px] text-amber-400">group</span>
+                <span class="sidebar-text text-sm font-medium">Teams</span>
+            </a>
+            <a href="calendar.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">calendar_month</span>
+                <span class="sidebar-text text-sm font-medium">Calendar</span>
+            </a>
+            <a href="planner.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">event_note</span>
+                <span class="sidebar-text text-sm font-medium">Planner</span>
+            </a>
+            <a href="settings.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">settings</span>
+                <span class="sidebar-text text-sm font-medium">Settings</span>
+            </a>
+            <a href="profile.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">person</span>
+                <span class="sidebar-text text-sm font-medium">Profile</span>
+            </a>
+        </nav>
+        <div class="px-3 py-4 border-t border-white/10">
+            <button onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150">
+                <span class="material-symbols-outlined text-[20px] text-blue-300">logout</span>
+                <span class="sidebar-text text-sm font-medium">Logout</span>
+            </button>
+        </div>
+    </nav>
+</div>
+
+<!-- ===================== MAIN AREA ===================== -->
+<div class="main-content flex-1 flex flex-col h-screen md:ml-sidebar-width overflow-hidden">
+
+    <!-- TOP BAR -->
+    <header class="topbar-glass sticky top-0 z-40 border-b border-outline-variant/60 shadow-sm">
+        <div class="flex items-center justify-between px-4 md:px-8 h-16 gap-3">
+            <div class="flex items-center gap-3">
+                <button id="mobileMenuBtn" onclick="document.getElementById('mobileSidebar').classList.add('open')"
+                    class="w-9 h-9 flex items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors">
+                    <span class="material-symbols-outlined text-[22px]">menu</span>
+                </button>
+                <div>
+                    <h2 class="text-base font-bold text-on-surface leading-tight">Teams</h2>
+                    <p class="text-xs text-on-surface-variant hidden sm:block">Manage your project teams</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="newTeamBtn" class="hidden items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-primary-container transition-colors">
+                    <span class="material-symbols-outlined text-[18px]">add</span>
+                    <span class="hidden sm:inline">New Team</span>
+                </button>
+                <div id="headerAvatar" class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-xs font-bold text-on-primary-fixed cursor-pointer select-none overflow-hidden"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="flex-1 overflow-y-auto px-4 md:px-8 py-6">
+
+        <!-- Loading state -->
+        <div id="loadingState" class="flex flex-col items-center justify-center py-16 gap-4">
+            <div class="w-10 h-10 border-3 border-outline-variant border-t-primary rounded-full animate-spin"></div>
+            <p class="text-sm text-on-surface-variant">Loading teams…</p>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="hidden empty-state">
+            <div class="icon"><span class="material-symbols-outlined" style="font-size:48px;color:#c4c6cf">group</span></div>
+            <h3 class="text-lg font-bold text-on-surface mb-2">No teams yet</h3>
+            <p class="text-sm text-on-surface-variant mb-6">Create your first team to get started.</p>
+            <button id="emptyNewTeamBtn" class="hidden bg-primary text-white px-6 py-3 rounded-xl text-sm font-semibold hover:bg-primary-container transition-colors">
+                Create Team
+            </button>
+        </div>
+
+        <!-- Teams grid -->
+        <div id="teamsGrid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+
+    </main>
+</div>
+
+<!-- ===================== TEAM DRAWER ===================== -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<aside class="team-drawer" id="teamDrawer">
+    <div class="drawer-header">
+        <div class="flex items-center gap-3 min-w-0">
+            <div id="drawerTeamAvatar" class="team-avatar text-white text-base" style="width:44px;height:44px;font-size:18px;border-radius:10px;background:#1e3a5f"></div>
+            <div class="min-w-0">
+                <h3 id="drawerTeamName" class="text-base font-bold text-white leading-tight truncate"></h3>
+                <p id="drawerMemberCount" class="text-xs text-blue-300 mt-0.5"></p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <button id="drawerEditBtn" class="hidden text-xs font-semibold text-blue-200 bg-white/10 hover:bg-white/20 border-none rounded-lg px-3 py-1.5 cursor-pointer">Edit</button>
+            <button id="drawerDeleteBtn" class="hidden text-xs font-semibold text-red-300 bg-red-500/20 hover:bg-red-500/30 border-none rounded-lg px-3 py-1.5 cursor-pointer">Delete</button>
+            <button onclick="closeDrawer()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/15 hover:bg-white/25 border-none cursor-pointer text-white">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </div>
     </div>
-  </main>
+    <div class="drawer-body">
+        <div>
+            <p id="drawerDescription" class="text-sm text-on-surface-variant leading-relaxed"></p>
+        </div>
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <p class="section-label">Members</p>
+                <button id="drawerAddMemberBtn" class="hidden text-xs font-semibold text-primary hover:underline bg-transparent border-none cursor-pointer">+ Add Member</button>
+            </div>
+            <div id="drawerMembersList" class="flex flex-col"></div>
+        </div>
+    </div>
+</aside>
 
-  <!-- Mobile Bottom Nav -->
-  <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#E2E8F0] z-50 flex">
-    <a href="index.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
-      <span class="material-symbols-outlined text-[22px]">folder_open</span>
-      <span class="text-[10px] mt-0.5">Projects</span>
-    </a>
-    <a href="calendar.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
-      <span class="material-symbols-outlined text-[22px]">calendar_month</span>
-      <span class="text-[10px] mt-0.5">Calendar</span>
-    </a>
-    <a href="planner.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
-      <span class="material-symbols-outlined text-[22px]">event_note</span>
-      <span class="text-[10px] mt-0.5">Planner</span>
-    </a>
-    <a href="profile.html" class="flex-1 flex flex-col items-center py-2.5 text-slate-400">
-      <span class="material-symbols-outlined text-[22px]">person</span>
-      <span class="text-[10px] mt-0.5">Profile</span>
-    </a>
-  </nav>
+<!-- ===================== NEW / EDIT TEAM MODAL ===================== -->
+<div class="modal-overlay" id="teamModal">
+    <div class="modal-box">
+        <h3 id="modalTitle" class="text-lg font-bold text-on-surface mb-6">New Team</h3>
+        <form id="teamForm" class="flex flex-col gap-4" onsubmit="submitTeamForm(event)">
+            <input type="hidden" id="editTeamId">
+            <div class="modal-field">
+                <label class="modal-label" for="teamNameInput">Team Name *</label>
+                <input class="modal-input" id="teamNameInput" type="text" placeholder="e.g. Einblasen Berlin" required>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label" for="teamDescInput">Description</label>
+                <textarea class="modal-input" id="teamDescInput" rows="3" placeholder="Short description of this team…" style="resize:vertical"></textarea>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label" for="teamPictureInput">Team Picture</label>
+                <input class="modal-input" id="teamPictureInput" type="file" accept="image/*" style="padding:8px 12px">
+                <p id="existingPictureLabel" class="text-xs text-on-surface-variant hidden">Current picture will be kept if no new file is selected.</p>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Members</label>
+                <!-- Selected chips -->
+                <div id="selectedMembersChips" class="flex flex-wrap gap-2 mb-2 min-h-[28px]"></div>
+                <!-- User dropdown -->
+                <div class="relative">
+                    <input class="modal-input" id="memberSearchInput" type="text" placeholder="Search users to add…" autocomplete="off">
+                    <div id="memberDropdown" class="absolute left-0 right-0 top-full mt-1 bg-white border border-outline-variant rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto hidden"></div>
+                </div>
+            </div>
+            <div class="flex gap-3 justify-end pt-2">
+                <button type="button" class="btn-secondary" onclick="closeTeamModal()">Cancel</button>
+                <button type="submit" class="btn-primary" id="teamFormSubmitBtn">Create Team</button>
+            </div>
+        </form>
+    </div>
+</div>
 
-  <script src="src/js/api.js"></script>
-  <script>
-  (function(){
-    var page = window.location.pathname.split('/').pop() || 'index.html';
-    var map = {'index.html':'projects','dashboard.html':'projects','aufmass.html':'projects','files.html':'projects','apl.html':'projects','einblasen.html':'projects','druckprufung.html':'projects','kalibrieren.html':'projects','knotenpunkt-vorbereitung.html':'projects','otdr.html':'projects','planner.html':'planner','admin.html':'admin','superlog.html':'superlogs','profile.html':'profile','teams.html':'teams','calendar.html':'calendar','settings.html':'settings','new-project.html':'projects'};
-    var active = map[page];
+<!-- ===================== ADD MEMBER MODAL ===================== -->
+<div class="modal-overlay" id="addMemberModal">
+    <div class="modal-box" style="max-width:400px">
+        <h3 class="text-lg font-bold text-on-surface mb-4">Add Member</h3>
+        <div class="flex flex-col gap-4">
+            <div class="modal-field">
+                <label class="modal-label">User</label>
+                <select class="modal-input" id="addMemberUserSelect"></select>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Role</label>
+                <select class="modal-input" id="addMemberRoleSelect">
+                    <option value="member">Member</option>
+                    <option value="leader">Leader</option>
+                </select>
+            </div>
+        </div>
+        <div class="flex gap-3 justify-end mt-6">
+            <button class="btn-secondary" onclick="closeAddMemberModal()">Cancel</button>
+            <button class="btn-primary" onclick="submitAddMember()">Add</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script src="src/js/api.js"></script>
+<script src="src/js/logout.js"></script>
+<script src="src/js/header-avatar.js"></script>
+<script src="src/js/i18n.js"></script>
+<script src="src/js/force-logout.js"></script>
+<script src="src/js/idle-logout.js?v=20260414a"></script>
+
+<script>
+// ─── Sidebar active link ───────────────────────────────────────────────────────
+(function(){
     document.querySelectorAll('.sidebar-link').forEach(function(el){
-      if(el.dataset.page === active){
-        el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400');
-        el.classList.remove('text-blue-100');
-      }
+        if(el.dataset.page === 'teams'){
+            el.classList.add('bg-white/15','text-white','border-l-2','border-amber-400','active');
+            el.classList.remove('text-blue-100');
+        }
     });
     try{
-      var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
-      if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';}}
+        var tok = localStorage.getItem('token')||sessionStorage.getItem('token');
+        if(tok){var p=JSON.parse(atob(tok.split('.')[1]));if(p.role==='superadmin'){var el=document.getElementById('adminNavLinks');if(el)el.style.display='block';}}
     }catch(e){}
-  })();
-  </script>
+})();
+
+// ─── Auth helpers ──────────────────────────────────────────────────────────────
+function getAuthHeaders() {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+    const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail') || '';
+    const role  = localStorage.getItem('userRole')  || sessionStorage.getItem('userRole')  || '';
+    return {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        'x-user-email': email,
+        'x-user-role': role
+    };
+}
+
+function isSuperadmin() {
+    const role = localStorage.getItem('userRole') || sessionStorage.getItem('userRole') || '';
+    return role === 'superadmin';
+}
+
+// ─── State ─────────────────────────────────────────────────────────────────────
+let allTeams = [];
+let allUsers = [];
+let currentDrawerTeam = null;
+let selectedMemberIds = []; // for modal
+
+// ─── Init ──────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    // Show new team btn for superadmin
+    if (isSuperadmin()) {
+        document.getElementById('newTeamBtn').classList.remove('hidden');
+        document.getElementById('newTeamBtn').classList.add('flex');
+        document.getElementById('emptyNewTeamBtn').classList.remove('hidden');
+        document.getElementById('emptyNewTeamBtn').classList.add('inline-flex');
+    }
+    document.getElementById('newTeamBtn').addEventListener('click', openNewTeamModal);
+    document.getElementById('emptyNewTeamBtn').addEventListener('click', openNewTeamModal);
+    document.getElementById('memberSearchInput').addEventListener('input', onMemberSearch);
+    document.getElementById('memberSearchInput').addEventListener('focus', onMemberSearch);
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#memberSearchInput') && !e.target.closest('#memberDropdown')) {
+            document.getElementById('memberDropdown').classList.add('hidden');
+        }
+    });
+
+    loadTeams();
+    fetchUsers();
+});
+
+async function fetchUsers() {
+    try {
+        const headers = getAuthHeaders();
+        const resp = await fetch('/api/teams/available-users', { headers });
+        if (!resp.ok) return;
+        const data = await resp.json();
+        allUsers = data.users || data || [];
+    } catch(e) {
+        console.warn('Could not fetch users:', e.message);
+    }
+}
+
+async function loadTeams() {
+    document.getElementById('loadingState').classList.remove('hidden');
+    document.getElementById('teamsGrid').classList.add('hidden');
+    document.getElementById('emptyState').classList.add('hidden');
+
+    try {
+        const headers = getAuthHeaders();
+        const resp = await fetch('/api/teams', { headers });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || 'Failed to load teams');
+        allTeams = data.teams || [];
+        renderTeams(allTeams);
+    } catch(e) {
+        console.error('loadTeams error:', e.message);
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('emptyState').classList.remove('hidden');
+    }
+}
+
+// ─── Rendering ─────────────────────────────────────────────────────────────────
+function renderTeams(teams) {
+    document.getElementById('loadingState').classList.add('hidden');
+    const grid = document.getElementById('teamsGrid');
+
+    if (!teams.length) {
+        grid.classList.add('hidden');
+        document.getElementById('emptyState').classList.remove('hidden');
+        return;
+    }
+
+    document.getElementById('emptyState').classList.add('hidden');
+    grid.classList.remove('hidden');
+
+    grid.innerHTML = teams.map(team => teamCardHTML(team)).join('');
+
+    // Add click listeners
+    grid.querySelectorAll('.team-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const teamId = card.dataset.teamId;
+            const team = allTeams.find(t => t.id === teamId);
+            if (team) openDrawer(team);
+        });
+    });
+}
+
+function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+    return name.slice(0,2).toUpperCase();
+}
+
+function teamCardHTML(team) {
+    const memberPips = (team.members || []).slice(0, 5).map(m => {
+        if (m.avatar) return `<span class="member-pip"><img src="${escHtml(m.avatar)}" alt="${escHtml(m.name)}"></span>`;
+        return `<span class="member-pip" title="${escHtml(m.name)}">${escHtml(getInitials(m.name))}</span>`;
+    }).join('');
+    const extraCount = (team.members || []).length - 5;
+
+    const avatarHtml = team.picture
+        ? `<img src="${escHtml(team.picture)}" class="team-avatar" alt="${escHtml(team.name)}" style="object-fit:cover">`
+        : `<div class="team-avatar">${escHtml(getInitials(team.name))}</div>`;
+
+    return `
+    <div class="team-card" data-team-id="${escHtml(team.id)}">
+        <div class="flex items-start gap-3 mb-3">
+            ${avatarHtml}
+            <div class="min-w-0 flex-1">
+                <h4 class="text-sm font-bold text-on-surface leading-tight truncate">${escHtml(team.name)}</h4>
+                <p class="text-xs text-on-surface-variant mt-0.5">${(team.members||[]).length} member${(team.members||[]).length !== 1 ? 's' : ''}</p>
+            </div>
+        </div>
+        ${team.description ? `<p class="text-xs text-on-surface-variant mb-3 line-clamp-2">${escHtml(team.description)}</p>` : '<p class="text-xs text-on-surface-variant mb-3 italic">No description</p>'}
+        <div class="flex items-center gap-1 mt-2">
+            ${memberPips}
+            ${extraCount > 0 ? `<span class="member-pip text-[9px]">+${extraCount}</span>` : ''}
+        </div>
+    </div>`;
+}
+
+function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── Drawer ────────────────────────────────────────────────────────────────────
+function openDrawer(team) {
+    currentDrawerTeam = team;
+
+    // Avatar
+    const avatarEl = document.getElementById('drawerTeamAvatar');
+    if (team.picture) {
+        avatarEl.innerHTML = `<img src="${escHtml(team.picture)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;
+    } else {
+        avatarEl.textContent = getInitials(team.name);
+    }
+
+    document.getElementById('drawerTeamName').textContent = team.name;
+    document.getElementById('drawerMemberCount').textContent = `${(team.members||[]).length} member${(team.members||[]).length !== 1 ? 's' : ''}`;
+    document.getElementById('drawerDescription').textContent = team.description || 'No description.';
+
+    // Members list
+    const list = document.getElementById('drawerMembersList');
+    if (!team.members || !team.members.length) {
+        list.innerHTML = '<p class="text-sm text-on-surface-variant italic">No members yet.</p>';
+    } else {
+        list.innerHTML = team.members.map(m => `
+            <div class="drawer-member-row">
+                <div class="drawer-member-avatar">
+                    ${m.avatar ? `<img src="${escHtml(m.avatar)}" alt="${escHtml(m.name)}">` : escHtml(getInitials(m.name))}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-on-surface truncate">${escHtml(m.name)}</p>
+                    <p class="text-xs text-on-surface-variant truncate">${escHtml(m.email)}</p>
+                </div>
+                <span class="role-badge ${m.role === 'leader' ? 'leader' : 'member'}">${escHtml(m.role || 'member')}</span>
+                ${isSuperadmin() ? `<button onclick="removeMember('${escHtml(team.id)}','${escHtml(m.userId)}')" class="btn-danger ml-2">Remove</button>` : ''}
+            </div>
+        `).join('');
+    }
+
+    // Admin controls
+    if (isSuperadmin()) {
+        document.getElementById('drawerEditBtn').classList.remove('hidden');
+        document.getElementById('drawerDeleteBtn').classList.remove('hidden');
+        document.getElementById('drawerAddMemberBtn').classList.remove('hidden');
+        document.getElementById('drawerEditBtn').onclick = () => openEditTeamModal(team);
+        document.getElementById('drawerDeleteBtn').onclick = () => deleteTeam(team.id);
+        document.getElementById('drawerAddMemberBtn').onclick = () => openAddMemberModal(team);
+    } else {
+        document.getElementById('drawerEditBtn').classList.add('hidden');
+        document.getElementById('drawerDeleteBtn').classList.add('hidden');
+        document.getElementById('drawerAddMemberBtn').classList.add('hidden');
+    }
+
+    document.getElementById('drawerOverlay').classList.add('open');
+    document.getElementById('teamDrawer').classList.add('open');
+}
+
+function closeDrawer() {
+    document.getElementById('drawerOverlay').classList.remove('open');
+    document.getElementById('teamDrawer').classList.remove('open');
+    currentDrawerTeam = null;
+}
+
+// ─── New / Edit Team Modal ─────────────────────────────────────────────────────
+function openNewTeamModal() {
+    document.getElementById('modalTitle').textContent = 'New Team';
+    document.getElementById('editTeamId').value = '';
+    document.getElementById('teamNameInput').value = '';
+    document.getElementById('teamDescInput').value = '';
+    document.getElementById('teamPictureInput').value = '';
+    document.getElementById('existingPictureLabel').classList.add('hidden');
+    document.getElementById('teamFormSubmitBtn').textContent = 'Create Team';
+    selectedMemberIds = [];
+    renderSelectedChips();
+    document.getElementById('teamModal').classList.add('open');
+}
+
+function openEditTeamModal(team) {
+    document.getElementById('modalTitle').textContent = 'Edit Team';
+    document.getElementById('editTeamId').value = team.id;
+    document.getElementById('teamNameInput').value = team.name;
+    document.getElementById('teamDescInput').value = team.description || '';
+    document.getElementById('teamPictureInput').value = '';
+    document.getElementById('existingPictureLabel').classList.remove('hidden');
+    document.getElementById('teamFormSubmitBtn').textContent = 'Save Changes';
+    selectedMemberIds = (team.members || []).map(m => m.userId);
+    renderSelectedChips();
+    closeDrawer();
+    document.getElementById('teamModal').classList.add('open');
+}
+
+function closeTeamModal() {
+    document.getElementById('teamModal').classList.remove('open');
+}
+
+// Member chips / search
+function onMemberSearch() {
+    const q = document.getElementById('memberSearchInput').value.toLowerCase();
+    const dropdown = document.getElementById('memberDropdown');
+    const filtered = allUsers.filter(u =>
+        !selectedMemberIds.includes(String(u.id)) &&
+        ((u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q) || (u.username||'').toLowerCase().includes(q))
+    );
+    if (!filtered.length) { dropdown.classList.add('hidden'); return; }
+    dropdown.innerHTML = filtered.map(u => `
+        <div class="user-option" onclick="selectMember('${escHtml(String(u.id))}')">
+            <span class="font-medium">${escHtml(u.name || u.username || u.email)}</span>
+            <span class="text-on-surface-variant text-xs ml-1">${escHtml(u.email)}</span>
+        </div>
+    `).join('');
+    dropdown.classList.remove('hidden');
+}
+
+function selectMember(userId) {
+    if (!selectedMemberIds.includes(userId)) selectedMemberIds.push(userId);
+    document.getElementById('memberSearchInput').value = '';
+    document.getElementById('memberDropdown').classList.add('hidden');
+    renderSelectedChips();
+}
+
+function removeMemberChip(userId) {
+    selectedMemberIds = selectedMemberIds.filter(id => id !== userId);
+    renderSelectedChips();
+}
+
+function renderSelectedChips() {
+    const container = document.getElementById('selectedMembersChips');
+    container.innerHTML = selectedMemberIds.map(uid => {
+        const user = allUsers.find(u => String(u.id) === String(uid));
+        const label = user ? (user.name || user.username || user.email) : `User ${uid}`;
+        return `<span class="user-chip">${escHtml(label)}<span class="chip-remove" onclick="removeMemberChip('${escHtml(uid)}')">&times;</span></span>`;
+    }).join('');
+}
+
+async function submitTeamForm(e) {
+    e.preventDefault();
+    const editId = document.getElementById('editTeamId').value;
+    const name = document.getElementById('teamNameInput').value.trim();
+    const description = document.getElementById('teamDescInput').value.trim();
+    const pictureFile = document.getElementById('teamPictureInput').files[0];
+    const isEdit = !!editId;
+
+    // Build members array (role: member by default)
+    const members = selectedMemberIds.map(uid => ({ userId: uid, role: 'member' }));
+
+    // Use FormData to support file upload
+    const fd = new FormData();
+    fd.append('name', name);
+    fd.append('description', description);
+    fd.append('members', JSON.stringify(members));
+    if (pictureFile) fd.append('picture', pictureFile);
+
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token') || '';
+    const email = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail') || '';
+    const role  = localStorage.getItem('userRole')  || sessionStorage.getItem('userRole')  || '';
+
+    try {
+        const url = isEdit ? `/api/teams/${editId}` : '/api/teams';
+        const method = isEdit ? 'PUT' : 'POST';
+        const resp = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${token}`, 'x-user-email': email, 'x-user-role': role },
+            body: fd
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || 'Failed');
+        closeTeamModal();
+        await loadTeams();
+    } catch(err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+async function deleteTeam(teamId) {
+    if (!confirm('Delete this team? This cannot be undone.')) return;
+    try {
+        const headers = getAuthHeaders();
+        const resp = await fetch(`/api/teams/${teamId}`, { method: 'DELETE', headers });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || 'Failed to delete');
+        closeDrawer();
+        await loadTeams();
+    } catch(err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+// ─── Add Member Modal ──────────────────────────────────────────────────────────
+function openAddMemberModal(team) {
+    const currentIds = (team.members || []).map(m => String(m.userId));
+    const available = allUsers.filter(u => !currentIds.includes(String(u.id)));
+    const sel = document.getElementById('addMemberUserSelect');
+    sel.innerHTML = available.map(u => `<option value="${escHtml(String(u.id))}">${escHtml(u.name || u.username || u.email)}</option>`).join('');
+    document.getElementById('addMemberModal').classList.add('open');
+}
+
+function closeAddMemberModal() {
+    document.getElementById('addMemberModal').classList.remove('open');
+}
+
+async function submitAddMember() {
+    if (!currentDrawerTeam) return;
+    const userId = document.getElementById('addMemberUserSelect').value;
+    const role   = document.getElementById('addMemberRoleSelect').value;
+    if (!userId) return;
+
+    try {
+        const headers = getAuthHeaders();
+        const resp = await fetch(`/api/teams/${currentDrawerTeam.id}/members`, {
+            method: 'POST', headers, body: JSON.stringify({ userId, role })
+        });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || 'Failed to add member');
+        // Update local state
+        const idx = allTeams.findIndex(t => t.id === currentDrawerTeam.id);
+        if (idx !== -1) allTeams[idx] = data.team;
+        closeAddMemberModal();
+        openDrawer(data.team);
+        renderTeams(allTeams);
+    } catch(err) {
+        alert('Error: ' + err.message);
+    }
+}
+
+async function removeMember(teamId, userId) {
+    if (!confirm('Remove this member?')) return;
+    try {
+        const headers = getAuthHeaders();
+        const resp = await fetch(`/api/teams/${teamId}/members/${userId}`, { method: 'DELETE', headers });
+        const data = await resp.json();
+        if (!data.success) throw new Error(data.message || 'Failed to remove member');
+        const idx = allTeams.findIndex(t => t.id === teamId);
+        if (idx !== -1) allTeams[idx] = data.team;
+        openDrawer(data.team);
+        renderTeams(allTeams);
+    } catch(err) {
+        alert('Error: ' + err.message);
+    }
+}
+</script>
+
+<script src="/src/js/dobo-loader.js" data-page="teams" data-module=""></script>
+
+    <script src="src/js/sidebar-toggle.js"></script>
 </body>
 </html>

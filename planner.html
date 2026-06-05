@@ -272,58 +272,112 @@
 
         /* ── Superadmin-only items hidden by default; shown via JS ── */
         .superadmin-only { display: none; }
-    </style>
+            /* ── Sidebar Collapse ─────────────────────── */
+        nav.sidebar-nav {
+          transition: width 0.25s ease;
+          overflow: hidden;
+        }
+        nav.sidebar-nav.sidebar-collapsed {
+          width: 64px !important;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-text,
+        nav.sidebar-nav.sidebar-collapsed .sidebar-brand-text {
+          display: none;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-link {
+          justify-content: center;
+          padding-left: 0;
+          padding-right: 0;
+        }
+        nav.sidebar-nav.sidebar-collapsed .sidebar-admin-label {
+          display: none;
+        }
+        .main-content {
+          transition: margin-left 0.25s ease;
+        }
+        .main-content.sidebar-collapsed {
+          margin-left: 64px !important;
+        }
+        /* ── Pre-collapsed state (anti-flicker) ──────────────── */
+        html.sidebar-pre-collapsed .sidebar-nav {
+          width: 64px !important;
+        }
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-text,
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-brand-text,
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-admin-label {
+          display: none !important;
+        }
+        html.sidebar-pre-collapsed .sidebar-nav .sidebar-link {
+          justify-content: center !important;
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+        html.sidebar-pre-collapsed .main-content {
+          margin-left: 64px !important;
+        }
+        </style>
+  <script>
+    /* Apply sidebar state before render to prevent flicker */
+    if (localStorage.getItem('sidebar-collapsed') === 'true') {
+      document.documentElement.classList.add('sidebar-pre-collapsed');
+    }
+  </script>
 </head>
 <body class="font-sans text-gray-900 bg-surface" style="background:#F8FAFC;">
 
 <!-- ═══════════════════════════════════════════════════════════
      SIDEBAR — Desktop only
 ═══════════════════════════════════════════════════════════ -->
-<nav class="sidebar hidden md:flex flex-col h-screen fixed left-0 top-0 z-50 shadow-lg"
+<nav class="sidebar sidebar-nav hidden md:flex flex-col h-screen fixed left-0 top-0 z-50 shadow-lg"
      style="background:#022448; width:240px;">
-    <!-- Brand -->
-    <div class="px-6 py-5 border-b border-white/10">
-        <h1 class="text-xl font-bold text-white tracking-tight">DocPilot</h1>
-        <p class="text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
-    </div>
+        <!-- Brand -->
+        <div class="px-4 py-5 border-b border-white/10 flex items-center justify-between">
+          <div>
+            <h1 class="sidebar-brand-text text-xl font-bold text-white tracking-tight">DocPilot</h1>
+            <p class="sidebar-brand-text text-xs text-blue-300 mt-0.5">Infrastructure Pro</p>
+          </div>
+          <button id="sidebarToggle" class="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-white/10 text-blue-300 hover:text-white transition-colors shrink-0" title="Collapse sidebar">
+            <span class="material-symbols-outlined text-[18px]">menu_open</span>
+          </button>
+        </div>
 
     <!-- Nav Items -->
     <nav class="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
         <a href="index.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="projects">
             <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">folder_open</span>
-            <span class="text-sm font-medium">Projects</span>
+            <span class="sidebar-text text-sm font-medium">Projects</span>
         </a>
         <a href="teams.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="teams">
             <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">group</span>
-            <span class="text-sm font-medium">Teams</span>
+            <span class="sidebar-text text-sm font-medium">Teams</span>
         </a>
         <a href="calendar.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="calendar">
             <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">calendar_month</span>
-            <span class="text-sm font-medium">Calendar</span>
+            <span class="sidebar-text text-sm font-medium">Calendar</span>
         </a>
         <a href="planner.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="planner">
             <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">event_note</span>
-            <span class="text-sm font-medium">Planner</span>
+            <span class="sidebar-text text-sm font-medium">Planner</span>
         </a>
         <a href="settings.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="settings">
             <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">settings</span>
-            <span class="text-sm font-medium">Settings</span>
+            <span class="sidebar-text text-sm font-medium">Settings</span>
         </a>
         <a href="profile.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="profile">
             <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">person</span>
-            <span class="text-sm font-medium">Profile</span>
+            <span class="sidebar-text text-sm font-medium">Profile</span>
         </a>
         <div id="adminNavLinks" style="display:none" class="space-y-0.5">
             <div class="px-3 pt-3 pb-1">
-                <p class="text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p>
+                <p class="sidebar-admin-label text-[10px] font-semibold text-blue-400 uppercase tracking-widest">Admin</p>
             </div>
             <a href="admin.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="admin">
                 <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">admin_panel_settings</span>
-                <span class="text-sm font-medium">Admin</span>
+                <span class="sidebar-text text-sm font-medium">Admin</span>
             </a>
             <a href="superlog.html" class="sidebar-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-white/10 hover:text-white transition-all duration-150 group" data-page="superlogs">
                 <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-white transition-colors">manage_search</span>
-                <span class="text-sm font-medium">Super Logs</span>
+                <span class="sidebar-text text-sm font-medium">Super Logs</span>
             </a>
         </div>
     </nav>
@@ -331,7 +385,7 @@
     <div class="px-3 py-4 border-t border-white/10">
         <button id="sidebarLogoutBtn" onclick="if(window.logoutUser)logoutUser();else{localStorage.clear();sessionStorage.clear();window.location.href='login.html';}" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-blue-100 hover:bg-red-500/20 hover:text-red-300 transition-all duration-150 group">
             <span class="material-symbols-outlined text-[20px] text-blue-300 group-hover:text-red-300 transition-colors">logout</span>
-            <span class="text-sm font-medium">Logout</span>
+            <span class="sidebar-text text-sm font-medium">Logout</span>
         </button>
     </div>
 </nav>
@@ -339,7 +393,7 @@
 <!-- ═══════════════════════════════════════════════════════════
      MAIN CONTENT WRAPPER
 ═══════════════════════════════════════════════════════════ -->
-<div class="flex flex-col min-h-screen md:ml-[240px]">
+<div class="main-content flex flex-col min-h-screen md:ml-[240px]">
 
     <!-- ── Top App Bar ── -->
     <header class="top-header sticky top-0 z-40 h-14 flex items-center justify-between px-4 md:px-6">
@@ -401,7 +455,7 @@
         <div id="plannerLoading" class="dp-card text-center py-10">
             <div class="flex flex-col items-center gap-3 text-gray-400">
                 <span class="material-symbols-outlined animate-spin" style="font-size:32px; color:#E2E8F0;">autorenew</span>
-                <span class="text-sm font-medium">Loading appointments…</span>
+                <span class="sidebar-text text-sm font-medium">Loading appointments…</span>
             </div>
         </div>
 
@@ -532,5 +586,7 @@
   }catch(e){}
 })();
 </script>
+<script src="/src/js/dobo-loader.js" data-page="planner" data-module=""></script>
+    <script src="src/js/sidebar-toggle.js"></script>
 </body>
 </html>

@@ -395,14 +395,25 @@ router.post('/aufmass-update', async (req, res) => {
         let otdrAutoTriggered = false;
         const aplStatusPos    = findColByLabel(E2_0, l => l === 'apl status');
         const knotenStatusPos = findColByLabel(E2_0, l => l === 'knotenpunkt status');
-        const otdrStatusPos   = findColByLabel(E2_0, l => l === 'otdr status');
+        const otdrStatusPos   = (() => {
+            for (let i = 0; i < E1.length; i++) {
+                const grpTitle = typeof E1[i] === 'string' ? E1[i].toLowerCase() : '';
+                if (!grpTitle.includes('otdr')) continue;
+                const cols = E2_0[i] || [];
+                for (let j = 0; j < cols.length; j++) {
+                    const lbl = typeof cols[j] === 'string' ? cols[j].toLowerCase() : '';
+                    if (lbl.includes('status')) return { grpIdx: i, colIdx: j };
+                }
+            }
+            return null;
+        })();
 
         if (aplStatusPos && knotenStatusPos && otdrStatusPos) {
             const aplStatus    = String(targetRow[aplStatusPos.grpIdx]?.[aplStatusPos.colIdx]   || '');
             const knotenStatus = String(targetRow[knotenStatusPos.grpIdx]?.[knotenStatusPos.colIdx] || '');
             const otdrStatus   = String(targetRow[otdrStatusPos.grpIdx]?.[otdrStatusPos.colIdx]  || '');
 
-            if (aplStatus === 'Done' && knotenStatus === 'Done' && otdrStatus !== 'Done') {
+            if (aplStatus === 'Done' && knotenStatus === 'Done' && otdrStatus !== 'Done' && otdrStatus !== 'Waiting' && otdrStatus !== 'Incomplete') {
                 const oldOtdr = otdrStatus;
                 if (!targetRow[otdrStatusPos.grpIdx]) targetRow[otdrStatusPos.grpIdx] = [];
                 targetRow[otdrStatusPos.grpIdx][otdrStatusPos.colIdx] = 'Waiting';
@@ -779,6 +790,104 @@ router.get('/appointments', async (req, res) => {
     }
 });
 
+// ─── GET /api/modules/appointments/all ─────────────────────────────────────────
+// Returns appointments from ALL projects the user has access to.
+// Each appointment includes the project name.
+
+router.get('/appointments/all', async (req, res) => {
+    const userEmail = req.headers['x-user-email'] || '';
+    const userRole  = (req.headers['x-user-role']  || '').toLowerCase();
+
+    function groupToModule(groupName) {
+        const n = (groupName || '').toLowerCase();
+        if (n.includes('einblasen')) return 'einblasen';
+        if (n.includes('splicing') || n.includes('apl')) return 'apl';
+        if (n.includes('druckpr')) return 'druckprufung';
+        if (n.includes('kalibrieren')) return 'kalibrieren';
+        if (n.includes('otdr')) return 'otdr';
+        return n.replace(/\s+/g, '-');
+    }
+
+    try {
+        const projectsFile = path.join(__dirname, '..', 'src', 'DataFiles', 'projects.json');
+        let projects = [];
+        try {
+            const raw = await fs.readFile(projectsFile, 'utf-8');
+            projects = JSON.parse(raw);
+        } catch { projects = []; }
+
+        const allAppointments = [];
+
+        for (const proj of projects) {
+            const projectName = typeof proj === 'string' ? proj : (proj.name || proj.id || '');
+            if (!projectName) continue;
+
+            if (userRole !== 'superadmin') {
+                const ok = await canAccessProject(userEmail, projectName);
+                if (!ok) continue;
+            }
+
+            try {
+                const { E1, E2_0, dataRows } = await parseDataFile(projectName);
+
+                const clusterPos   = findColByLabel(E2_0, l => l === 'cluster');
+                const knotenPos    = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');
+                const addrStartPos = findColByLabel(E2_0, l => l === 'address start');
+                const addrEndPos   = findColByLabel(E2_0, l => l === 'address end');
+
+                const terminCols = [];
+                (E1 || []).forEach((groupLabel, gi) => {
+                    const groupName = typeof groupLabel === 'string' ? groupLabel : String(groupLabel || '');
+                    const cols = E2_0[gi] || [];
+                    cols.forEach((colLabel, ci) => {
+                        const label = typeof colLabel === 'string' ? colLabel.toLowerCase() : '';
+                        if (label.includes('termin')) {
+                            terminCols.push({ grpIdx: gi, colIdx: ci, colId: `col-${gi}-${ci}`, groupName, module: groupToModule(groupName) });
+                        }
+                    });
+                });
+
+                dataRows.forEach((row, rIdx) => {
+                    const rowId        = row[0]?.[0] || `ROW-${rIdx}`;
+                    const cluster      = clusterPos   ? String(row[clusterPos.grpIdx]?.[clusterPos.colIdx]     || '').trim() : '';
+                    const knotenpunkt  = knotenPos    ? String(row[knotenPos.grpIdx]?.[knotenPos.colIdx]       || '').trim() : '';
+                    const addressStart = addrStartPos ? String(row[addrStartPos.grpIdx]?.[addrStartPos.colIdx] || '').trim() : '';
+                    const addressEnd   = addrEndPos   ? String(row[addrEndPos.grpIdx]?.[addrEndPos.colIdx]     || '').trim() : '';
+
+                    terminCols.forEach(tc => {
+                        const rawVal = row[tc.grpIdx]?.[tc.colIdx];
+                        if (!rawVal) return;
+                        let parsed;
+                        try { parsed = JSON.parse(rawVal); } catch { return; }
+                        if (!parsed || !parsed.date) return;
+
+                        allAppointments.push({
+                            rowId,
+                            project: projectName,
+                            module: tc.module,
+                            date: parsed.date,
+                            time: parsed.time || '',
+                            notes: parsed.notes || '',
+                            cluster,
+                            knotenpunkt,
+                            addressStart,
+                            addressEnd,
+                            terminColId: tc.colId
+                        });
+                    });
+                });
+            } catch (_) {
+                // Skip projects that can't be parsed
+            }
+        }
+
+        res.json({ success: true, appointments: allAppointments });
+    } catch (e) {
+        console.error('appointments/all error:', e.message);
+        res.status(500).json({ success: false, message: e.message });
+    }
+});
+
 // ─── GET /api/modules/done-dates?project=X&path=SUPPN/Einblasen/BB/NVt-30 ───────
 // Returns the latest file modification date per address subfolder (or per-address files).
 // Used by address list to show "done date" next to Done badge.
@@ -875,7 +984,10 @@ router.delete('/clear-files', async (req, res) => {
             const entries = await fs.readdir(targetDir, { withFileTypes: true });
             for (const entry of entries) {
                 if (entry.isFile()) {
-                    await fs.unlink(path.join(targetDir, entry.name));
+                    const absFilePath = path.join(targetDir, entry.name);
+                    await fs.unlink(absFilePath);
+                    const relFilePath = path.relative(STORAGE_ROOT, absFilePath).replace(/\\/g, '/');
+                    syncFile(relFilePath);
                     deletedCount++;
                 }
             }

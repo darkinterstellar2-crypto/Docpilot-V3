@@ -8,12 +8,29 @@ const fs = require('fs').promises;
 const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
+// ── Block sensitive server-side paths BEFORE static middleware ───────────────────
+app.use((req, res, next) => {
+    const p = req.path.toLowerCase();
+    const blocked = [
+        '/server.js', '/package.json', '/package-lock.json', '/dockerfile',
+        '/docker-compose.yml', '/.gitignore', '/.dockerignore', '/caddyfile',
+        '/controllers', '/routes', '/storage', '/src/datafiles',
+        '/docs', '/.env', '/node_modules',
+    ];
+    if (blocked.some(b => p === b || p.startsWith(b + '/'))) {
+        return res.status(404).end();
+    }
+    next();
+});
+
+// Only serve frontend files (HTML, src/js, src/css, src/img)
 app.use(express.static(path.join(__dirname), {
     setHeaders: (res, filePath) => {
         if (filePath.endsWith('.js') || filePath.endsWith('.css')) {
             res.setHeader('Cache-Control', 'no-cache, must-revalidate');
         }
-    }
+    },
+    dotfiles: 'deny',
 }));
 
 // ─── Super Logger (must be required early so ring buffer loads) ───────────────
@@ -177,6 +194,45 @@ const profileRoutes = require('./routes/profileRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const projectInfoRoutes = require('./routes/projectInfoRoutes');
 const geocodeRoutes = require('./routes/geocodeRoutes');
+const aiRoutes      = require('./routes/aiRoutes');
+const teamRoutes    = require('./routes/teamRoutes');
+
+// --- Global API rate limiter (100 req/min per IP, 1000/hour) ─────────────────
+// Protects all /api routes from abuse before auth runs.
+(function setupApiRateLimit() {
+    const WIN_MIN  = 60_000;
+    const WIN_HOUR = 60 * 60_000;
+    const store    = new Map();   // ip → timestamp[]
+    const PER_MIN  = parseInt(process.env.API_RATE_PER_MIN,  10) || 100;
+    const PER_HOUR = parseInt(process.env.API_RATE_PER_HOUR, 10) || 1000;
+    // Cleanup old buckets every 5 min
+    setInterval(() => {
+        const cutoff = Date.now() - WIN_HOUR;
+        for (const [ip, times] of store) {
+            const filtered = times.filter(t => t > cutoff);
+            if (filtered.length === 0) store.delete(ip);
+            else store.set(ip, filtered);
+        }
+    }, 5 * 60_000).unref();
+
+    app.use('/api', (req, res, next) => {
+        const ip  = req.ip || req.connection?.remoteAddress || 'unknown';
+        const now = Date.now();
+        const times = (store.get(ip) || []).filter(t => t > now - WIN_HOUR);
+        const perMin  = times.filter(t => t > now - WIN_MIN).length;
+        const perHour = times.length;
+        if (perMin >= PER_MIN || perHour >= PER_HOUR) {
+            return res.status(429).json({
+                success: false,
+                error: 'Too many requests. Please slow down.',
+                retryAfterSec: perMin >= PER_MIN ? 60 : 3600,
+            });
+        }
+        times.push(now);
+        store.set(ip, times);
+        next();
+    });
+})();
 
 // --- Geocode proxy (public — no auth, just a Nominatim reverse-geocode relay) ---
 // Mounted before authMiddleware so the GeoCam overlay can call it without creds.
@@ -225,6 +281,8 @@ app.use('/api/access', accessRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/project-info', projectInfoRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/teams', teamRoutes);
 
 // ─── Global error handler (log error events before sending 500) ──────────────
 app.use((err, req, res, next) => {

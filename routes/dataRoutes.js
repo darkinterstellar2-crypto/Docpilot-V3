@@ -278,7 +278,7 @@ router.post('/', async (req, res) => {
                 const aplDone = (rowObj[aplStatusColId] || '').trim() === 'Done';
                 const knotenDone = (rowObj[knotenStatusColId] || '').trim() === 'Done';
                 const otdrCurrent = (rowObj[otdrStatusColId] || '').trim();
-                if (aplDone && knotenDone && otdrCurrent !== 'Done' && otdrCurrent !== 'Waiting') {
+                if (aplDone && knotenDone && otdrCurrent !== 'Done' && otdrCurrent !== 'Waiting' && otdrCurrent !== 'Incomplete') {
                     rowObj[otdrStatusColId] = 'Waiting';
                     otdrTriggeredCount++;
                 }

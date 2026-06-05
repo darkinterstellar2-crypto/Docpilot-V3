@@ -19,3 +19,5 @@ src/DataFiles/shares.json
 src/DataFiles/access-control.json
 storage/.sync-operations.json
 src/DataFiles/.jwt-secret
+src/DataFiles/settings.json
+src/DataFiles/terminated-sessions.json

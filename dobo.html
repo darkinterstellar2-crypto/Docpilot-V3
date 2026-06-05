@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoBo AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="/src/css/ai-widget.css">
+  <style>
+    /* Transparent iframe body — only widget areas get pointer events */
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: transparent;
+      overflow: hidden;
+      pointer-events: none;   /* pass-through for non-widget areas */
+    }
+    /* Only specific interactive elements get pointer events */
+    #dobo-rabbit,
+    #dobo-chat-panel.open,
+    #dobo-thought.visible {
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- DoBo widget is injected by ai-widget.js -->
+
+  <!-- Queue for postMessage context arriving before widget initializes -->
+  <script>
+    window._doboContextQueue = window._doboContextQueue || [];
+    window._doboReady = false;
+
+    window.addEventListener('message', function (e) {
+      if (e.origin !== location.origin) return;
+      var d = e.data;
+      if (!d || d.type !== 'dobo-context') return;
+
+      if (window._doboReady && window._aiContext) {
+        window._aiContext.update({
+          page:    d.page    || '',
+          module:  d.module  || '',
+          project: d.project || '',
+        });
+      } else {
+        window._doboContextQueue.push({
+          page:    d.page    || '',
+          module:  d.module  || '',
+          project: d.project || '',
+        });
+      }
+    });
+  </script>
+
+  <!-- DoBo modules (order matters: face → chat → thoughts → context → widget) -->
+  <script src="/src/js/ai-face.js"></script>
+  <script src="/src/js/ai-chat.js"></script>
+  <script src="/src/js/ai-thoughts.js"></script>
+  <script src="/src/js/ai-context.js"></script>
+  <script src="/src/js/ai-widget.js"></script>
+</body>
+</html>
