@@ -254,6 +254,10 @@
   color: #1f2937;
   border-bottom-left-radius: 4px;
 }
+.dobo-msg-bubble.assistant strong { font-weight: 600; }
+.dobo-msg-bubble.assistant em { font-style: italic; }
+.dobo-msg-bubble.assistant code { font-family: 'SF Mono', Monaco, monospace; }
+.dobo-msg-bubble.assistant br + br { display: none; }
 
 .dobo-msg-time {
   font-size: 10px;

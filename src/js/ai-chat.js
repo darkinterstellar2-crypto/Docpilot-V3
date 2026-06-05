@@ -218,6 +218,24 @@
       }
     }
 
+    // ── Lightweight Markdown → HTML ────────────────────────────────────────────
+    _formatMarkdown(text) {
+      if (!text) return '';
+      let html = text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') // escape HTML
+        .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')      // ***bold italic***
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')                    // **bold**
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')                                // *italic*
+        .replace(/`([^`]+)`/g, '<code style="background:rgba(0,0,0,0.08);padding:1px 5px;border-radius:4px;font-size:12px;">$1</code>') // `code`
+        .replace(/^### (.+)$/gm, '<div style="font-weight:700;font-size:14px;margin:8px 0 4px;">$1</div>')  // ### h3
+        .replace(/^## (.+)$/gm, '<div style="font-weight:700;font-size:15px;margin:8px 0 4px;">$1</div>')   // ## h2
+        .replace(/^# (.+)$/gm, '<div style="font-weight:700;font-size:16px;margin:8px 0 4px;">$1</div>')    // # h1
+        .replace(/^[\-\*] (.+)$/gm, '<div style="padding-left:12px;">• $1</div>')                          // - bullet
+        .replace(/^\d+\. (.+)$/gm, function(m, p1, offset, str) { return '<div style="padding-left:12px;">' + m.match(/^\d+/)[0] + '. ' + p1 + '</div>'; }) // 1. numbered
+        .replace(/\n/g, '<br>');
+      return html;
+    }
+
     // ── Render bubble ─────────────────────────────────────────────────────────
     _appendBubble(role, text, hasForward, ctx) {
       const isUser = role === 'user';
@@ -230,7 +248,11 @@
 
       const bubble = document.createElement('div');
       bubble.className = `dobo-msg-bubble ${isUser ? 'user' : 'assistant'}`;
-      bubble.textContent = text;
+      if (isUser) {
+        bubble.textContent = text;
+      } else {
+        bubble.innerHTML = this._formatMarkdown(text);
+      }
 
       const time = document.createElement('span');
       time.className = 'dobo-msg-time';
