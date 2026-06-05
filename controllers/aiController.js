@@ -35,7 +35,7 @@ function getProviderPro() {
         _providerPro = createProvider({
             provider: 'anthropic',
             apiKey:   process.env.AI_API_KEY_ANTHROPIC || process.env.AI_API_KEY,
-            model:    process.env.AI_MODEL_PRO || 'claude-sonnet-4-6',
+            model:    process.env.AI_MODEL_PRO || 'claude-sonnet-4-20250514',
         });
     }
     return _providerPro;

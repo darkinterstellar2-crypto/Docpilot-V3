@@ -14,13 +14,13 @@ class AIProvider {
         this.config = config;
     }
 
-    async chat(systemPrompt, messages, maxTokens = 500) {
+    async chat(systemPrompt, messages, maxTokens = 2048) {
         throw new Error('Not implemented');
     }
 }
 
 class GeminiProvider extends AIProvider {
-    async chat(systemPrompt, messages, maxTokens = 500) {
+    async chat(systemPrompt, messages, maxTokens = 2048) {
         const contents = messages.map(m => ({
             role: m.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: m.content }]
@@ -88,8 +88,8 @@ class GeminiProvider extends AIProvider {
 }
 
 class AnthropicProvider extends AIProvider {
-    async chat(systemPrompt, messages, maxTokens = 500) {
-        const model = this.config.model || 'claude-haiku-4-5';
+    async chat(systemPrompt, messages, maxTokens = 2048) {
+        const model = this.config.model || 'claude-haiku-4-20250414';
 
         const res = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
