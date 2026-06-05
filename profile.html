@@ -368,6 +368,7 @@
         const API = (path, opts = {}) => fetch(path, {
             ...opts,
             headers: {
+                'Authorization': 'Bearer ' + (localStorage.getItem('authToken') || ''),
                 'x-user-email': localStorage.getItem('userEmail') || '',
                 'x-user-role': localStorage.getItem('userRole') || '',
                 'x-user-name': localStorage.getItem('userName') || '',
