@@ -56,7 +56,8 @@ router.get('/', async (req, res) => {
                 email: user.email,
                 role: user.role,
                 avatar: user.avatar || null,
-                createdAt: user.createdAt
+                createdAt: user.createdAt,
+                twoFAEnabled: user.twoFAEnabled === true || (user.role === 'superadmin' && user.twoFAEnabled !== false)
             }
         });
     } catch (error) {
@@ -221,6 +222,32 @@ router.get('/avatar/:filename', async (req, res) => {
         res.sendFile(filePath);
     } catch {
         res.status(404).json({ success: false, message: 'Avatar not found' });
+    }
+});
+
+// ── PUT /api/profile/2fa — toggle 2FA on/off ────────────────────────────────
+router.put('/2fa', async (req, res) => {
+    const email = req.headers['x-user-email'];
+    if (!email) return res.status(401).json({ success: false, message: 'Not authenticated' });
+
+    const { enabled } = req.body;
+    if (typeof enabled !== 'boolean') {
+        return res.status(400).json({ success: false, message: '`enabled` must be a boolean' });
+    }
+
+    try {
+        const users = await getUsers();
+        const userIndex = users.findIndex(u => u.email === email);
+        if (userIndex === -1) return res.status(404).json({ success: false, message: 'User not found' });
+
+        users[userIndex].twoFAEnabled = enabled;
+        await saveUsers(users);
+        await logAction(email, '2FA Updated', `2FA ${enabled ? 'enabled' : 'disabled'} by user`);
+        superLog('auth', 'info', `2FA ${enabled ? 'enabled' : 'disabled'}: ${email}`, { email });
+
+        res.json({ success: true, twoFAEnabled: enabled });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 });
 

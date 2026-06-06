@@ -306,8 +306,9 @@ router.post('/login', async (req, res) => {
         // Clear rate limiter on successful password
         clearAttempts(req.ip, identifier);
 
-        // 2FA for superadmin — require OTP on every login
-        if (user.role === 'superadmin') {
+        // 2FA — required if user has enabled it, or always for superadmin (unless explicitly disabled)
+        const requires2FA = user.twoFAEnabled === true || (user.role === 'superadmin' && user.twoFAEnabled !== false);
+        if (requires2FA) {
             const otp2fa = Math.floor(100000 + Math.random() * 900000).toString();
             pending2FA.set(user.email, {
                 otp: otp2fa,
