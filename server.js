@@ -197,43 +197,6 @@ const geocodeRoutes = require('./routes/geocodeRoutes');
 const aiRoutes      = require('./routes/aiRoutes');
 const teamRoutes    = require('./routes/teamRoutes');
 
-// --- Global API rate limiter (100 req/min per IP, 1000/hour) ─────────────────
-// Protects all /api routes from abuse before auth runs.
-(function setupApiRateLimit() {
-    const WIN_MIN  = 60_000;
-    const WIN_HOUR = 60 * 60_000;
-    const store    = new Map();   // ip → timestamp[]
-    const PER_MIN  = parseInt(process.env.API_RATE_PER_MIN,  10) || 100;
-    const PER_HOUR = parseInt(process.env.API_RATE_PER_HOUR, 10) || 1000;
-    // Cleanup old buckets every 5 min
-    setInterval(() => {
-        const cutoff = Date.now() - WIN_HOUR;
-        for (const [ip, times] of store) {
-            const filtered = times.filter(t => t > cutoff);
-            if (filtered.length === 0) store.delete(ip);
-            else store.set(ip, filtered);
-        }
-    }, 5 * 60_000).unref();
-
-    app.use('/api', (req, res, next) => {
-        const ip  = req.ip || req.connection?.remoteAddress || 'unknown';
-        const now = Date.now();
-        const times = (store.get(ip) || []).filter(t => t > now - WIN_HOUR);
-        const perMin  = times.filter(t => t > now - WIN_MIN).length;
-        const perHour = times.length;
-        if (perMin >= PER_MIN || perHour >= PER_HOUR) {
-            return res.status(429).json({
-                success: false,
-                error: 'Too many requests. Please slow down.',
-                retryAfterSec: perMin >= PER_MIN ? 60 : 3600,
-            });
-        }
-        times.push(now);
-        store.set(ip, times);
-        next();
-    });
-})();
-
 // --- Geocode proxy (public — no auth, just a Nominatim reverse-geocode relay) ---
 // Mounted before authMiddleware so the GeoCam overlay can call it without creds.
 app.use('/api/geocode', geocodeRoutes);
