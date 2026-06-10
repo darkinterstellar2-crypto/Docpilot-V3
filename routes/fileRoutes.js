@@ -825,14 +825,20 @@ router.get('/tree', async (req, res) => {
 });
 
 // GET /api/files/download?project=X&path=Y&file=Z  — download a file
+// Also accepts ?_email=&_role= query params for browser-native drag-out downloads
+// where custom headers cannot be set.
 router.get('/download', async (req, res) => {
     const { project, path: subPath, file } = req.query;
     if (!project || !file) return res.status(400).json({ success: false, message: 'Missing parameters.' });
 
-    // ACL enforcement
-    const dlEmail = req.headers['x-user-email'] || '';
-    const dlRole  = (req.headers['x-user-role'] || '').toLowerCase();
-    if (dlRole !== 'superadmin') {
+    // ACL enforcement — fall back to query-string creds for native browser requests (drag-out)
+    const dlEmail = req.headers['x-user-email'] || req.query._email || '';
+    const dlRole  = ((req.headers['x-user-role'] || req.query._role || '')).toLowerCase();
+    // Prevent privilege escalation via query params (superadmin must use headers/JWT)
+    const effectiveRole = (req.query._email && !req.headers['x-user-email'])
+        ? (dlRole === 'superadmin' ? 'user' : dlRole)
+        : dlRole;
+    if (effectiveRole !== 'superadmin') {
         const projectOk = await canAccessProject(dlEmail, project);
         if (!projectOk) return res.status(403).json({ success: false, message: 'Access denied: project not accessible.' });
         const moduleOk = await canAccessModule(dlEmail, project, 'files');
@@ -944,6 +950,8 @@ async function cleanExpiredShares() {
     const now = new Date();
     let dirty = false;
     for (const [id, share] of Object.entries(data.shares)) {
+        // Never-expires shares are never cleaned up automatically
+        if (share.neverExpires) continue;
         if (new Date(share.expiresAt) <= now) {
             delete data.shares[id];
             dirty = true;
@@ -960,8 +968,10 @@ router.post('/share', async (req, res) => {
     if (!project || !filePath) return res.status(400).json({ success: false, message: 'Missing project or filePath.' });
     if (!await canEditFiles(req, project)) return res.status(403).json({ success: false, message: 'Access denied: edit permission required to create share links.' });
 
-    // Validate and clamp expiry (hours, default 168 = 7 days, max 720 = 30 days)
-    const expiresInHours = Math.min(Math.max(parseInt(expiresIn) || 168, 1), 720);
+    // Validate expiry: 0 = never, otherwise clamp 1–8760 hours (1 yr max)
+    const expiresInRaw = parseInt(expiresIn);
+    const neverExpires = expiresInRaw === 0;
+    const expiresInHours = neverExpires ? 0 : Math.min(Math.max(expiresInRaw || 168, 1), 8760);
 
     // Validate file/folder exists
     const absPath = safePath(project, filePath);
@@ -977,7 +987,10 @@ router.post('/share', async (req, res) => {
     // Generate cryptographically secure 12-char token
     const shareId = crypto.randomBytes(9).toString('base64url');
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + expiresInHours * 60 * 60 * 1000);
+    // For "never expires", set expiresAt to year 9999 and flag neverExpires
+    const expiresAt = neverExpires
+        ? new Date('9999-12-31T23:59:59.999Z')
+        : new Date(now.getTime() + expiresInHours * 60 * 60 * 1000);
     const userEmail = req.headers['x-user-email'] || 'Unknown';
     const fileName = path.basename(filePath);
 
@@ -990,12 +1003,13 @@ router.post('/share', async (req, res) => {
         createdBy: userEmail,
         createdAt: now.toISOString(),
         expiresAt: expiresAt.toISOString(),
+        neverExpires: neverExpires || false,
         accessCount: 0
     };
     await writeShares(data);
-    await logAction(userEmail, 'Share Created', `Shared ${shareType} "${filePath}" in ${project} — token: ${shareId}`);
-    superLog('file', 'info', `Share: "${filePath}" (${shareType}) in ${project} by ${userEmail} (expires ${expiresAt.toISOString()})`, {
-        userEmail, project, filePath, shareType, shareId, expiresAt: expiresAt.toISOString()
+    await logAction(userEmail, 'Share Created', `Shared ${shareType} "${filePath}" in ${project} — token: ${shareId} (${neverExpires ? 'never expires' : 'expires ' + expiresAt.toISOString()})`);
+    superLog('file', 'info', `Share: "${filePath}" (${shareType}) in ${project} by ${userEmail} (${neverExpires ? 'never expires' : 'expires ' + expiresAt.toISOString()})`, {
+        userEmail, project, filePath, shareType, shareId, expiresAt: expiresAt.toISOString(), neverExpires
     });
 
     res.json({
@@ -1081,7 +1095,7 @@ h1{font-size:2rem;color:#1e293b;margin-bottom:.5rem;}p{color:#64748b;margin:0;}<
 <body><div class="box"><h1>🔗 404</h1><p>This share link doesn't exist or has already been removed.</p></div></body></html>`);
     }
 
-    if (new Date(share.expiresAt) <= new Date()) {
+    if (!share.neverExpires && new Date(share.expiresAt) <= new Date()) {
         // Fire-and-forget cleanup so the expired entry is pruned eventually
         cleanExpiredShares().catch(() => {});
         return res.status(410).send(`<!DOCTYPE html><html><head><title>Link Expired</title>
@@ -1139,9 +1153,11 @@ h1{font-size:2rem;color:#1e293b;margin-bottom:.5rem;}p{color:#64748b;margin:0;}<
  * Serve the self-contained HTML page for browsing a shared folder.
  */
 function serveFolderSharePage(res, shareId, share) {
-    const expiresDate = new Date(share.expiresAt).toLocaleDateString('en-GB', {
-        day: 'numeric', month: 'short', year: 'numeric'
-    });
+    const expiresDate = share.neverExpires
+        ? 'Never'
+        : new Date(share.expiresAt).toLocaleDateString('en-GB', {
+            day: 'numeric', month: 'short', year: 'numeric'
+          });
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1198,7 +1214,7 @@ function serveFolderSharePage(res, shareId, share) {
       </div>
       <div class="header-meta">
         <span class="meta-badge">📂 ${escapeHtml(share.project)}</span>
-        <span class="meta-badge">⏰ Expires ${escapeHtml(expiresDate)}</span>
+        <span class="meta-badge">${share.neverExpires ? '♾️ Never expires' : '⏰ Expires ' + escapeHtml(expiresDate)}</span>
       </div>
     </div>
     <div class="breadcrumb" id="breadcrumb">
@@ -1208,7 +1224,7 @@ function serveFolderSharePage(res, shareId, share) {
       <div class="loading">Loading…</div>
     </div>
     <div class="footer">
-      Shared via <a href="/" target="_blank">DocPilot</a> &nbsp;·&nbsp; Expires ${escapeHtml(expiresDate)}
+      Shared via <a href="/" target="_blank">DocPilot</a>${share.neverExpires ? '' : ' &nbsp;·&nbsp; Expires ' + escapeHtml(expiresDate)}
     </div>
   </div>
 </div>
@@ -1349,7 +1365,7 @@ async function resolveShareFolder(req, res) {
         res.status(404).json({ success: false, message: 'Share not found.' });
         return null;
     }
-    if (new Date(share.expiresAt) <= new Date()) {
+    if (!share.neverExpires && new Date(share.expiresAt) <= new Date()) {
         cleanExpiredShares().catch(() => {});
         res.status(410).json({ success: false, message: 'Share link has expired.' });
         return null;

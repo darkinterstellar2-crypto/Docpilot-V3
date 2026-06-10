@@ -1488,6 +1488,23 @@
                     showContextMenu(e, {name: item.name, isDir: item.isDir});
                 });
 
+                // Drag-OUT: allow dragging files to desktop/file-explorer
+                if (!item.isDir) {
+                    row.setAttribute('draggable', 'true');
+                    row.addEventListener('dragstart', (e) => {
+                        // Only set DownloadURL if not also triggering a selection drag
+                        const filePath = currentPath ? currentPath + '/' + item.name : item.name;
+                        const dlEmail = encodeURIComponent(userEmail);
+                        const dlRole  = encodeURIComponent(userRole || 'user');
+                        const dlUrl   = window.location.origin +
+                            `/api/files/download?project=${enc(projectName)}&path=${enc(currentPath)}&file=${enc(item.name)}&_email=${dlEmail}&_role=${dlRole}`;
+                        // Format: mime:filename:url
+                        const mime = getMimeForFile(item.name);
+                        e.dataTransfer.setData('DownloadURL', `${mime}:${item.name}:${dlUrl}`);
+                        e.dataTransfer.effectAllowed = 'copy';
+                    });
+                }
+
                 lv.appendChild(row);
             });
         };
@@ -1802,6 +1819,7 @@
                                     <option value="72">3 days</option>
                                     <option value="168" selected>7 days</option>
                                     <option value="720">30 days</option>
+                                    <option value="0">♾️ Never expires</option>
                                 </select>
                             </div>
                         </div>
@@ -1819,11 +1837,14 @@
                     const now = new Date();
                     const diffMs = expiresAt - now;
                     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-                    const expiresStr = diffDays === 1
-                        ? 'Expires tomorrow'
-                        : diffDays <= 30
-                            ? `Expires in ${diffDays} days`
-                            : `Expires on ${expiresAt.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'})}`;
+                    const isNeverExpires = diffDays > 365 * 50; // year 9999 → effectively never
+                    const expiresStr = isNeverExpires
+                        ? '\u267e\ufe0f Never expires'
+                        : diffDays === 1
+                            ? 'Expires tomorrow'
+                            : diffDays <= 30
+                                ? `Expires in ${diffDays} days`
+                                : `Expires on ${expiresAt.toLocaleDateString('de-DE', {day:'2-digit',month:'2-digit',year:'numeric'})}`;
 
                     content.innerHTML = `
                         <div class="mb-3">
@@ -2060,6 +2081,20 @@
         // ─── Helpers ─────────────────────────────────────────────────
         function enc(s) { return encodeURIComponent(s || ''); }
         function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+        function getMimeForFile(name) {
+            const ext = (name.split('.').pop() || '').toLowerCase();
+            const m = {pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                xls:'application/vnd.ms-excel',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                ppt:'application/vnd.ms-powerpoint',pptx:'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                zip:'application/zip',rar:'application/x-rar-compressed','7z':'application/x-7z-compressed',
+                jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',gif:'image/gif',svg:'image/svg+xml',webp:'image/webp',
+                mp4:'video/mp4',mov:'video/quicktime',avi:'video/x-msvideo',mkv:'video/x-matroska',
+                mp3:'audio/mpeg',wav:'audio/wav',flac:'audio/flac',
+                txt:'text/plain',csv:'text/csv',json:'application/json',xml:'application/xml',
+                html:'text/html',htm:'text/html',css:'text/css',js:'application/javascript',ts:'application/typescript',py:'text/x-python'
+            };
+            return m[ext] || 'application/octet-stream';
+        }
 
         function formatSize(bytes) {
             if (bytes == null) return '';
