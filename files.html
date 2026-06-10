@@ -568,17 +568,17 @@
         .view-btn { padding: 7px; border-radius: 8px; transition: background 0.15s, color 0.15s; color: #74777f; border: none; background: none; cursor: pointer; }
         .view-btn.active { background: #f2f4f6; color: #022448; }
 
-        /* ── Upload button ────────────────────────────────────────── */
+        /* ── New/Upload button ─────────────────────────────────────── */
         .btn-upload {
             display: flex; align-items: center; gap: 6px;
             padding: 8px 16px;
-            background: #fea619; color: #684000;
+            background: #fff; color: #022448;
             font-size: 13px; font-weight: 700;
-            border-radius: 8px; border: none; cursor: pointer;
-            transition: opacity 0.15s, box-shadow 0.15s;
-            box-shadow: 0 2px 8px rgba(254,166,25,0.3);
+            border-radius: 8px; border: 1.5px solid #022448; cursor: pointer;
+            transition: background 0.15s, box-shadow 0.15s, color 0.15s;
+            box-shadow: 0 1px 4px rgba(2,36,72,0.08);
         }
-        .btn-upload:hover { opacity: 0.9; box-shadow: 0 4px 14px rgba(254,166,25,0.4); }
+        .btn-upload:hover { background: #022448; color: #fff; box-shadow: 0 3px 10px rgba(2,36,72,0.18); }
 
         /* ── Superadmin-only items (hidden by JS based on role) ───── */
         .superadmin-only { display: none; }
@@ -832,12 +832,9 @@
                     </h2>
                 </div>
 
-                <!-- Tree placeholder (visual — populated by future JS enhancement) -->
-                <div class="flex-1 overflow-y-auto py-2 px-2" id="folderTreePanelContent">
-                    <div class="flex flex-col items-center justify-center py-10 text-center">
-                        <span class="material-symbols-outlined text-[#E2E8F0] mb-2" style="font-size:40px">folder_open</span>
-                        <p class="text-xs text-[#74777f] leading-relaxed px-2">Navigate via the breadcrumb above</p>
-                    </div>
+                <!-- Directory tree (populated by JS) -->
+                <div class="flex-1 overflow-y-auto py-1 px-1" id="folderTreePanelContent">
+                    <div id="sidebarTreeRoot" class="folder-tree-container"></div>
                 </div>
 
                 <!-- NAS sync status -->
@@ -2643,6 +2640,166 @@
         }
         renderBreadcrumb();
         loadFiles();
+
+        // ─── Sidebar Directory Tree ────────────────────────────────────────────
+        // Load the folder tree into the left-panel sidebar
+        (function initSidebarTree() {
+            let _sidebarTreeData = null;
+
+            async function loadSidebarTree() {
+                const container = document.getElementById('sidebarTreeRoot');
+                if (!container) return;
+                container.innerHTML = '<div class="py-6 flex justify-center"><span class="text-xs text-[#74777f]">Loading…</span></div>';
+                try {
+                    const enc = encodeURIComponent;
+                    const res = await fetch(
+                        `/api/files/tree?project=${enc(projectName)}`,
+                        { headers: { 'x-user-email': userEmail, 'x-user-role': userRole } }
+                    );
+                    const data = await res.json();
+                    if (!data.success) throw new Error(data.message || 'Failed');
+                    _sidebarTreeData = data.tree;
+                    renderSidebarTree();
+                } catch (err) {
+                    container.innerHTML = `<div class="px-3 py-4 text-xs text-[#74777f] text-center">${esc(err.message)}</div>`;
+                }
+            }
+
+            function renderSidebarTree() {
+                const container = document.getElementById('sidebarTreeRoot');
+                if (!container || !_sidebarTreeData) return;
+                container.innerHTML = '';
+                // Root row
+                const rootRow = document.createElement('div');
+                rootRow.className = 'folder-tree-item' + (currentPath === '' ? ' selected' : '');
+                rootRow.style.paddingLeft = '8px';
+                rootRow.innerHTML = `
+                    <span class="material-symbols-outlined" style="font-size:16px;color:#fea619;flex-shrink:0">home</span>
+                    <span style="font-size:12px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Root</span>`;
+                rootRow.onclick = () => navigateTo('');
+                container.appendChild(rootRow);
+                // Children
+                if (_sidebarTreeData.children && _sidebarTreeData.children.length > 0) {
+                    const childrenWrap = document.createElement('div');
+                    childrenWrap.style.paddingLeft = '0';
+                    renderSidebarNodes(_sidebarTreeData.children, childrenWrap, 1);
+                    container.appendChild(childrenWrap);
+                }
+                // Highlight current
+                highlightSidebarCurrent();
+            }
+
+            function renderSidebarNodes(nodes, parentEl, depth) {
+                for (const node of nodes) {
+                    const hasChildren = node.children && node.children.length > 0;
+                    const indent = depth * 12 + 8;
+                    const row = document.createElement('div');
+                    row.className = 'folder-tree-item';
+                    row.setAttribute('data-tree-path', node.path);
+                    row.style.paddingLeft = indent + 'px';
+
+                    // Chevron
+                    const chev = document.createElement('span');
+                    chev.className = 'folder-tree-chevron' + (hasChildren ? '' : ' chev-leaf');
+                    chev.innerHTML = `<span class="material-symbols-outlined" style="font-size:14px">chevron_right</span>`;
+
+                    // Folder icon
+                    const icon = document.createElement('span');
+                    icon.className = 'material-symbols-outlined';
+                    icon.style.fontSize = '15px';
+                    icon.style.flexShrink = '0';
+                    icon.style.color = '#fea619';
+                    icon.textContent = 'folder';
+
+                    // Label
+                    const label = document.createElement('span');
+                    label.style.fontSize = '12px';
+                    label.style.fontWeight = '500';
+                    label.style.flex = '1';
+                    label.style.overflow = 'hidden';
+                    label.style.textOverflow = 'ellipsis';
+                    label.style.whiteSpace = 'nowrap';
+                    label.textContent = node.name;
+
+                    row.appendChild(chev);
+                    row.appendChild(icon);
+                    row.appendChild(label);
+                    parentEl.appendChild(row);
+
+                    // Children container
+                    let childrenEl = null;
+                    if (hasChildren) {
+                        childrenEl = document.createElement('div');
+                        childrenEl.className = 'folder-tree-children';
+                        renderSidebarNodes(node.children, childrenEl, depth + 1);
+                        parentEl.appendChild(childrenEl);
+                    }
+
+                    // Click: chevron toggles expand, row click navigates
+                    row.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (hasChildren && e.target.closest('.folder-tree-chevron')) {
+                            chev.classList.toggle('chev-open');
+                            if (childrenEl) childrenEl.classList.toggle('chev-open');
+                            icon.textContent = chev.classList.contains('chev-open') ? 'folder_open' : 'folder';
+                            return;
+                        }
+                        // Navigate to this folder
+                        navigateTo(node.path);
+                        // Also expand
+                        if (hasChildren && !chev.classList.contains('chev-open')) {
+                            chev.classList.add('chev-open');
+                            if (childrenEl) childrenEl.classList.add('chev-open');
+                            icon.textContent = 'folder_open';
+                        }
+                    });
+                }
+            }
+
+            function highlightSidebarCurrent() {
+                const container = document.getElementById('sidebarTreeRoot');
+                if (!container) return;
+                container.querySelectorAll('.folder-tree-item').forEach(el => {
+                    const p = el.getAttribute('data-tree-path');
+                    // Root row has no data-tree-path
+                    const isRoot = (p === null && currentPath === '');
+                    const isMatch = (p !== null && p === currentPath);
+                    el.classList.toggle('selected', isRoot || isMatch);
+                });
+                // Ensure ancestor nodes are expanded
+                if (currentPath) {
+                    const parts = currentPath.split('/');
+                    let built = '';
+                    for (const part of parts) {
+                        built = built ? built + '/' + part : part;
+                        const matchRow = container.querySelector(`[data-tree-path="${built}"]`);
+                        if (matchRow) {
+                            const chev = matchRow.querySelector('.folder-tree-chevron');
+                            if (chev && !chev.classList.contains('chev-open')) {
+                                chev.classList.add('chev-open');
+                                const icon = matchRow.querySelector('.material-symbols-outlined:nth-child(2)');
+                                if (icon) icon.textContent = 'folder_open';
+                                const nextSibling = matchRow.nextElementSibling;
+                                if (nextSibling && nextSibling.classList.contains('folder-tree-children')) {
+                                    nextSibling.classList.add('chev-open');
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Patch navigateTo to keep sidebar highlight in sync
+            const _origNav2 = window.navigateTo;
+            window.navigateTo = function(p) {
+                if (_origNav2) _origNav2(p);
+                // Tiny delay so currentPath is updated first
+                setTimeout(highlightSidebarCurrent, 50);
+            };
+
+            // Initial load
+            loadSidebarTree();
+        })();
 
     })();
     </script>

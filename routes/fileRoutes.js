@@ -245,7 +245,7 @@ router.get('/', async (req, res) => {
 
     try {
         // Hidden items to filter out
-        const HIDDEN = new Set(['.trash', '.filemeta.json', 'chat', 'chat-media']);
+        const HIDDEN = new Set(['.trash', '.filemeta.json', 'chat', 'chat-media', 'dobo']);
 
         // ── Build unified listing: VPS (local) ∪ NAS ────────────────────
         // Local entries keyed by name
@@ -592,7 +592,7 @@ async function copyRecursive(src, dest, projectRoot, projectName, userEmail) {
  */
 async function buildDirTree(dirPath, projectRoot, depth, maxDepth) {
     if (depth > maxDepth) return [];
-    const EXCLUDED = new Set(['.trash', 'chat']);
+    const EXCLUDED = new Set(['.trash', 'chat', 'dobo']);
 
     let entries = [];
     try {
