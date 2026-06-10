@@ -121,8 +121,10 @@ SQL_FILES=(
 for FILE in "${SQL_FILES[@]}"; do
     SQL_PATH="$MIGRATIONS_DIR/$FILE"
     if [[ -f "$SQL_PATH" ]]; then
-        echo "      Running: $FILE"
-        PGPASSWORD="$DB_PASS" psql -h localhost -U "$DB_USER" -d "$DB_NAME" -f "$SQL_PATH"
+        echo "      Running (as postgres superuser): $FILE"
+        # CREATE ROLE / RLS policies / seed INSERTs need superuser + RLS bypass.
+        # Run as postgres, NOT as the limited app login role.
+        sudo -u postgres psql -d "$DB_NAME" -v ON_ERROR_STOP=1 -f "$SQL_PATH"
         echo "      ✓ $FILE done"
     else
         echo "      ⚠️  Skipping (not found): $FILE"
@@ -161,7 +163,7 @@ EXPECTED_TABLES=(
 
 ALL_OK=true
 for TABLE in "${EXPECTED_TABLES[@]}"; do
-    EXISTS=$(PGPASSWORD="$DB_PASS" psql -h localhost -U "$DB_USER" -d "$DB_NAME" -tc \
+    EXISTS=$(sudo -u postgres psql -d "$DB_NAME" -tc \
         "SELECT to_regclass('public.$TABLE');" | tr -d '[:space:]')
     if [[ "$EXISTS" == "$TABLE" ]]; then
         echo "      ✓ $TABLE"
