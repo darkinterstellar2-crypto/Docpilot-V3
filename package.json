@@ -5,10 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
-    "migrate": "node scripts/migrate-flat-to-pg.js",
-    "migrate:dry": "node scripts/migrate-flat-to-pg.js --dry-run",
-    "setup-db": "bash scripts/setup-postgres.sh"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -33,7 +30,6 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^8.0.3",
-    "pg": "^8.21.0",
     "webdav": "^5.9.0",
     "xlsx": "^0.18.5"
   }

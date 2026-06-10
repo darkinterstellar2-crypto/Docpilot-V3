@@ -1,45 +1,35 @@
-// PostgreSQL migration: 2026-06-10
-// Changed from flat file I/O to PostgreSQL queries via controllers/db.js
+const fs = require('fs').promises;
+const path = require('path');
 
-const db = require('./db');
+const LOGS_FILE = path.join(__dirname, '..', 'src', 'DataFiles', 'logs.json');
 
-// Tenant ID — single Geggos tenant for now
-const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
-
-/**
- * Log a user action to the action_logs table.
- * Async — awaitable by callers.
- */
-async function logAction(userEmail, action, details) {
+async function getLogs() {
     try {
-        await db.query(
-            `INSERT INTO action_logs (tenant_id, user_email, action, details, timestamp)
-             VALUES ($1, $2, $3, $4, NOW())`,
-            [TENANT_ID, userEmail || 'System', action || '', details || '']
-        );
-    } catch (error) {
-        console.error('[logger] Failed to write action log:', error.message);
+        const data = await fs.readFile(LOGS_FILE, 'utf-8');
+        return JSON.parse(data);
+    } catch (e) {
+        return [];
     }
 }
 
-/**
- * Fetch recent action logs (newest first).
- * @param {number} limit - max entries (default 1000)
- */
-async function getLogs(limit = 1000) {
+async function logAction(userEmail, action, details) {
     try {
-        const result = await db.query(
-            `SELECT id, timestamp, user_email AS "user", action, details
-             FROM action_logs
-             WHERE tenant_id = $1
-             ORDER BY timestamp DESC
-             LIMIT $2`,
-            [TENANT_ID, limit]
-        );
-        return result.rows;
+        const logs = await getLogs();
+        const newLog = {
+            id: Date.now().toString(),
+            timestamp: new Date().toISOString(),
+            user: userEmail || 'System',
+            action: action,
+            details: details
+        };
+        logs.unshift(newLog); // Add to beginning
+        
+        // Keep only last 1000 logs
+        if (logs.length > 1000) logs.pop();
+
+        await fs.writeFile(LOGS_FILE, JSON.stringify(logs, null, 2));
     } catch (error) {
-        console.error('[logger] Failed to read logs:', error.message);
-        return [];
+        console.error('Failed to write log:', error);
     }
 }
 

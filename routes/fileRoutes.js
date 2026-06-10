@@ -1,5 +1,3 @@
-// PostgreSQL migration: 2026-06-10
-// Changed from flat file I/O to PostgreSQL queries via controllers/db.js
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
@@ -7,32 +5,8 @@ const fsAsync = require('fs').promises;
 const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
-// PostgreSQL migration: 2026-06-10
-// Changed from flat file I/O to PostgreSQL queries via controllers/db.js
-// - Trash: .manifest.json → file_trash table
-// - Shares: shares.json → file_shares table
-// - File metadata: .filemeta.json → module_files table (via controllers/fileMeta.js)
-// - File listing/uploads/downloads: KEEP on filesystem (unchanged)
 const { logAction } = require('../controllers/logger');
 const { superLog } = require('../controllers/superLogger');
-const db = require('../controllers/db');
-
-const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
-
-// Helper: resolve project UUID from name
-async function getProjectId(projectName) {
-    if (!projectName) return null;
-    try {
-        const r = await db.query(
-            'SELECT id FROM projects WHERE tenant_id = $1 AND LOWER(name) = LOWER($2)',
-            [TENANT_ID, projectName]
-        );
-        return r.rows[0]?.id || null;
-    } catch (e) {
-        console.error('[fileRoutes] getProjectId error:', e.message);
-        return null;
-    }
-}
 
 // Centralized path resolution — single source of truth
 const { STORAGE_ROOT, getProjectRoot } = require('../controllers/storageConfig');
@@ -65,89 +39,76 @@ function safePath(projectName, subPath) {
     return resolved;
 }
 
-// ─── Trash helpers (PostgreSQL) ──────────────────────────────────────────────
+// ─── Trash helpers ────────────────────────────────────────────────────────────
 
 function getTrashDir(projectName) {
     return path.join(getProjectRoot(projectName), '.trash');
 }
 
+function getManifestPath(projectName) {
+    return path.join(getTrashDir(projectName), '.manifest.json');
+}
+
+async function readManifest(projectName) {
+    try {
+        const raw = await fsAsync.readFile(getManifestPath(projectName), 'utf8');
+        return JSON.parse(raw);
+    } catch (_) {
+        return { items: [] };
+    }
+}
+
+async function writeManifest(projectName, manifest) {
+    const trashDir = getTrashDir(projectName);
+    await fsAsync.mkdir(trashDir, { recursive: true });
+    await fsAsync.writeFile(getManifestPath(projectName), JSON.stringify(manifest, null, 2), 'utf8');
+}
+
 /**
- * Read trash items for a project from file_trash table.
- * Also physically removes items past their expiry date.
+ * Remove expired items from trash (older than 30 days).
+ * Runs silently — errors logged, not thrown.
  */
-async function readTrashItems(projectName) {
-    const projectId = await getProjectId(projectName);
-    if (!projectId) return [];
-    try {
-        // Clean expired first
-        const expiredResult = await db.query(
-            `SELECT id, trash_name, is_dir FROM file_trash
-             WHERE tenant_id = $1 AND project_id = $2 AND expires_at <= NOW()`,
-            [TENANT_ID, projectId]
-        );
-        for (const item of expiredResult.rows) {
-            const trashPath = path.join(getTrashDir(projectName), item.trash_name);
-            try {
-                const stat = await fsAsync.stat(trashPath);
-                if (stat.isDirectory()) {
-                    await fsAsync.rm(trashPath, { recursive: true, force: true });
-                } else {
-                    await fsAsync.unlink(trashPath);
-                }
-            } catch (_) {}
-        }
-        if (expiredResult.rows.length > 0) {
-            await db.query(
-                `DELETE FROM file_trash WHERE tenant_id = $1 AND project_id = $2 AND expires_at <= NOW()`,
-                [TENANT_ID, projectId]
-            );
-        }
-
-        // Fetch remaining
-        const r = await db.query(
-            `SELECT id, original_name AS "originalName", original_path AS "originalPath",
-                    trash_name AS "trashName", deleted_by AS "deletedBy",
-                    deleted_at AS "deletedAt", is_dir AS "isDir", expires_at AS "expiresAt"
-             FROM file_trash
-             WHERE tenant_id = $1 AND project_id = $2
-             ORDER BY deleted_at DESC`,
-            [TENANT_ID, projectId]
-        );
-        return r.rows;
-    } catch (e) {
-        console.error('[fileRoutes] readTrashItems error:', e.message);
-        return [];
-    }
-}
-
-async function addTrashItem(projectName, { id, originalName, originalPath, trashName, deletedBy, isDir, expiresAt }) {
-    const projectId = await getProjectId(projectName);
-    if (!projectId) return;
-    try {
-        await db.query(
-            `INSERT INTO file_trash (id, tenant_id, project_id, original_name, original_path, trash_name, deleted_by, deleted_at, expires_at, is_dir)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9)
-             ON CONFLICT (id) DO NOTHING`,
-            [id, TENANT_ID, projectId, originalName, originalPath || '', trashName, deletedBy || 'Unknown', expiresAt, isDir || false]
-        );
-    } catch (e) {
-        console.error('[fileRoutes] addTrashItem error:', e.message);
-    }
-}
-
-async function removeTrashItem(projectName, itemId) {
-    const projectId = await getProjectId(projectName);
-    if (!projectId) return;
-    await db.query(
-        'DELETE FROM file_trash WHERE tenant_id = $1 AND project_id = $2 AND id = $3',
-        [TENANT_ID, projectId, itemId]
-    );
-}
-
 async function cleanExpiredTrash(projectName) {
-    // Reads items and cleans expired — covered by readTrashItems
-    await readTrashItems(projectName).catch(() => {});
+    try {
+        const manifest = await readManifest(projectName);
+        const now = new Date();
+        const remaining = [];
+        for (const item of manifest.items) {
+            if (new Date(item.expiresAt) <= now) {
+                // Permanently delete
+                const trashPath = path.join(getTrashDir(projectName), item.trashName);
+                try {
+                    const stat = await fsAsync.stat(trashPath);
+                    if (stat.isDirectory()) {
+                        await fsAsync.rm(trashPath, { recursive: true, force: true });
+                    } else {
+                        await fsAsync.unlink(trashPath);
+                    }
+                } catch (_) {} // already gone
+            } else {
+                remaining.push(item);
+            }
+        }
+        manifest.items = remaining;
+        await writeManifest(projectName, manifest);
+    } catch (e) {
+        console.error('cleanExpiredTrash error:', e.message);
+    }
 }
+
+// Run cleanup on startup for all existing projects in STORAGE_ROOT
+(async () => {
+    try {
+        const entries = await fsAsync.readdir(STORAGE_ROOT, { withFileTypes: true });
+        for (const entry of entries) {
+            if (entry.isDirectory()) {
+                await cleanExpiredTrash(entry.name);
+            }
+        }
+    } catch (_) {
+        // STORAGE_ROOT may not exist yet on first run — that's fine
+    }
+})();
 
 // ─── Multer ───────────────────────────────────────────────────────────────────
 
@@ -176,9 +137,10 @@ const upload = multer({
 router.get('/trash', async (req, res) => {
     const { project } = req.query;
     if (!project) return res.status(400).json({ success: false, message: 'Missing project parameter.' });
+    await cleanExpiredTrash(project);
     try {
-        const items = await readTrashItems(project);
-        res.json({ success: true, items });
+        const manifest = await readManifest(project);
+        res.json({ success: true, items: manifest.items });
     } catch (e) {
         res.status(500).json({ success: false, message: 'Could not read trash: ' + e.message });
     }
@@ -194,10 +156,11 @@ router.post('/trash/restore', async (req, res) => {
     if (!await canEditFiles(req, project)) return res.status(403).json({ success: false, message: 'Access denied: edit permission required to restore files.' });
 
     try {
-        const items = await readTrashItems(project);
-        const item = items.find(i => i.id === id);
-        if (!item) return res.status(404).json({ success: false, message: 'Item not found in trash.' });
+        const manifest = await readManifest(project);
+        const idx = manifest.items.findIndex(i => i.id === id);
+        if (idx === -1) return res.status(404).json({ success: false, message: 'Item not found in trash.' });
 
+        const item = manifest.items[idx];
         const trashPath = path.join(getTrashDir(project), item.trashName);
         const restorePath = safePath(project, path.join(item.originalPath || '', item.originalName));
         if (!restorePath) return res.status(400).json({ success: false, message: 'Invalid restore path.' });
@@ -206,7 +169,8 @@ router.post('/trash/restore', async (req, res) => {
         await fsAsync.mkdir(path.dirname(restorePath), { recursive: true });
         await fsAsync.rename(trashPath, restorePath);
 
-        await removeTrashItem(project, id);
+        manifest.items.splice(idx, 1);
+        await writeManifest(project, manifest);
 
         const userEmail = req.headers['x-user-email'] || 'Unknown';
         await logAction(userEmail, 'Restored from Trash', `Restored "${item.originalName}" to ${project}/${item.originalPath || ''}`);
@@ -234,10 +198,11 @@ router.delete('/trash/purge', async (req, res) => {
     if (!await canEditFiles(req, project)) return res.status(403).json({ success: false, message: 'Access denied: edit permission required to purge files.' });
 
     try {
-        const items = await readTrashItems(project);
-        const item = items.find(i => i.id === id);
-        if (!item) return res.status(404).json({ success: false, message: 'Item not found in trash.' });
+        const manifest = await readManifest(project);
+        const idx = manifest.items.findIndex(i => i.id === id);
+        if (idx === -1) return res.status(404).json({ success: false, message: 'Item not found in trash.' });
 
+        const item = manifest.items[idx];
         const trashPath = path.join(getTrashDir(project), item.trashName);
         try {
             const stat = await fsAsync.stat(trashPath);
@@ -248,7 +213,8 @@ router.delete('/trash/purge', async (req, res) => {
             }
         } catch (_) {} // already gone
 
-        await removeTrashItem(project, id);
+        manifest.items.splice(idx, 1);
+        await writeManifest(project, manifest);
 
         const userEmail = req.headers['x-user-email'] || 'Unknown';
         await logAction(userEmail, 'Purged from Trash', `Permanently deleted "${item.originalName}" from ${project}`);
@@ -537,19 +503,22 @@ router.delete('/', async (req, res) => {
         // Move to trash
         await fsAsync.rename(targetPath, trashItemPath);
 
-        // Record in DB
+        // Update manifest
+        const manifest = await readManifest(project);
         const now = new Date();
         const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
         const userEmail = req.headers['x-user-email'] || 'Unknown';
-        await addTrashItem(project, {
+        manifest.items.push({
             id: timestamp,
             originalName: file,
             originalPath: subPath || '',
             trashName: flatPath,
             deletedBy: userEmail,
+            deletedAt: now.toISOString(),
             isDir,
             expiresAt: expiresAt.toISOString()
         });
+        await writeManifest(project, manifest);
 
         await logAction(userEmail, 'Moved to Trash', `Moved "${file}" from ${project}/${subPath || ''} to recycle bin`);
         superLog('file', 'info', `Delete: ${file} from ${project}/${subPath || ''} by ${userEmail}`, {
@@ -948,30 +917,48 @@ router.get('/download-folder', async (req, res) => {
     });
 });
 
-// ─── Share Link System (PostgreSQL) ─────────────────────────────────────────
+// ─── Share Link System ────────────────────────────────────────────────────────
 
-/** Get one share record from DB by shareId. Returns null if not found. */
-async function getShareById(shareId) {
+const SHARES_FILE = path.join(__dirname, '..', 'src', 'DataFiles', 'shares.json');
+
+/**
+ * Read shares.json, creating it if missing.
+ */
+async function readShares() {
     try {
-        const r = await db.query(
-            `SELECT fs.id AS "shareId", p.name AS project, fs.file_path AS "filePath",
-                    fs.file_name AS "fileName", fs.type,
-                    fs.created_by AS "createdBy", fs.created_at AS "createdAt",
-                    fs.expires_at AS "expiresAt", fs.access_count AS "accessCount"
-             FROM file_shares fs
-             JOIN projects p ON p.id = fs.project_id
-             WHERE fs.id = $1`,
-            [shareId]
-        );
-        if (!r.rows[0]) return null;
-        const row = r.rows[0];
-        // neverExpires is inferred: expires_at set to year 9999 means never
-        row.neverExpires = new Date(row.expiresAt) > new Date('9998-01-01');
-        return row;
-    } catch (e) {
-        console.error('[fileRoutes] getShareById error:', e.message);
-        return null;
+        const raw = await fsAsync.readFile(SHARES_FILE, 'utf8');
+        return JSON.parse(raw);
+    } catch (_) {
+        return { shares: {} };
     }
+}
+
+/**
+ * Write shares.json atomically.
+ */
+async function writeShares(data) {
+    await fsAsync.mkdir(path.dirname(SHARES_FILE), { recursive: true });
+    await fsAsync.writeFile(SHARES_FILE, JSON.stringify(data, null, 2), 'utf8');
+}
+
+/**
+ * Lazily remove expired entries from shares.json.
+ * Returns the cleaned data object.
+ */
+async function cleanExpiredShares() {
+    const data = await readShares();
+    const now = new Date();
+    let dirty = false;
+    for (const [id, share] of Object.entries(data.shares)) {
+        // Never-expires shares are never cleaned up automatically
+        if (share.neverExpires) continue;
+        if (new Date(share.expiresAt) <= now) {
+            delete data.shares[id];
+            dirty = true;
+        }
+    }
+    if (dirty) await writeShares(data);
+    return data;
 }
 
 // POST /api/files/share?project=X  — create a share link (canEdit or superadmin)
@@ -981,10 +968,12 @@ router.post('/share', async (req, res) => {
     if (!project || !filePath) return res.status(400).json({ success: false, message: 'Missing project or filePath.' });
     if (!await canEditFiles(req, project)) return res.status(403).json({ success: false, message: 'Access denied: edit permission required to create share links.' });
 
+    // Validate expiry: 0 = never, otherwise clamp 1–8760 hours (1 yr max)
     const expiresInRaw = parseInt(expiresIn);
     const neverExpires = expiresInRaw === 0;
     const expiresInHours = neverExpires ? 0 : Math.min(Math.max(expiresInRaw || 168, 1), 8760);
 
+    // Validate file/folder exists
     const absPath = safePath(project, filePath);
     if (!absPath) return res.status(400).json({ success: false, message: 'Invalid file path.' });
     let shareType = 'file';
@@ -995,35 +984,41 @@ router.post('/share', async (req, res) => {
         return res.status(404).json({ success: false, message: 'File not found.' });
     }
 
+    // Generate cryptographically secure 12-char token
     const shareId = crypto.randomBytes(9).toString('base64url');
     const now = new Date();
+    // For "never expires", set expiresAt to year 9999 and flag neverExpires
     const expiresAt = neverExpires
         ? new Date('9999-12-31T23:59:59.999Z')
         : new Date(now.getTime() + expiresInHours * 60 * 60 * 1000);
     const userEmail = req.headers['x-user-email'] || 'Unknown';
     const fileName = path.basename(filePath);
 
-    try {
-        const projectId = await getProjectId(project);
-        if (!projectId) return res.status(404).json({ success: false, message: 'Project not found.' });
+    const data = await cleanExpiredShares();
+    data.shares[shareId] = {
+        project,
+        filePath,
+        fileName,
+        type: shareType,
+        createdBy: userEmail,
+        createdAt: now.toISOString(),
+        expiresAt: expiresAt.toISOString(),
+        neverExpires: neverExpires || false,
+        accessCount: 0
+    };
+    await writeShares(data);
+    await logAction(userEmail, 'Share Created', `Shared ${shareType} "${filePath}" in ${project} — token: ${shareId} (${neverExpires ? 'never expires' : 'expires ' + expiresAt.toISOString()})`);
+    superLog('file', 'info', `Share: "${filePath}" (${shareType}) in ${project} by ${userEmail} (${neverExpires ? 'never expires' : 'expires ' + expiresAt.toISOString()})`, {
+        userEmail, project, filePath, shareType, shareId, expiresAt: expiresAt.toISOString(), neverExpires
+    });
 
-        await db.query(
-            `INSERT INTO file_shares (id, tenant_id, project_id, file_path, file_name, type,
-                                      created_by, expires_at, access_count)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 0)`,
-            [shareId, TENANT_ID, projectId, filePath, fileName, shareType, userEmail, expiresAt.toISOString()]
-        );
-
-        await logAction(userEmail, 'Share Created', `Shared ${shareType} "${filePath}" in ${project} — token: ${shareId}`);
-        superLog('file', 'info', `Share: "${filePath}" (${shareType}) in ${project} by ${userEmail}`, {
-            userEmail, project, filePath, shareType, shareId, expiresAt: expiresAt.toISOString(), neverExpires
-        });
-
-        res.json({ success: true, shareId, shareUrl: `/share/${shareId}`, shareType, expiresAt: expiresAt.toISOString() });
-    } catch (e) {
-        console.error('[fileRoutes] share create error:', e.message);
-        res.status(500).json({ success: false, message: 'Could not create share link.' });
-    }
+    res.json({
+        success: true,
+        shareId,
+        shareUrl: `/share/${shareId}`,
+        shareType,
+        expiresAt: expiresAt.toISOString()
+    });
 });
 
 // GET /api/files/shares?project=X&filePath=Y  — list active shares for a file
@@ -1031,6 +1026,7 @@ router.get('/shares', async (req, res) => {
     const { project, filePath } = req.query;
     if (!project || !filePath) return res.status(400).json({ success: false, message: 'Missing project or filePath.' });
 
+    // ACL enforcement
     const shareEmail = req.headers['x-user-email'] || '';
     const shareRole  = (req.headers['x-user-role'] || '').toLowerCase();
     if (shareRole !== 'superadmin') {
@@ -1040,23 +1036,23 @@ router.get('/shares', async (req, res) => {
         if (!editOk) return res.status(403).json({ success: false, message: 'Access denied.' });
     }
 
-    try {
-        const projectId = await getProjectId(project);
-        if (!projectId) return res.json({ success: true, shares: [] });
-
-        const r = await db.query(
-            `SELECT id AS "shareId", created_by AS "createdBy", created_at AS "createdAt",
-                    expires_at AS "expiresAt", access_count AS "accessCount"
-             FROM file_shares
-             WHERE tenant_id = $1 AND project_id = $2 AND file_path = $3
-               AND expires_at > NOW()`,
-            [TENANT_ID, projectId, filePath]
-        );
-        res.json({ success: true, shares: r.rows });
-    } catch (e) {
-        console.error('[fileRoutes] shares list error:', e.message);
-        res.status(500).json({ success: false, message: 'Could not list shares.' });
+    const data = await cleanExpiredShares();
+    const now = new Date();
+    const result = [];
+    for (const [shareId, share] of Object.entries(data.shares)) {
+        if (share.project === project && share.filePath === filePath) {
+            if (new Date(share.expiresAt) > now) {
+                result.push({
+                    shareId,
+                    createdBy: share.createdBy,
+                    createdAt: share.createdAt,
+                    expiresAt: share.expiresAt,
+                    accessCount: share.accessCount
+                });
+            }
+        }
     }
+    res.json({ success: true, shares: result });
 });
 
 // DELETE /api/files/share?project=X  — revoke a share link (canEdit or superadmin)
@@ -1066,19 +1062,16 @@ router.delete('/share', async (req, res) => {
     if (!project || !shareId) return res.status(400).json({ success: false, message: 'Missing project or shareId.' });
     if (!await canEditFiles(req, project)) return res.status(403).json({ success: false, message: 'Access denied: edit permission required to revoke share links.' });
 
-    try {
-        const share = await getShareById(shareId);
-        if (!share) return res.status(404).json({ success: false, message: 'Share not found.' });
+    const data = await readShares();
+    if (!data.shares[shareId]) return res.status(404).json({ success: false, message: 'Share not found.' });
 
-        await db.query('DELETE FROM file_shares WHERE id = $1', [shareId]);
+    const userEmail = req.headers['x-user-email'] || 'Unknown';
+    const share = data.shares[shareId];
+    delete data.shares[shareId];
+    await writeShares(data);
+    await logAction(userEmail, 'Share Revoked', `Revoked share ${shareId} for "${share.filePath}" in ${project}`);
 
-        const userEmail = req.headers['x-user-email'] || 'Unknown';
-        await logAction(userEmail, 'Share Revoked', `Revoked share ${shareId} for "${share.filePath}" in ${project}`);
-        res.json({ success: true });
-    } catch (e) {
-        console.error('[fileRoutes] share delete error:', e.message);
-        res.status(500).json({ success: false, message: 'Could not revoke share.' });
-    }
+    res.json({ success: true });
 });
 
 /**
@@ -1088,7 +1081,11 @@ router.delete('/share', async (req, res) => {
 async function serveShare(req, res) {
     const { shareId } = req.params;
 
-    const share = await getShareById(shareId);
+    // Read raw (without cleanup) so we can distinguish "never existed / revoked"
+    // (404) from "existed but expired" (410).  If we ran cleanExpiredShares()
+    // first, expired entries would already be deleted and we'd always return 404.
+    const data = await readShares();
+    const share = data.shares[shareId];
 
     if (!share) {
         return res.status(404).send(`<!DOCTYPE html><html><head><title>Not Found</title>
@@ -1099,7 +1096,8 @@ h1{font-size:2rem;color:#1e293b;margin-bottom:.5rem;}p{color:#64748b;margin:0;}<
     }
 
     if (!share.neverExpires && new Date(share.expiresAt) <= new Date()) {
-        // Expired share — cleanup handled automatically by DB queries
+        // Fire-and-forget cleanup so the expired entry is pruned eventually
+        cleanExpiredShares().catch(() => {});
         return res.status(410).send(`<!DOCTYPE html><html><head><title>Link Expired</title>
 <style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#f8fafc;}
 .box{text-align:center;padding:2rem;background:#fff;border-radius:1rem;box-shadow:0 4px 24px rgba(0,0,0,.08);max-width:400px;width:90%;}
@@ -1140,9 +1138,9 @@ h1{font-size:2rem;color:#1e293b;margin-bottom:.5rem;}p{color:#64748b;margin:0;}<
         return res.status(404).send('File not found (may have been moved or deleted).');
     }
 
-    // Increment access count (fire-and-forget) and serve download
-    db.query('UPDATE file_shares SET access_count = access_count + 1 WHERE id = $1', [shareId])
-        .catch(e => console.error('[fileRoutes] share access count error:', e.message));
+    // Increment access count and serve download
+    share.accessCount = (share.accessCount || 0) + 1;
+    await writeShares(data);
 
     res.download(absPath, share.fileName, (err) => {
         if (err && !res.headersSent) {
@@ -1361,12 +1359,14 @@ function escapeHtml(str) {
  */
 async function resolveShareFolder(req, res) {
     const { shareId } = req.params;
-    const share = await getShareById(shareId);
+    const data = await readShares();
+    const share = data.shares[shareId];
     if (!share) {
         res.status(404).json({ success: false, message: 'Share not found.' });
         return null;
     }
     if (!share.neverExpires && new Date(share.expiresAt) <= new Date()) {
+        cleanExpiredShares().catch(() => {});
         res.status(410).json({ success: false, message: 'Share link has expired.' });
         return null;
     }
@@ -1380,7 +1380,7 @@ async function resolveShareFolder(req, res) {
         res.status(400).json({ success: false, message: 'Invalid share path.' });
         return null;
     }
-    return { share, absRoot };
+    return { share, data, absRoot };
 }
 
 /**
@@ -1463,7 +1463,7 @@ async function serveShareBrowse(req, res) {
 async function serveShareDownload(req, res) {
     const ctx = await resolveShareFolder(req, res);
     if (!ctx) return;
-    const { share, absRoot } = ctx;
+    const { share, data, absRoot } = ctx;
 
     const filePath = (req.query.file || '').replace(/\\/g, '/').replace(/^\/+/, '');
     if (!filePath) {
@@ -1493,10 +1493,9 @@ async function serveShareDownload(req, res) {
         return res.status(404).json({ success: false, message: 'File not found.' });
     }
 
-    // Increment access count (fire-and-forget)
-    const shareId = req.params.shareId;
-    db.query('UPDATE file_shares SET access_count = access_count + 1 WHERE id = $1', [shareId])
-        .catch(e => console.error('[fileRoutes] share folder access count error:', e.message));
+    // Increment access count
+    share.accessCount = (share.accessCount || 0) + 1;
+    await writeShares(data);
 
     const fileName = path.basename(absFile);
     res.download(absFile, fileName, (err) => {

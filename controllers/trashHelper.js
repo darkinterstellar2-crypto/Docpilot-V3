@@ -1,39 +1,20 @@
-// PostgreSQL migration: 2026-06-10
-// Changed from .manifest.json flat file to PostgreSQL file_trash table.
-// Physical file operations (fs.rename to .trash dir) are preserved.
-// DB stores the manifest record alongside the physical file.
-
+/**
+ * Shared trash helper — used by file routes and auto-sync logic.
+ * Moves an item to the project's .trash folder and updates the manifest.
+ */
 const fs = require('fs').promises;
 const path = require('path');
-const db = require('./db');
-const { getProjectRoot } = require('./storageConfig');
-
-const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
-
-/** Resolve project UUID from name. Returns null if not found. */
-async function getProjectId(projectName) {
-    if (!projectName) return null;
-    try {
-        const r = await db.query(
-            'SELECT id FROM projects WHERE tenant_id = $1 AND LOWER(name) = LOWER($2)',
-            [TENANT_ID, projectName]
-        );
-        return r.rows[0]?.id || null;
-    } catch (e) {
-        console.error('[trashHelper] getProjectId error:', e.message);
-        return null;
-    }
-}
+const { getProjectRoot } = require('./fileMeta');
 
 /**
- * Move an absolute path into the project's .trash directory
- * and record it in the file_trash table (30-day expiry).
+ * Move an absolute path into the project's .trash directory.
+ * Creates a manifest entry with 30-day expiry (same as fileRoutes.js).
  *
  * @param {string} projectName
- * @param {string} itemAbsPath    - absolute path of file/dir to move
- * @param {string} itemName       - display name (basename)
- * @param {string} itemParentRelPath - relative path of parent inside project (for restore)
- * @param {string} deletedBy      - actor label (email or 'System')
+ * @param {string} itemAbsPath - absolute path of file/dir to move
+ * @param {string} itemName - display name (basename)
+ * @param {string} itemParentRelPath - relative path of parent inside project (for restore info)
+ * @param {string} deletedBy - actor label (email or 'System')
  */
 async function moveToTrash(projectName, itemAbsPath, itemName, itemParentRelPath, deletedBy) {
     const projectRoot = getProjectRoot(projectName);
@@ -44,36 +25,31 @@ async function moveToTrash(projectName, itemAbsPath, itemName, itemParentRelPath
     const trashName = `${itemName}_${timestamp}`;
     const trashItemPath = path.join(trashDir, trashName);
 
-    // Move the physical item
+    // Move the item
     await fs.rename(itemAbsPath, trashItemPath);
 
-    // Insert manifest record into DB
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+    // Update manifest
+    const manifestPath = path.join(trashDir, '.manifest.json');
+    let manifest = { items: [] };
+    try {
+        const raw = await fs.readFile(manifestPath, 'utf8');
+        manifest = JSON.parse(raw);
+    } catch (_) {}
 
-    const projectId = await getProjectId(projectName);
-    if (projectId) {
-        try {
-            await db.query(
-                `INSERT INTO file_trash
-                    (id, tenant_id, project_id, original_name, original_path,
-                     trash_name, deleted_by, deleted_at, expires_at, is_dir)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9)
-                 ON CONFLICT (id) DO NOTHING`,
-                [
-                    timestamp, TENANT_ID, projectId,
-                    itemName,
-                    itemParentRelPath || '',
-                    trashName,
-                    deletedBy || 'System',
-                    expiresAt.toISOString(),
-                    true
-                ]
-            );
-        } catch (e) {
-            console.error('[trashHelper] DB insert error:', e.message);
-        }
-    }
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // +30 days
+    manifest.items.push({
+        id: timestamp,
+        originalName: itemName,
+        originalPath: itemParentRelPath || '',
+        trashName,
+        deletedBy: deletedBy || 'System',
+        deletedAt: now.toISOString(),
+        isDir: true,
+        expiresAt: expiresAt.toISOString()
+    });
+
+    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2), 'utf8');
 }
 
 module.exports = { moveToTrash };

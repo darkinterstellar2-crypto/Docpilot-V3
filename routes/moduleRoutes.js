@@ -1,4 +1,3 @@
-// PostgreSQL migration: 2026-06-10
 const express = require('express');
 const router = express.Router();
 const fs = require('fs').promises;
@@ -16,166 +15,6 @@ const { syncFile } = require('../controllers/nasSync');
 
 // ACL Engine
 const { canAccessProject, canAccessModule, canEditProject } = require('../controllers/accessControl');
-
-const db = require('../controllers/db');
-const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
-
-// ─── PostgreSQL helpers ────────────────────────────────────────────────────
-
-async function getProjectId(projectName) {
-    if (!projectName) return null;
-    try {
-        const r = await db.query(
-            'SELECT id FROM projects WHERE tenant_id = $1 AND LOWER(name) = LOWER($2)',
-            [TENANT_ID, projectName]
-        );
-        return r.rows[0]?.id || null;
-    } catch (e) {
-        console.error('[moduleRoutes] getProjectId error:', e.message);
-        return null;
-    }
-}
-
-/**
- * Get the active aufmass schema for a project.
- * Returns { schemaId, E1, E2_0 } or null if not found.
- */
-async function getProjectSchema(projectId) {
-    try {
-        const r = await db.query(
-            `SELECT id AS "schemaId", e1_json AS "E1", e2_0_json AS "E2_0"
-             FROM aufmass_schemas
-             WHERE project_id = $1 AND is_active = true
-             LIMIT 1`,
-            [projectId]
-        );
-        return r.rows[0] || null;
-    } catch (e) {
-        console.error('[moduleRoutes] getProjectSchema error:', e.message);
-        return null;
-    }
-}
-
-/**
- * Reconstruct array-of-arrays row format from JSONB data + schema E2_0.
- * Matches V2 .txt file row structure: row[groupIdx][colIdx]
- */
-function dataToRow(data, E2_0) {
-    return (E2_0 || []).map((cols, gIdx) =>
-        (cols || []).map((_, cIdx) => {
-            const val = data[`col-${gIdx}-${cIdx}`];
-            return val !== undefined ? val : '';
-        })
-    );
-}
-
-/**
- * Convert array-of-arrays row to flat JSONB data object.
- */
-function rowToData(row) {
-    const data = {};
-    (row || []).forEach((grp, gIdx) => {
-        (grp || []).forEach((val, cIdx) => {
-            if (val !== undefined && val !== null) {
-                data[`col-${gIdx}-${cIdx}`] = val;
-            }
-        });
-    });
-    return data;
-}
-
-/**
- * Extract promoted column values from a row (array-of-arrays).
- * Returns { cluster, knotenpunkt, row_date, ein_status, kal_status, dru_status, apl_status, kp_status, otdr_status }
- */
-function extractPromoted(row, E1, E2_0) {
-    function findCol(labelFn) {
-        for (let i = 0; i < (E2_0 || []).length; i++) {
-            for (let j = 0; j < (E2_0[i] || []).length; j++) {
-                const l = typeof E2_0[i][j] === 'string' ? E2_0[i][j].toLowerCase() : '';
-                if (labelFn(l)) return { gIdx: i, cIdx: j };
-            }
-        }
-        return null;
-    }
-    function findColInGroup(grpLabel, colLabelFn) {
-        for (let i = 0; i < (E1 || []).length; i++) {
-            const g = typeof E1[i] === 'string' ? E1[i].toLowerCase() : '';
-            if (!g.includes(grpLabel)) continue;
-            for (let j = 0; j < (E2_0[i] || []).length; j++) {
-                const l = typeof E2_0[i][j] === 'string' ? E2_0[i][j].toLowerCase() : '';
-                if (colLabelFn(l)) return { gIdx: i, cIdx: j };
-            }
-        }
-        return null;
-    }
-    const get = (pos) => pos ? (String(row[pos.gIdx]?.[pos.cIdx] || '') || null) : null;
-
-    return {
-        cluster:     get(findCol(l => l === 'cluster')),
-        knotenpunkt: get(findCol(l => l === 'knotenpunkt' || l === 'nvt')),
-        row_date:    get(findCol(l => l === 'date')),
-        ein_status:  get(findColInGroup('einblasen', l => l === 'status')),
-        kal_status:  get(findColInGroup('kalibrieren', l => l === 'status')),
-        dru_status:  get(findColInGroup('druckpr', l => l === 'status')),
-        apl_status:  get(findCol(l => l === 'apl status')),
-        kp_status:   get(findCol(l => l === 'knotenpunkt status')),
-        otdr_status: get(findColInGroup('otdr', l => l.includes('status'))),
-    };
-}
-
-/**
- * Extract appointment entries from a set of DB rows (array of {row_key, data}).
- * Returns flat appointments array. projectName is null for single-project queries.
- */
-function extractAppointments(dbRows, E1, E2_0, groupToModuleFn, projectName) {
-    const clusterPos   = findColByLabel(E2_0, l => l === 'cluster');
-    const knotenPos    = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');
-    const addrStartPos = findColByLabel(E2_0, l => l === 'address start');
-    const addrEndPos   = findColByLabel(E2_0, l => l === 'address end');
-
-    const terminCols = [];
-    (E1 || []).forEach((groupLabel, gi) => {
-        const groupName = typeof groupLabel === 'string' ? groupLabel : String(groupLabel || '');
-        const cols = E2_0[gi] || [];
-        cols.forEach((colLabel, ci) => {
-            const label = typeof colLabel === 'string' ? colLabel.toLowerCase() : '';
-            if (label.includes('termin')) {
-                terminCols.push({
-                    grpIdx: gi, colIdx: ci, colId: `col-${gi}-${ci}`,
-                    groupName, module: groupToModuleFn(groupName)
-                });
-            }
-        });
-    });
-
-    const appointments = [];
-    for (const dbRow of dbRows) {
-        const data = dbRow.data || {};
-        const row = dataToRow(data, E2_0);
-        const rowId = dbRow.row_key;
-        const cluster      = clusterPos   ? String(row[clusterPos.grpIdx]?.[clusterPos.colIdx]     || '').trim() : '';
-        const knotenpunkt  = knotenPos    ? String(row[knotenPos.grpIdx]?.[knotenPos.colIdx]       || '').trim() : '';
-        const addressStart = addrStartPos ? String(row[addrStartPos.grpIdx]?.[addrStartPos.colIdx] || '').trim() : '';
-        const addressEnd   = addrEndPos   ? String(row[addrEndPos.grpIdx]?.[addrEndPos.colIdx]     || '').trim() : '';
-
-        terminCols.forEach(tc => {
-            const rawVal = data[tc.colId];
-            if (!rawVal) return;
-            let parsed;
-            try { parsed = JSON.parse(rawVal); } catch { return; }
-            if (!parsed || !parsed.date) return;
-            const entry = {
-                rowId, module: tc.module, date: parsed.date,
-                time: parsed.time || '', notes: parsed.notes || '',
-                cluster, knotenpunkt, addressStart, addressEnd, terminColId: tc.colId
-            };
-            if (projectName) entry.project = projectName;
-            appointments.push(entry);
-        });
-    }
-    return appointments;
-}
 
 // ─── Data file path resolution ─────────────────────────────────────────────────
 
@@ -284,21 +123,9 @@ router.get('/navigation', async (req, res) => {
     }
 
     try {
-        const projectId = await getProjectId(project);
-        if (!projectId) return res.status(404).json({ success: false, message: 'Project not found.' });
+        const { E1, E2_0, dataRows } = await parseDataFile(project);
 
-        const schemaDef = await getProjectSchema(projectId);
-        if (!schemaDef) return res.status(404).json({ success: false, message: 'Project schema not found.' });
-        const { E1, E2_0 } = schemaDef;
-
-        const rowsResult = await db.query(
-            `SELECT row_key, data FROM aufmass_rows
-             WHERE tenant_id = $1 AND project_id = $2 AND is_deleted = false
-             ORDER BY row_key`,
-            [TENANT_ID, projectId]
-        );
-
-        // Build schema for response
+        // Build schema (group labels from E1, col labels from E2_0)
         const schema = (E1 || []).map((groupLabel, i) => ({
             id: `grp-${i}`,
             label: typeof groupLabel === 'string' ? groupLabel : String(groupLabel || ''),
@@ -309,29 +136,31 @@ router.get('/navigation', async (req, res) => {
         }));
 
         // Locate relevant columns
-        const clusterPos   = findColByLabel(E2_0, l => l === 'cluster');
-        const knotenPos    = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');
+        const clusterPos  = findColByLabel(E2_0, l => l === 'cluster');
+        const knotenPos   = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');
         const addrStartPos = findColByLabel(E2_0, l => l === 'address start');
-        const addrEndPos   = findColByLabel(E2_0, l => l === 'address end');
-        const cablePos     = findColByLabel(E2_0, l => l === 'cable name');
-        const fiberPos     = findColByLabel(E2_0, l => l === 'fiber type' || l === 'fiber count');
-        const splicePos    = findColByLabel(E2_0, l => l === 'splices' || l === 'splice count');
+        const addrEndPos  = findColByLabel(E2_0, l => l === 'address end');
+        const cablePos    = findColByLabel(E2_0, l => l === 'cable name');
+        const fiberPos    = findColByLabel(E2_0, l => l === 'fiber type' || l === 'fiber count');
+        const splicePos   = findColByLabel(E2_0, l => l === 'splices' || l === 'splice count');
 
-        if (!clusterPos) return res.json({ success: true, clusters: [] });
+        if (!clusterPos) {
+            return res.json({ success: true, clusters: [] });
+        }
 
         // Build tree: { clusterName: { knotenName: [ address, ... ] } }
         const tree = {};
 
-        rowsResult.rows.forEach((dbRow) => {
-            const data = dbRow.data || {};
-            const row = dataToRow(data, E2_0);
-            const rowId = dbRow.row_key;
-
+        dataRows.forEach((row, rIdx) => {
             const cluster = row[clusterPos.grpIdx]?.[clusterPos.colIdx];
             if (!cluster || !String(cluster).trim()) return;
             const clusterStr = String(cluster).trim();
 
-            const knoten = knotenPos ? (row[knotenPos.grpIdx]?.[knotenPos.colIdx] || '') : '';
+            const rowId = row[0]?.[0] || `ROW-${rIdx}`;
+
+            const knoten = knotenPos
+                ? (row[knotenPos.grpIdx]?.[knotenPos.colIdx] || '')
+                : '';
             const knotenStr = String(knoten).trim() || '(no knotenpunkt)';
 
             const address = {
@@ -345,8 +174,10 @@ router.get('/navigation', async (req, res) => {
             };
 
             // Include all column data so frontend can display status/type/file info
-            Object.entries(data).forEach(([key, val]) => {
-                address.data[key] = val != null ? String(val) : '';
+            row.forEach((grp, gIdx) => {
+                (grp || []).forEach((val, cIdx) => {
+                    address.data[`col-${gIdx}-${cIdx}`] = val != null ? String(val) : '';
+                });
             });
 
             if (!tree[clusterStr]) tree[clusterStr] = {};
@@ -354,6 +185,7 @@ router.get('/navigation', async (req, res) => {
             tree[clusterStr][knotenStr].push(address);
         });
 
+        // Convert to array shape
         const clusters = Object.entries(tree).map(([clusterName, knotenMap]) => ({
             name: clusterName,
             knotenpunkte: Object.entries(knotenMap).map(([knotenName, addresses]) => ({
@@ -503,26 +335,9 @@ router.post('/aufmass-update', async (req, res) => {
     }
 
     try {
-        const projectId = await getProjectId(project);
-        if (!projectId) return res.status(404).json({ success: false, message: 'Project not found.' });
-
-        const schemaDef = await getProjectSchema(projectId);
-        if (!schemaDef) return res.status(404).json({ success: false, message: 'Project schema not found.' });
-        const { E1, E2_0 } = schemaDef;
-
-        // ── Fetch row from PostgreSQL ──────────────────────────────────────────
-        const rowResult = await db.query(
-            `SELECT id AS "dbId", version, data FROM aufmass_rows
-             WHERE tenant_id = $1 AND project_id = $2 AND row_key = $3 AND is_deleted = false`,
-            [TENANT_ID, projectId, rowId]
-        );
-        if (!rowResult.rows[0]) {
-            return res.status(404).json({ success: false, message: `Row "${rowId}" not found.` });
-        }
-        const dbRow = rowResult.rows[0];
-        const storedVersion = dbRow.version;
-
-        // ── Optimistic locking ────────────────────────────────────────────────
+        // ── Optimistic locking: check row version ──────────────────────────────
+        const versions = await loadRowVersions(project);
+        const storedVersion = versions[rowId] || 0;
         if (rowVersion !== undefined && rowVersion !== null) {
             const clientVersion = parseInt(rowVersion, 10);
             if (clientVersion !== storedVersion) {
@@ -536,27 +351,47 @@ router.post('/aufmass-update', async (req, res) => {
             }
         }
 
-        // Reconstruct row from stored JSONB data
-        const currentData = { ...dbRow.data };
-        const targetRow = dataToRow(currentData, E2_0);
+        const { filePath, E1, E2, E2_0, dataRows } = await parseDataFile(project);
+
+        // Find the row index by _id (same logic as GET in dataRoutes.js)
+        const rowIndex = dataRows.findIndex((row, rIdx) => {
+            const id = row[0]?.[0] || `ROW-${rIdx}`;
+            return id === rowId;
+        });
+
+        if (rowIndex === -1) {
+            return res.status(404).json({ success: false, message: `Row "${rowId}" not found.` });
+        }
+
+        const targetRow = dataRows[rowIndex];
 
         // ── Capture old values before applying updates ─────────────────────────
-        const cellChanges = [];
+        const cellChanges = []; // { label, oldVal, newVal, isOtdrTrigger }
         for (const [colId, value] of Object.entries(updates)) {
             const match = colId.match(/^col-(\d+)-(\d+)$/);
-            if (!match) { console.warn(`aufmass-update: skipping invalid col id "${colId}"`); continue; }
+            if (!match) {
+                console.warn(`aufmass-update: skipping invalid col id "${colId}"`);
+                continue;
+            }
             const grpIdx = parseInt(match[1], 10);
             const colIdx = parseInt(match[2], 10);
+
             const oldVal = targetRow[grpIdx]?.[colIdx] != null ? String(targetRow[grpIdx][colIdx]) : '';
             const newVal = String(value);
             const label = E2_0[grpIdx]?.[colIdx] || colId;
+
+            // Ensure the group array exists
             if (!targetRow[grpIdx]) targetRow[grpIdx] = [];
             targetRow[grpIdx][colIdx] = value;
-            currentData[colId] = value;
-            if (oldVal !== newVal) cellChanges.push({ label, oldVal, newVal, isOtdrTrigger: false });
+
+            if (oldVal !== newVal) {
+                cellChanges.push({ label, oldVal, newVal, isOtdrTrigger: false });
+            }
         }
 
         // ── OTDR auto-trigger ──────────────────────────────────────────────────
+        // After applying updates, check: if APL status AND Knotenpunkt Status are
+        // both "Done", auto-set OTDR status → "Waiting" (unless already "Done").
         let otdrAutoTriggered = false;
         const aplStatusPos    = findColByLabel(E2_0, l => l === 'apl status');
         const knotenStatusPos = findColByLabel(E2_0, l => l === 'knotenpunkt status');
@@ -566,7 +401,8 @@ router.post('/aufmass-update', async (req, res) => {
                 if (!grpTitle.includes('otdr')) continue;
                 const cols = E2_0[i] || [];
                 for (let j = 0; j < cols.length; j++) {
-                    if ((typeof cols[j] === 'string' ? cols[j].toLowerCase() : '').includes('status')) return { grpIdx: i, colIdx: j };
+                    const lbl = typeof cols[j] === 'string' ? cols[j].toLowerCase() : '';
+                    if (lbl.includes('status')) return { grpIdx: i, colIdx: j };
                 }
             }
             return null;
@@ -576,64 +412,60 @@ router.post('/aufmass-update', async (req, res) => {
             const aplStatus    = String(targetRow[aplStatusPos.grpIdx]?.[aplStatusPos.colIdx]   || '');
             const knotenStatus = String(targetRow[knotenStatusPos.grpIdx]?.[knotenStatusPos.colIdx] || '');
             const otdrStatus   = String(targetRow[otdrStatusPos.grpIdx]?.[otdrStatusPos.colIdx]  || '');
+
             if (aplStatus === 'Done' && knotenStatus === 'Done' && otdrStatus !== 'Done' && otdrStatus !== 'Waiting' && otdrStatus !== 'Incomplete') {
                 const oldOtdr = otdrStatus;
                 if (!targetRow[otdrStatusPos.grpIdx]) targetRow[otdrStatusPos.grpIdx] = [];
                 targetRow[otdrStatusPos.grpIdx][otdrStatusPos.colIdx] = 'Waiting';
-                currentData[`col-${otdrStatusPos.grpIdx}-${otdrStatusPos.colIdx}`] = 'Waiting';
                 otdrAutoTriggered = true;
                 cellChanges.push({ label: 'OTDR Status', oldVal: oldOtdr, newVal: 'Waiting', isOtdrTrigger: true });
             }
         }
 
-        // ── Extract promoted columns & write to PostgreSQL ─────────────────────
-        const promoted = extractPromoted(targetRow, E1, E2_0);
-        const newRowVersion = storedVersion + 1;
+        // Reconstruct E2 with updated row in place
+        const newE2 = [E2_0, ...dataRows];
 
-        await db.query(
-            `UPDATE aufmass_rows SET
-                data = $1, version = $2, updated_at = NOW(),
-                cluster = $3, knotenpunkt = $4, row_date = $5,
-                ein_status = $6, kal_status = $7, dru_status = $8,
-                apl_status = $9, kp_status = $10, otdr_status = $11
-             WHERE id = $12`,
-            [currentData, newRowVersion, promoted.cluster, promoted.knotenpunkt, promoted.row_date,
-             promoted.ein_status, promoted.kal_status, promoted.dru_status,
-             promoted.apl_status, promoted.kp_status, promoted.otdr_status, dbRow.dbId]
-        );
+        await fs.writeFile(filePath, JSON.stringify([E1, newE2], null, 2), 'utf-8');
 
-        // ── Build log details ──────────────────────────────────────────────────
+        // ── Increment row version ──────────────────────────────────────────────
+        versions[rowId] = storedVersion + 1;
+        await saveRowVersions(project, versions);
+        const newRowVersion = versions[rowId];
+
+        // ── Build granular log details ─────────────────────────────────────────
         const userEmail = req.headers['x-user-email'] || 'Unknown';
-        const ctx = [promoted.cluster && `Cluster: ${promoted.cluster}`, promoted.knotenpunkt && `Knotenpunkt: ${promoted.knotenpunkt}`].filter(Boolean).join(' | ');
+
+        // Context: cluster + knotenpunkt for this row
+        const clusterPos = findColByLabel(E2_0, l => l === 'cluster');
+        const knotenPos  = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');
+        const clusterVal = clusterPos ? String(targetRow[clusterPos.grpIdx]?.[clusterPos.colIdx] || '').trim() : '';
+        const knotenVal  = knotenPos  ? String(targetRow[knotenPos.grpIdx]?.[knotenPos.colIdx]   || '').trim() : '';
+        const ctx = [clusterVal && `Cluster: ${clusterVal}`, knotenVal && `Knotenpunkt: ${knotenVal}`].filter(Boolean).join(' | ');
+
         let logDetails;
         if (cellChanges.length === 0) {
             logDetails = `Row "${rowId}" in "${project}" — no value changes (cols: ${Object.keys(updates).join(', ')})`;
         } else {
             logDetails = `Row "${rowId}"${ctx ? ` | ${ctx}` : ''}\n` +
-                cellChanges.map(c => c.isOtdrTrigger ? `  - [OTDR auto-triggered → "${c.newVal}"]` : `  - "${c.label}": "${c.oldVal}" → "${c.newVal}"`).join('\n');
+                cellChanges.map(c => c.isOtdrTrigger
+                    ? `  - [OTDR auto-triggered → "${c.newVal}"]`
+                    : `  - "${c.label}": "${c.oldVal}" → "${c.newVal}"`
+                ).join('\n');
         }
+
         if (note) logDetails += `\n  📝 Note: ${note}`;
         await logAction(userEmail, 'Aufmass Row Updated', logDetails);
 
         res.json({ success: true, rowId, updated: Object.keys(updates), otdrAutoTriggered, rowVersion: newRowVersion });
 
-        // --- Versioned copy: also update .txt file for Excel export (fire-and-forget) ---
+        // --- NAS sync: push updated datafile to NAS (fire-and-forget) ---
+        const relFilePath = require('path').relative(STORAGE_ROOT, filePath).replace(/\\/g, '/');
+        syncFile(relFilePath);
+
+        // --- Versioned copy + Excel export (fire-and-forget) ---
         setImmediate(async () => {
-            try {
-                const filePath = await getFilePath(project);
-                const raw = JSON.parse(await fs.readFile(filePath, 'utf-8'));
-                const E1f = raw[0], E2f = raw[1];
-                const E2_0f = E2f[0];
-                const dataRowsF = E2f.slice(1);
-                const ridxF = dataRowsF.findIndex((row, rIdx) => (row[0]?.[0] || `ROW-${rIdx}`) === rowId);
-                if (ridxF !== -1) {
-                    dataRowsF[ridxF] = targetRow;
-                    const newE2f = [E2_0f, ...dataRowsF];
-                    await fs.writeFile(filePath, JSON.stringify([E1f, newE2f], null, 2), 'utf-8');
-                    syncFile(path.relative(STORAGE_ROOT, filePath).replace(/\\/g, '/'));
-                    await saveVersionedCopy(filePath, E1f, newE2f);
-                }
-            } catch (verr) { console.error('Versioning/NAS sync error (moduleRoutes):', verr.message); }
+            try { await saveVersionedCopy(filePath, E1, newE2); }
+            catch (e) { console.error('Versioning error (moduleRoutes):', e.message); }
         });
     } catch (e) {
         console.error('aufmass-update error:', e.message);
@@ -664,27 +496,10 @@ router.get('/aufmass-row', async (req, res) => {
     }
 
     try {
-        const projectId = await getProjectId(project);
-        if (!projectId) return res.status(404).json({ success: false, message: 'Project not found.' });
+        const { E2_0, dataRows } = await parseDataFile(project);
 
-        const schemaDef = await getProjectSchema(projectId);
-        if (!schemaDef) return res.status(404).json({ success: false, message: 'Project schema not found.' });
-        const { E2_0 } = schemaDef;
-
-        const rowResult = await db.query(
-            `SELECT row_key, data FROM aufmass_rows
-             WHERE tenant_id = $1 AND project_id = $2 AND row_key = $3 AND is_deleted = false`,
-            [TENANT_ID, projectId, rowId]
-        );
-
-        if (!rowResult.rows[0]) {
-            return res.status(404).json({ success: false, message: `Row "${rowId}" not found.` });
-        }
-
-        const data = rowResult.rows[0].data || {};
-
-        // Build schema for response
-        const schema = (E2_0 || []).map((cols, i) => ({
+        // Build schema (same as GET in dataRoutes.js)
+        const schema = E2_0.map((cols, i) => ({
             id: `grp-${i}`,
             cols: (cols || []).map((subTitle, j) => ({
                 id: `col-${i}-${j}`,
@@ -692,15 +507,26 @@ router.get('/aufmass-row', async (req, res) => {
             }))
         }));
 
-        // Build flat row object matching V2 API format
-        let rowObj = { _id: rowId };
-        schema.forEach((group) => {
-            group.cols.forEach((col) => {
-                rowObj[col.id] = data[col.id] != null ? String(data[col.id]) : '';
-            });
+        // Find the row
+        let found = null;
+        dataRows.forEach((row, rIdx) => {
+            const id = row[0]?.[0] || `ROW-${rIdx}`;
+            if (id === rowId) {
+                let rowObj = { _id: id };
+                schema.forEach((group, i) => {
+                    group.cols.forEach((col, j) => {
+                        rowObj[col.id] = (row[i] && row[i][j] != null) ? String(row[i][j]) : '';
+                    });
+                });
+                found = rowObj;
+            }
         });
 
-        res.json({ success: true, row: rowObj, schema });
+        if (!found) {
+            return res.status(404).json({ success: false, message: `Row "${rowId}" not found.` });
+        }
+
+        res.json({ success: true, row: found, schema });
     } catch (e) {
         console.error('aufmass-row error:', e.message);
         res.status(500).json({ success: false, message: `Could not fetch row: ${e.message}` });
@@ -899,20 +725,64 @@ router.get('/appointments', async (req, res) => {
     }
 
     try {
-        const projectId = await getProjectId(project);
-        if (!projectId) return res.status(404).json({ success: false, message: 'Project not found.' });
+        const { E1, E2_0, dataRows } = await parseDataFile(project);
 
-        const schemaDef = await getProjectSchema(projectId);
-        if (!schemaDef) return res.json({ success: true, appointments: [] });
-        const { E1, E2_0 } = schemaDef;
+        // Find context columns
+        const clusterPos   = findColByLabel(E2_0, l => l === 'cluster');
+        const knotenPos    = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');
+        const addrStartPos = findColByLabel(E2_0, l => l === 'address start');
+        const addrEndPos   = findColByLabel(E2_0, l => l === 'address end');
 
-        const rowsResult = await db.query(
-            `SELECT row_key, data FROM aufmass_rows
-             WHERE tenant_id = $1 AND project_id = $2 AND is_deleted = false`,
-            [TENANT_ID, projectId]
-        );
+        // Find all termin columns across all groups
+        const terminCols = []; // { grpIdx, colIdx, colId, groupName, module }
+        (E1 || []).forEach((groupLabel, gi) => {
+            const groupName = typeof groupLabel === 'string' ? groupLabel : String(groupLabel || '');
+            const cols = E2_0[gi] || [];
+            cols.forEach((colLabel, ci) => {
+                const label = typeof colLabel === 'string' ? colLabel.toLowerCase() : '';
+                if (label.includes('termin')) {
+                    terminCols.push({
+                        grpIdx: gi,
+                        colIdx: ci,
+                        colId: `col-${gi}-${ci}`,
+                        groupName,
+                        module: groupToModule(groupName)
+                    });
+                }
+            });
+        });
 
-        const appointments = extractAppointments(rowsResult.rows, E1, E2_0, groupToModule, null);
+        const appointments = [];
+
+        dataRows.forEach((row, rIdx) => {
+            const rowId = row[0]?.[0] || `ROW-${rIdx}`;
+            const cluster      = clusterPos   ? String(row[clusterPos.grpIdx]?.[clusterPos.colIdx]     || '').trim() : '';
+            const knotenpunkt  = knotenPos    ? String(row[knotenPos.grpIdx]?.[knotenPos.colIdx]       || '').trim() : '';
+            const addressStart = addrStartPos ? String(row[addrStartPos.grpIdx]?.[addrStartPos.colIdx] || '').trim() : '';
+            const addressEnd   = addrEndPos   ? String(row[addrEndPos.grpIdx]?.[addrEndPos.colIdx]     || '').trim() : '';
+
+            terminCols.forEach(tc => {
+                const rawVal = row[tc.grpIdx]?.[tc.colIdx];
+                if (!rawVal) return;
+                let parsed;
+                try { parsed = JSON.parse(rawVal); } catch { return; }
+                if (!parsed || !parsed.date) return;
+
+                appointments.push({
+                    rowId,
+                    module: tc.module,
+                    date: parsed.date,
+                    time: parsed.time || '',
+                    notes: parsed.notes || '',
+                    cluster,
+                    knotenpunkt,
+                    addressStart,
+                    addressEnd,
+                    terminColId: tc.colId
+                });
+            });
+        });
+
         res.json({ success: true, appointments });
     } catch (e) {
         console.error('appointments error:', e.message);
@@ -939,26 +809,18 @@ router.get('/appointments/all', async (req, res) => {
     }
 
     try {
-        // Get all accessible projects from PostgreSQL
-        let projectsQuery;
-        if (userRole === 'superadmin') {
-            projectsQuery = await db.query(
-                `SELECT id, name FROM projects WHERE tenant_id = $1 ORDER BY name`,
-                [TENANT_ID]
-            );
-        } else {
-            // Use canAccessProject to filter — get all projects and filter in app layer
-            projectsQuery = await db.query(
-                `SELECT id, name FROM projects WHERE tenant_id = $1 ORDER BY name`,
-                [TENANT_ID]
-            );
-        }
+        const projectsFile = path.join(__dirname, '..', 'src', 'DataFiles', 'projects.json');
+        let projects = [];
+        try {
+            const raw = await fs.readFile(projectsFile, 'utf-8');
+            projects = JSON.parse(raw);
+        } catch { projects = []; }
 
         const allAppointments = [];
 
-        for (const proj of projectsQuery.rows) {
-            const projectName = proj.name;
-            const projId = proj.id;
+        for (const proj of projects) {
+            const projectName = typeof proj === 'string' ? proj : (proj.name || proj.id || '');
+            if (!projectName) continue;
 
             if (userRole !== 'superadmin') {
                 const ok = await canAccessProject(userEmail, projectName);
@@ -966,20 +828,56 @@ router.get('/appointments/all', async (req, res) => {
             }
 
             try {
-                const schemaDef = await getProjectSchema(projId);
-                if (!schemaDef) continue;
-                const { E1, E2_0 } = schemaDef;
+                const { E1, E2_0, dataRows } = await parseDataFile(projectName);
 
-                const rowsResult = await db.query(
-                    `SELECT row_key, data FROM aufmass_rows
-                     WHERE tenant_id = $1 AND project_id = $2 AND is_deleted = false`,
-                    [TENANT_ID, projId]
-                );
+                const clusterPos   = findColByLabel(E2_0, l => l === 'cluster');
+                const knotenPos    = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');
+                const addrStartPos = findColByLabel(E2_0, l => l === 'address start');
+                const addrEndPos   = findColByLabel(E2_0, l => l === 'address end');
 
-                const appts = extractAppointments(rowsResult.rows, E1, E2_0, groupToModule, projectName);
-                allAppointments.push(...appts);
+                const terminCols = [];
+                (E1 || []).forEach((groupLabel, gi) => {
+                    const groupName = typeof groupLabel === 'string' ? groupLabel : String(groupLabel || '');
+                    const cols = E2_0[gi] || [];
+                    cols.forEach((colLabel, ci) => {
+                        const label = typeof colLabel === 'string' ? colLabel.toLowerCase() : '';
+                        if (label.includes('termin')) {
+                            terminCols.push({ grpIdx: gi, colIdx: ci, colId: `col-${gi}-${ci}`, groupName, module: groupToModule(groupName) });
+                        }
+                    });
+                });
+
+                dataRows.forEach((row, rIdx) => {
+                    const rowId        = row[0]?.[0] || `ROW-${rIdx}`;
+                    const cluster      = clusterPos   ? String(row[clusterPos.grpIdx]?.[clusterPos.colIdx]     || '').trim() : '';
+                    const knotenpunkt  = knotenPos    ? String(row[knotenPos.grpIdx]?.[knotenPos.colIdx]       || '').trim() : '';
+                    const addressStart = addrStartPos ? String(row[addrStartPos.grpIdx]?.[addrStartPos.colIdx] || '').trim() : '';
+                    const addressEnd   = addrEndPos   ? String(row[addrEndPos.grpIdx]?.[addrEndPos.colIdx]     || '').trim() : '';
+
+                    terminCols.forEach(tc => {
+                        const rawVal = row[tc.grpIdx]?.[tc.colIdx];
+                        if (!rawVal) return;
+                        let parsed;
+                        try { parsed = JSON.parse(rawVal); } catch { return; }
+                        if (!parsed || !parsed.date) return;
+
+                        allAppointments.push({
+                            rowId,
+                            project: projectName,
+                            module: tc.module,
+                            date: parsed.date,
+                            time: parsed.time || '',
+                            notes: parsed.notes || '',
+                            cluster,
+                            knotenpunkt,
+                            addressStart,
+                            addressEnd,
+                            terminColId: tc.colId
+                        });
+                    });
+                });
             } catch (_) {
-                // Skip projects that can't be read
+                // Skip projects that can't be parsed
             }
         }
 

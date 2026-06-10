@@ -1,140 +1,324 @@
-// PostgreSQL migration: 2026-06-10
-// Complete rewrite from per-project SQLite to PostgreSQL chat_messages table.
-// Public API preserved exactly — same exported function signatures and return shapes.
+// controllers/chatDb.js
+// Per-project SQLite chat database with lazy connection pool/cache.
+//
+// Each project gets its own DB at:
+//   storage/<ProjectName>/chat/chat.db
+//
+// Media files live at:
+//   storage/<ProjectName>/chat/media/
+//
+// Up to MAX_OPEN_DBS connections are kept open simultaneously.
+// When the limit is exceeded, the least-recently-used DB is closed.
 
-'use strict';
+const Database = require('better-sqlite3');
+const path = require('path');
+const fs = require('fs');
+const { getChatDir, getChatMediaDir } = require('./storageConfig');
 
-const db = require('./db');
+// ─── Connection Pool ───────────────────────────────────────────────────────────
 
-const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
-
-/** Resolve project UUID from name. Throws if not found (caller should handle). */
-async function getProjectId(projectName) {
-    if (!projectName) throw new Error('[chatDb] projectName required');
-    const r = await db.query(
-        'SELECT id FROM projects WHERE tenant_id = $1 AND LOWER(name) = LOWER($2)',
-        [TENANT_ID, projectName]
-    );
-    const id = r.rows[0]?.id;
-    if (!id) throw new Error(`[chatDb] Project not found: ${projectName}`);
-    return id;
-}
-
-// ── Public API ────────────────────────────────────────────────────────────────
+const MAX_OPEN_DBS = 20;
 
 /**
- * Insert a new message.
- * Returns the inserted message object (same shape as before).
+ * Pool entry: { db: Database, lastUsed: number, stmts: object }
+ * Key: projectName (string)
  */
-async function sendMessage({ project, user_email, user_name, message, media_url = null, media_type = null, original_filename = null }) {
-    const projectId = await getProjectId(project);
-    const result = await db.query(
-        `INSERT INTO chat_messages
-            (tenant_id, project_id, user_email, user_name, message, media_url, media_type, original_filename, created_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
-         RETURNING id, user_email, user_name, message, media_url, media_type, original_filename, created_at, edited_at`,
-        [TENANT_ID, projectId, user_email, user_name, message || '', media_url, media_type, original_filename]
-    );
-    const row = result.rows[0];
+const pool = new Map();
+
+/**
+ * Old single-DB path for one-time migration.
+ */
+const LEGACY_DB_PATH = path.join(__dirname, '..', 'src', 'DataFiles', 'chat.db');
+
+// ─── Internal helpers ─────────────────────────────────────────────────────────
+
+/**
+ * Prepare all reusable statements for a given Database instance.
+ * Returns an object of better-sqlite3 prepared statements.
+ */
+function prepareStatements(db) {
     return {
-        id:                row.id,
-        user_email:        row.user_email,
-        user_name:         row.user_name,
-        message:           row.message,
-        media_url:         row.media_url,
-        media_type:        row.media_type,
-        original_filename: row.original_filename,
-        created_at:        row.created_at,
-        edited_at:         row.edited_at,
+        insert: db.prepare(`
+            INSERT INTO messages
+                (user_email, user_name, message, media_url, media_type, original_filename)
+            VALUES
+                (@user_email, @user_name, @message, @media_url, @media_type, @original_filename)
+        `),
+
+        getMessages: db.prepare(`
+            SELECT id, user_email, user_name, message, media_url, media_type,
+                   original_filename, created_at, edited_at
+            FROM messages
+            WHERE deleted = 0
+            ORDER BY id ASC
+            LIMIT @limit OFFSET @offset
+        `),
+
+        getNewMessages: db.prepare(`
+            SELECT id, user_email, user_name, message, media_url, media_type,
+                   original_filename, created_at, edited_at
+            FROM messages
+            WHERE deleted = 0 AND id > @after_id
+            ORDER BY id ASC
+        `),
+
+        countMessages: db.prepare(`
+            SELECT COUNT(*) AS count FROM messages WHERE deleted = 0
+        `),
+
+        editMessage: db.prepare(`
+            UPDATE messages
+            SET message = @message, edited_at = datetime('now')
+            WHERE id = @id AND user_email = @user_email AND deleted = 0
+        `),
+
+        deleteMessage: db.prepare(`
+            UPDATE messages SET deleted = 1
+            WHERE id = @id AND user_email = @user_email
+        `),
+
+        adminDeleteMessage: db.prepare(`
+            UPDATE messages SET deleted = 1 WHERE id = @id
+        `),
     };
 }
 
 /**
- * Fetch paginated messages for a project (oldest-first, non-deleted).
+ * Open (or create) the SQLite DB for a project.
+ * Creates the chat dir + media dir if they don't exist.
+ * Runs schema migration from the legacy single-DB if needed.
+ * Returns { db, stmts }.
  */
-async function getMessages({ project, limit = 50, offset = 0 }) {
-    const projectId = await getProjectId(project);
-    const result = await db.query(
-        `SELECT id, user_email, user_name, message, media_url, media_type, original_filename, created_at, edited_at
-         FROM chat_messages
-         WHERE project_id = $1 AND deleted = false
-         ORDER BY id ASC
-         LIMIT $2 OFFSET $3`,
-        [projectId, limit, offset]
-    );
-    return result.rows;
+function openProjectDb(projectName) {
+    const chatDir    = getChatDir(projectName);
+    const mediaDir   = getChatMediaDir(projectName);
+    const dbPath     = path.join(chatDir, 'chat.db');
+    const flagPath   = path.join(chatDir, '.migrated');
+
+    // Ensure directories exist (sync — called lazily once per project)
+    fs.mkdirSync(chatDir,  { recursive: true });
+    fs.mkdirSync(mediaDir, { recursive: true });
+
+    const db = new Database(dbPath);
+
+    // WAL mode for better concurrent performance
+    db.pragma('journal_mode = WAL');
+
+    // Create schema (no project column — each DB is already project-scoped)
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS messages (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_email        TEXT NOT NULL,
+            user_name         TEXT NOT NULL,
+            message           TEXT NOT NULL DEFAULT '',
+            media_url         TEXT DEFAULT NULL,
+            media_type        TEXT DEFAULT NULL,
+            original_filename TEXT DEFAULT NULL,
+            created_at        DATETIME DEFAULT (datetime('now')),
+            edited_at         DATETIME DEFAULT NULL,
+            deleted           INTEGER DEFAULT 0
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_messages_id ON messages(id);
+        CREATE INDEX IF NOT EXISTS idx_messages_created ON messages(created_at);
+    `);
+
+    // One-time migration from legacy single-DB
+    if (!fs.existsSync(flagPath) && fs.existsSync(LEGACY_DB_PATH)) {
+        try {
+            migrateLegacyProject(db, projectName);
+            fs.writeFileSync(flagPath, new Date().toISOString(), 'utf8');
+            console.log(`[chatDb] Migration complete for project: ${projectName}`);
+        } catch (err) {
+            console.error(`[chatDb] Migration failed for ${projectName}:`, err.message);
+        }
+    } else if (!fs.existsSync(flagPath)) {
+        // No legacy DB — mark as already migrated so we don't check again
+        fs.writeFileSync(flagPath, new Date().toISOString(), 'utf8');
+    }
+
+    const stmts = prepareStatements(db);
+    return { db, stmts };
 }
 
 /**
- * Fetch all messages with id > after_id (for long-polling).
+ * Copy rows for a specific project from the legacy single-DB into a new per-project DB.
+ * Uses an attach to read in the same transaction, avoiding an extra open connection.
  */
-async function getNewMessages({ project, after_id }) {
-    const projectId = await getProjectId(project);
-    const result = await db.query(
-        `SELECT id, user_email, user_name, message, media_url, media_type, original_filename, created_at, edited_at
-         FROM chat_messages
-         WHERE project_id = $1 AND deleted = false AND id > $2
-         ORDER BY id ASC`,
-        [projectId, after_id || 0]
-    );
-    return result.rows;
+function migrateLegacyProject(targetDb, projectName) {
+    console.log(`[chatDb] Migrating legacy data for project: ${projectName}`);
+
+    // Open the legacy DB read-only
+    const legacyDb = new Database(LEGACY_DB_PATH, { readonly: true });
+
+    let rows;
+    try {
+        rows = legacyDb.prepare(`
+            SELECT user_email, user_name, message, media_url, media_type,
+                   original_filename, created_at, edited_at, deleted
+            FROM messages
+            WHERE project = ?
+            ORDER BY id ASC
+        `).all(projectName);
+    } finally {
+        legacyDb.close();
+    }
+
+    if (!rows || rows.length === 0) return;
+
+    const insertLegacy = targetDb.prepare(`
+        INSERT INTO messages
+            (user_email, user_name, message, media_url, media_type,
+             original_filename, created_at, edited_at, deleted)
+        VALUES
+            (@user_email, @user_name, @message, @media_url, @media_type,
+             @original_filename, @created_at, @edited_at, @deleted)
+    `);
+
+    const insertMany = targetDb.transaction((rows) => {
+        for (const row of rows) insertLegacy.run(row);
+    });
+
+    insertMany(rows);
+    console.log(`[chatDb] Migrated ${rows.length} message(s) for project: ${projectName}`);
+}
+
+/**
+ * Evict the least-recently-used DB if the pool is at capacity.
+ */
+function evictLRUIfNeeded() {
+    if (pool.size < MAX_OPEN_DBS) return;
+
+    let oldestKey = null;
+    let oldestTime = Infinity;
+
+    for (const [key, entry] of pool) {
+        if (entry.lastUsed < oldestTime) {
+            oldestTime = entry.lastUsed;
+            oldestKey  = key;
+        }
+    }
+
+    if (oldestKey !== null) {
+        const entry = pool.get(oldestKey);
+        try { entry.db.close(); } catch (_) { /* ignore */ }
+        pool.delete(oldestKey);
+        console.log(`[chatDb] Evicted LRU connection for project: ${oldestKey}`);
+    }
+}
+
+/**
+ * Get (or lazily open) the pool entry for a project.
+ * Updates the lastUsed timestamp for LRU tracking.
+ */
+function getEntry(projectName) {
+    if (!projectName || typeof projectName !== 'string') {
+        throw new Error('[chatDb] projectName must be a non-empty string');
+    }
+
+    if (pool.has(projectName)) {
+        const entry = pool.get(projectName);
+        entry.lastUsed = Date.now();
+        return entry;
+    }
+
+    // Need to open a new connection
+    evictLRUIfNeeded();
+
+    const { db, stmts } = openProjectDb(projectName);
+    const entry = { db, stmts, lastUsed: Date.now() };
+    pool.set(projectName, entry);
+    return entry;
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
+/**
+ * Insert a new message into the project's DB.
+ * Returns the inserted message object.
+ */
+function sendMessage({ project, user_email, user_name, message, media_url = null, media_type = null, original_filename = null }) {
+    const { stmts } = getEntry(project);
+    const result = stmts.insert.run({
+        user_email,
+        user_name,
+        message:           message || '',
+        media_url,
+        media_type,
+        original_filename,
+    });
+    return {
+        id:                result.lastInsertRowid,
+        user_email,
+        user_name,
+        message:           message || '',
+        media_url,
+        media_type,
+        original_filename,
+        created_at:        new Date().toISOString(),
+        edited_at:         null,
+    };
+}
+
+/**
+ * Fetch paginated messages for a project (oldest-first).
+ */
+function getMessages({ project, limit = 50, offset = 0 }) {
+    const { stmts } = getEntry(project);
+    return stmts.getMessages.all({ limit, offset });
+}
+
+/**
+ * Fetch all messages with id > after_id (used for long-polling).
+ */
+function getNewMessages({ project, after_id }) {
+    const { stmts } = getEntry(project);
+    return stmts.getNewMessages.all({ after_id: after_id || 0 });
 }
 
 /**
  * Return the total non-deleted message count for a project.
  */
-async function getMessageCount({ project }) {
-    const projectId = await getProjectId(project);
-    const result = await db.query(
-        'SELECT COUNT(*) AS count FROM chat_messages WHERE project_id = $1 AND deleted = false',
-        [projectId]
-    );
-    return parseInt(result.rows[0].count || 0);
+function getMessageCount({ project }) {
+    const { stmts } = getEntry(project);
+    return stmts.countMessages.get().count;
 }
 
 /**
  * Edit a message. Only succeeds if the requesting user owns the message.
  * Returns true if a row was updated.
  */
-async function editMessage({ id, project, user_email, message }) {
-    const projectId = await getProjectId(project);
-    const result = await db.query(
-        `UPDATE chat_messages
-         SET message = $1, edited_at = NOW()
-         WHERE id = $2 AND project_id = $3 AND user_email = $4 AND deleted = false`,
-        [message, id, projectId, user_email]
-    );
-    return result.rowCount > 0;
+function editMessage({ id, project, user_email, message }) {
+    const { stmts } = getEntry(project);
+    const result = stmts.editMessage.run({ id, user_email, message });
+    return result.changes > 0;
 }
 
 /**
- * Soft-delete a message. Admins can delete any; users only their own.
+ * Soft-delete a message. Admins can delete any message; regular users only their own.
  * Returns true if a row was updated.
  */
-async function deleteMessage({ id, project, user_email, isAdmin = false }) {
-    const projectId = await getProjectId(project);
-    let result;
-    if (isAdmin) {
-        result = await db.query(
-            `UPDATE chat_messages SET deleted = true WHERE id = $1 AND project_id = $2`,
-            [id, projectId]
-        );
-    } else {
-        result = await db.query(
-            `UPDATE chat_messages SET deleted = true
-             WHERE id = $1 AND project_id = $2 AND user_email = $3`,
-            [id, projectId, user_email]
-        );
-    }
-    return result.rowCount > 0;
+function deleteMessage({ id, project, user_email, isAdmin = false }) {
+    const { stmts } = getEntry(project);
+    const result = isAdmin
+        ? stmts.adminDeleteMessage.run({ id })
+        : stmts.deleteMessage.run({ id, user_email });
+    return result.changes > 0;
 }
 
 /**
- * closeAll — no-op in PostgreSQL version (pool managed by db.js).
+ * Close all open DB connections gracefully.
+ * Call this on process exit / SIGTERM.
  */
 function closeAll() {
-    // No-op — PostgreSQL pool managed externally via controllers/db.js
+    for (const [key, entry] of pool) {
+        try { entry.db.close(); } catch (_) { /* ignore */ }
+        pool.delete(key);
+    }
+    console.log('[chatDb] All connections closed.');
 }
+
+// ─── Exports ──────────────────────────────────────────────────────────────────
 
 module.exports = {
     sendMessage,

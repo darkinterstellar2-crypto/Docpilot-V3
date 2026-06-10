@@ -1,10 +1,5 @@
-// PostgreSQL migration: 2026-06-10
-// NOTE: Row versioning is now a column on aufmass_rows (version INTEGER).
-// This file is kept as a stub for backward compatibility with imports
-// (moduleRoutes.js and dataRoutes.js still import saveVersionedCopy for Excel exports).
-//
-// saveVersionedCopy — KEPT. Creates versioned .txt snapshots + XLSX exports on disk.
-// Row version tracking removed from here — handled in dataRoutes.js directly via DB.
+// controllers/dataVersioning.js
+// Shared helper: save a timestamped .txt copy + Excel export on every aufmass save.
 
 const fs = require('fs').promises;
 const path = require('path');
@@ -12,7 +7,6 @@ const XLSX = require('xlsx');
 
 /**
  * Save a versioned .txt copy and an Excel export alongside the main datafile.
- * (Filesystem only — not stored in DB. These are archival snapshots.)
  *
  * @param {string} filePath  - Absolute path to the main .txt file (already written)
  * @param {Array}  E1        - Main header labels array
@@ -47,9 +41,16 @@ async function saveVersionedCopy(filePath, E1, E2) {
     return { versionedTxt, xlsxPath, timestamp };
 }
 
+/**
+ * Build an Excel buffer from E1 / E2_0 / dataRows.
+ * Row 1: main headers (merged across sub-cols)
+ * Row 2: sub-headers
+ * Row 3+: data
+ */
 function createExcelBuffer(E1, E2_0, dataRows) {
     const wb = XLSX.utils.book_new();
 
+    // Build header rows
     const headers1 = [];
     const headers2 = [];
     E1.forEach((main, i) => {
@@ -60,6 +61,7 @@ function createExcelBuffer(E1, E2_0, dataRows) {
         });
     });
 
+    // Build data rows
     const rows = dataRows.map(row => {
         const flat = [];
         E1.forEach((_, i) => {
@@ -75,12 +77,16 @@ function createExcelBuffer(E1, E2_0, dataRows) {
     const wsData = [headers1, headers2, ...rows];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
 
+    // Merge main header cells that span multiple sub-cols
     const merges = [];
     let colOffset = 0;
     E1.forEach((_, i) => {
         const colCount = (E2_0[i] || []).length;
         if (colCount > 1) {
-            merges.push({ s: { r: 0, c: colOffset }, e: { r: 0, c: colOffset + colCount - 1 } });
+            merges.push({
+                s: { r: 0, c: colOffset },
+                e: { r: 0, c: colOffset + colCount - 1 }
+            });
         }
         colOffset += colCount;
     });
