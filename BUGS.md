@@ -61,10 +61,10 @@
 
 ### Visual-only limitations (require future JS work)
 
-**BUG-FM-01: Left folder tree panel is not functional**
-- The 260px left panel in the two-panel desktop layout is a static placeholder.
-- It shows a "Navigate via breadcrumb" hint but does not render a live folder tree.
-- **Fix needed:** Add JS to call `/api/files/tree?project=...` on load and render the tree in `#folderTreePanelContent`, wiring folder clicks to `navigateTo()`.
+**~~BUG-FM-01: Left folder tree panel is not functional~~** ✅ FIXED (2026-06-10)
+- ~~The 260px left panel in the two-panel desktop layout is a static placeholder.~~
+- ~~It shows a "Navigate via breadcrumb" hint but does not render a live folder tree.~~
+- **Fixed:** JS now calls `/api/files/tree?project=...` on load, renders collapsible folder tree in the sidebar panel, wires folder clicks to `navigateTo()`, and highlights the current folder.
 
 **BUG-FM-02: Mobile folder drawer shows current path only, not full tree**
 - The mobile "Folders" drawer (#folderDrawer) shows the current path text but not a full navigable tree.
@@ -154,3 +154,42 @@
 - The `generatorSettingsSection` div uses `style.display` toggling by JS to show/hide. A MutationObserver was added (visual-only) to hide/show the fallback placeholder in the Generator tab accordingly.
 - The original page duplicated all JS functions in the second big `<script>` block — these were preserved verbatim.
 - No `aclUserRoleBanner` was shown before refactor (CSS `hidden` class was correct but the banner content logic references `flex items-center` — this is fine since JS sets className dynamically).
+
+---
+
+## files.html — Session Fixes (2026-06-10)
+
+### Fixed
+
+**BUG-FM-01** (see above) — Folder tree sidebar now functional. ✅
+
+**Sidebar structure mismatch (files.html)** — files.html previously used `<aside id="desktopSidebar">` instead of `<nav class="sidebar-nav">` matching all other pages. This caused the DoBo bunny injection and topbar-glass pattern to break. Fully rebuilt to match the shared sidebar/topbar pattern.  
+- Fixed duplicate `class=""` attribute on the sidebar element  
+- Added `sidebar-width` Tailwind spacing config  
+- Removed inline `margin-left` hacks  
+- Header rebuilt to `topbar-glass` pattern for proper DoBo injection  
+
+**`+ New` button color** — Was amber (`bg-amber-400`), visually conflicting with "New Project" button elsewhere. Restyled to white/navy contextual style.  
+- Severity was: Medium (user confusion)
+
+### Known Issues (as of 2026-06-10)
+
+**BUG-FM-02: Mobile folder drawer still shows current path only, not full tree**
+- Not yet implemented.
+- **Fix needed:** Render same tree inside `#folderDrawer` (mobile).
+
+**BUG-FM-03: Superadmin sidebar links shown via localStorage only**
+- Still uses `localStorage.getItem('userRole') === 'superadmin'` inline check.
+- **Fix needed:** Resolve after proper ACL IIFE.
+
+**BUG-FM-04: Mobile bottom "Upload" button proxies through #newBtn**
+- Low severity, works correctly, slightly indirect. Still unresolved.
+
+**Share link never-expires edge case**
+- `expiresIn: 0` (Never expires / ♾️) skips auto-cleanup — correct by design.
+- No server-side validation confirms 0 is truly intentional vs. a missing value. Consider explicit sentinel.
+
+**Drag-out to desktop (DownloadURL API)**
+- Works in Chromium-based browsers only.
+- Firefox/Safari: silently no-ops (no error shown to user).
+- **Fix needed:** Show browser-incompatibility notice when drag-out is attempted in non-Chromium.
