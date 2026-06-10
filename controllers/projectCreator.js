@@ -1,3 +1,4 @@
+// PostgreSQL migration: 2026-06-10
 const fs = require('fs').promises;
 const path = require('path');
 const { setFileMeta } = require('./fileMeta');
@@ -5,12 +6,8 @@ const { setFileMeta } = require('./fileMeta');
 // Centralized path resolution — single source of truth
 const { getProjectRoot } = require('./storageConfig');
 
-const PROJECTS_DB = path.join(__dirname, '..', 'src', 'DataFiles', 'projects.json');
-
-async function getProjectsDB() {
-    try { return JSON.parse(await fs.readFile(PROJECTS_DB, 'utf-8')); } 
-    catch (e) { return []; }
-}
+const db = require('./db');
+const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
 
 async function createProjectStructure(projectName, locations, schemaData, customStructure) {
     try {
@@ -84,18 +81,24 @@ async function createProjectStructure(projectName, locations, schemaData, custom
             await setFileMeta(projectName, `Doku/${loc}`, 'Automated-System');
         }
 
-        // 4. Save to Database
-        const projects = await getProjectsDB();
-        const newProject = {
-            id: Date.now().toString(),
-            name: projectName,
-            locations: locations,
-            status: 'Active',
-            progress: 0,
-            createdAt: new Date().toISOString()
-        };
-        projects.push(newProject);
-        await fs.writeFile(PROJECTS_DB, JSON.stringify(projects, null, 2));
+        // 4. Save to PostgreSQL
+        await db.transaction(async (client) => {
+            const projResult = await client.query(
+                `INSERT INTO projects (tenant_id, name, status, storage_path)
+                 VALUES ($1, $2, 'active', $3)
+                 RETURNING id`,
+                [TENANT_ID, projectName, projectPath]
+            );
+            const projectId = projResult.rows[0].id;
+
+            for (let i = 0; i < locations.length; i++) {
+                await client.query(
+                    `INSERT INTO project_clusters (tenant_id, project_id, name, sort_order)
+                     VALUES ($1, $2, $3, $4)`,
+                    [TENANT_ID, projectId, locations[i], i]
+                );
+            }
+        });
 
         return { success: true, path: projectPath };
     } catch (error) {

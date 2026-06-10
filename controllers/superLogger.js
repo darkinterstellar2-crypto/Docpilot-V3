@@ -1,197 +1,156 @@
-/**
- * superLogger.js — System Event Capture (Superadmin Only)
- *
- * Ring buffer in memory (last 5000 entries) + persisted to
- * src/DataFiles/super-log.json (rolling, flush every 30 seconds or on 100 new entries).
- *
- * NEVER crashes the app — all errors are swallowed internally.
- */
+// PostgreSQL migration: 2026-06-10
+// Changed from in-memory ring buffer + flat file to PostgreSQL via controllers/db.js
+//
+// super_logs is a BIGSERIAL partitioned table (partitioned by month).
+// Ring buffer logic removed — PostgreSQL handles retention.
+//
+// superLog() is fire-and-forget — it never blocks the caller.
 
 'use strict';
 
-const fs   = require('fs');
-const path = require('path');
+const db = require('./db');
 
-// ─── Config ───────────────────────────────────────────────────────────────────
+const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
 
-const LOG_FILE      = path.join(__dirname, '..', 'src', 'DataFiles', 'super-log.json');
-const RING_SIZE     = 5000;   // max entries kept in memory
-const FLUSH_ENTRIES = 100;    // flush to disk after this many new entries
-const FLUSH_INTERVAL = 30000; // flush to disk every 30 s
-
-// ─── State ────────────────────────────────────────────────────────────────────
-
-/** @type {Array<object>} In-memory ring buffer */
-let ring = [];
-let nextId = 1;
-let pendingSinceFlush = 0;
-let flushTimer = null;
-
-// ─── Boot: load existing log from disk ────────────────────────────────────────
-
-try {
-    if (fs.existsSync(LOG_FILE)) {
-        const raw = fs.readFileSync(LOG_FILE, 'utf-8');
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-            // Keep only the last RING_SIZE entries
-            ring = parsed.slice(-RING_SIZE);
-            // Resume id counter from last known id
-            const last = ring[ring.length - 1];
-            if (last && typeof last.id === 'number') {
-                nextId = last.id + 1;
-            }
-        }
-    }
-} catch (_) { /* first run or corrupt file — start fresh */ }
-
-// ─── Disk flush ───────────────────────────────────────────────────────────────
-
-function flushToDisk() {
-    try {
-        // Ensure directory exists
-        const dir = path.dirname(LOG_FILE);
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-        fs.writeFileSync(LOG_FILE, JSON.stringify(ring, null, 2), 'utf-8');
-        pendingSinceFlush = 0;
-    } catch (err) {
-        // Logger must never crash the app
-        console.error('[superLogger] Disk flush failed:', err.message);
-    }
-}
-
-// Periodic flush
-flushTimer = setInterval(flushToDisk, FLUSH_INTERVAL);
-if (flushTimer.unref) flushTimer.unref(); // don't prevent process exit
-
-// ─── Core logging function ────────────────────────────────────────────────────
+// ── Core logging function ─────────────────────────────────────────────────────
 
 /**
- * Add a log entry.
- * @param {'request'|'auth'|'file'|'sync'|'chat'|'error'|'system'} type
+ * Add a super log entry.
+ * Fire-and-forget — never throws.
+ *
+ * @param {'request'|'auth'|'file'|'sync'|'chat'|'error'|'system'|'admin'} type
  * @param {'debug'|'info'|'warn'|'error'} level
  * @param {string} message
  * @param {object} [meta]
  */
 function superLog(type, level, message, meta) {
-    try {
-        const entry = {
-            id:        nextId++,
-            timestamp: new Date().toISOString(),
-            type:      type   || 'system',
-            level:     level  || 'info',
-            message:   String(message || ''),
-            meta:      meta   || {}
-        };
-
-        ring.push(entry);
-
-        // Trim ring to max size
-        if (ring.length > RING_SIZE) {
-            ring = ring.slice(ring.length - RING_SIZE);
-        }
-
-        pendingSinceFlush++;
-        if (pendingSinceFlush >= FLUSH_ENTRIES) {
-            flushToDisk();
-        }
-    } catch (err) {
-        // Swallow — logger must never crash the app
-        console.error('[superLogger] superLog error:', err.message);
-    }
+    db.query(
+        `INSERT INTO super_logs (tenant_id, type, level, message, meta, timestamp)
+         VALUES ($1, $2, $3, $4, $5, NOW())`,
+        [
+            TENANT_ID,
+            type    || 'system',
+            level   || 'info',
+            String(message || ''),
+            meta ? JSON.stringify(meta) : '{}'
+        ]
+    ).catch(err => {
+        // Must never crash the app
+        console.error('[superLogger] Insert failed:', err.message);
+    });
 }
 
-// ─── Query ────────────────────────────────────────────────────────────────────
+// ── Query ─────────────────────────────────────────────────────────────────────
 
 /**
- * Query logs with filters.
+ * Query super logs with filters.
  * @param {object} opts
- * @param {number}   [opts.after_id]   — only entries with id > after_id
- * @param {string[]} [opts.types]      — filter by type (e.g. ['request', 'auth'])
- * @param {string}   [opts.level]      — filter by level
- * @param {number}   [opts.limit]      — max results (default 100, max 500)
- * @param {string}   [opts.search]     — substring search in message
- * @returns {{ logs: object[], total: number }}
+ * @param {number}   [opts.after_id]  — only entries with id > after_id
+ * @param {string[]} [opts.types]     — filter by type
+ * @param {string}   [opts.level]     — filter by level
+ * @param {number}   [opts.limit]     — max results (default 100, max 500)
+ * @param {string}   [opts.search]    — substring search in message
+ * @returns {Promise<{ logs: object[], total: number }>}
  */
-function getSuperLogs({ after_id, types, level, limit = 100, search } = {}) {
+async function getSuperLogs({ after_id, types, level, limit = 100, search } = {}) {
     try {
         const maxLimit = Math.min(parseInt(limit) || 100, 500);
-        const afterId  = parseInt(after_id) || 0;
+        const conditions = ['tenant_id = $1'];
+        const params = [TENANT_ID];
+        let pi = 2;
 
-        let filtered = ring;
-
-        if (afterId > 0) {
-            filtered = filtered.filter(e => e.id > afterId);
+        if (after_id && parseInt(after_id) > 0) {
+            conditions.push(`id > $${pi++}`);
+            params.push(parseInt(after_id));
         }
+
         if (Array.isArray(types) && types.length > 0) {
-            const tSet = new Set(types);
-            filtered = filtered.filter(e => tSet.has(e.type));
+            conditions.push(`type = ANY($${pi++})`);
+            params.push(types);
         }
+
         if (level && level !== 'all') {
-            filtered = filtered.filter(e => e.level === level);
+            conditions.push(`level = $${pi++}`);
+            params.push(level);
         }
+
         if (search && search.trim()) {
-            const q = search.trim().toLowerCase();
-            filtered = filtered.filter(e =>
-                e.message.toLowerCase().includes(q) ||
-                (e.meta && JSON.stringify(e.meta).toLowerCase().includes(q))
-            );
+            conditions.push(`(message ILIKE $${pi} OR meta::text ILIKE $${pi})`);
+            params.push(`%${search.trim()}%`);
+            pi++;
         }
 
-        const total = filtered.length;
-        // Return the most recent `maxLimit` entries
-        const logs = filtered.slice(-maxLimit);
+        const where = conditions.join(' AND ');
 
-        return { logs, total: ring.length };
+        const [logsResult, countResult] = await Promise.all([
+            db.query(
+                `SELECT id, timestamp, type, level, message, meta
+                 FROM super_logs
+                 WHERE ${where}
+                 ORDER BY id ASC
+                 LIMIT $${pi}`,
+                [...params, maxLimit]
+            ),
+            db.query(
+                `SELECT COUNT(*) AS total FROM super_logs WHERE tenant_id = $1`,
+                [TENANT_ID]
+            )
+        ]);
+
+        return {
+            logs: logsResult.rows,
+            total: parseInt(countResult.rows[0]?.total || 0)
+        };
     } catch (err) {
         console.error('[superLogger] getSuperLogs error:', err.message);
         return { logs: [], total: 0 };
     }
 }
 
-// ─── Stats ────────────────────────────────────────────────────────────────────
+// ── Stats ─────────────────────────────────────────────────────────────────────
 
 /**
  * Return counts by type and level for the last 24h.
- * @returns {object}
  */
-function getLogStats() {
+async function getLogStats() {
     try {
-        const since = Date.now() - 24 * 60 * 60 * 1000;
-        const recent = ring.filter(e => new Date(e.timestamp).getTime() >= since);
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-        const byType  = {};
+        const result = await db.query(
+            `SELECT type, level, COUNT(*) AS cnt
+             FROM super_logs
+             WHERE tenant_id = $1 AND timestamp >= $2
+             GROUP BY type, level`,
+            [TENANT_ID, since]
+        );
+
+        const byType = {};
         const byLevel = {};
+        let total = 0;
 
-        for (const e of recent) {
-            byType[e.type]   = (byType[e.type]   || 0) + 1;
-            byLevel[e.level] = (byLevel[e.level] || 0) + 1;
+        for (const row of result.rows) {
+            const cnt = parseInt(row.cnt);
+            total += cnt;
+            byType[row.type]   = (byType[row.type]   || 0) + cnt;
+            byLevel[row.level] = (byLevel[row.level] || 0) + cnt;
         }
 
-        return {
-            total:   recent.length,
-            byType,
-            byLevel,
-            since:   new Date(since).toISOString()
-        };
+        return { total, byType, byLevel, since };
     } catch (err) {
         console.error('[superLogger] getLogStats error:', err.message);
         return { total: 0, byType: {}, byLevel: {}, since: null };
     }
 }
 
-// ─── Express middleware ───────────────────────────────────────────────────────
+// ── Express middleware ────────────────────────────────────────────────────────
 
 /**
  * requestLogger — Express middleware that logs every HTTP request.
- * Attaches start time before request, logs after response finishes.
- * Never blocks the request pipeline.
  */
 function requestLogger(req, res, next) {
     const startTime = Date.now();
 
-    // Skip super-logs polling requests from logging themselves (noise reduction)
+    // Skip super-logs polling requests (noise reduction)
     if (req.path && req.path.includes('/super-logs')) {
         return next();
     }
@@ -202,7 +161,6 @@ function requestLogger(req, res, next) {
             const ip        = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
             const userEmail = req.headers['x-user-email'] || null;
 
-            // Determine level based on status code
             let level = 'info';
             if (res.statusCode >= 500) level = 'error';
             else if (res.statusCode >= 400) level = 'warn';
@@ -224,16 +182,13 @@ function requestLogger(req, res, next) {
     next();
 }
 
-// ─── Graceful shutdown: final flush ──────────────────────────────────────────
+// ── Graceful shutdown ─────────────────────────────────────────────────────────
 
 function shutdownFlush() {
-    try {
-        clearInterval(flushTimer);
-        flushToDisk();
-    } catch (_) {}
+    // No-op in PostgreSQL version — writes are immediate
 }
 
-// ─── Exports ──────────────────────────────────────────────────────────────────
+// ── Exports ───────────────────────────────────────────────────────────────────
 
 module.exports = {
     superLog,

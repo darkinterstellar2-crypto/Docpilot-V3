@@ -1,69 +1,122 @@
-const fsAsync = require('fs').promises;
-const path = require('path');
+// PostgreSQL migration: 2026-06-10
+// Changed from flat file I/O (.filemeta.json) to PostgreSQL via controllers/db.js
+//
+// Table: module_files (tenant_id, project_id, relative_path, modified_by, modified_at)
 
-// Centralized path resolution — single source of truth
+const db = require('./db');
 const { getProjectRoot } = require('./storageConfig');
 
+const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
+
+/** Resolve project UUID from name. Returns null if not found. */
+async function getProjectId(projectName) {
+    if (!projectName) return null;
+    try {
+        const r = await db.query(
+            'SELECT id FROM projects WHERE tenant_id = $1 AND LOWER(name) = LOWER($2)',
+            [TENANT_ID, projectName]
+        );
+        return r.rows[0]?.id || null;
+    } catch (e) {
+        console.error('[fileMeta] getProjectId error:', e.message);
+        return null;
+    }
+}
+
 /**
- * Read .filemeta.json from the project root. Returns {} if not found.
+ * Get all file metadata for a project.
+ * Returns a map: { relativePath: { modifiedBy, modifiedAt } }
  */
 async function getFileMeta(projectName) {
-    const root = getProjectRoot(projectName);
-    const metaPath = path.join(root, '.filemeta.json');
+    const projectId = await getProjectId(projectName);
+    if (!projectId) return {};
     try {
-        const raw = await fsAsync.readFile(metaPath, 'utf8');
-        return JSON.parse(raw);
-    } catch (_) {
+        const r = await db.query(
+            `SELECT relative_path, modified_by, modified_at
+             FROM module_files
+             WHERE tenant_id = $1 AND project_id = $2`,
+            [TENANT_ID, projectId]
+        );
+        const meta = {};
+        for (const row of r.rows) {
+            meta[row.relative_path] = {
+                modifiedBy: row.modified_by,
+                modifiedAt: row.modified_at
+            };
+        }
+        return meta;
+    } catch (e) {
+        console.error('[fileMeta] getFileMeta error:', e.message);
         return {};
     }
 }
 
 /**
- * Update .filemeta.json for a specific relative path.
+ * Set metadata for a specific file path.
  */
 async function setFileMeta(projectName, relativePath, userEmail) {
-    const root = getProjectRoot(projectName);
-    const metaPath = path.join(root, '.filemeta.json');
-    const meta = await getFileMeta(projectName);
+    const projectId = await getProjectId(projectName);
+    if (!projectId) {
+        console.warn(`[fileMeta] setFileMeta: project not found: ${projectName}`);
+        return;
+    }
     const key = relativePath.replace(/\\/g, '/');
-    meta[key] = {
-        modifiedBy: userEmail,
-        modifiedAt: new Date().toISOString()
-    };
     try {
-        await fsAsync.writeFile(metaPath, JSON.stringify(meta, null, 2), 'utf8');
+        await db.query(
+            `INSERT INTO module_files (tenant_id, project_id, relative_path, modified_by, modified_at)
+             VALUES ($1, $2, $3, $4, NOW())
+             ON CONFLICT (tenant_id, project_id, relative_path) DO UPDATE
+               SET modified_by = EXCLUDED.modified_by,
+                   modified_at = NOW()`,
+            [TENANT_ID, projectId, key, userEmail || 'Unknown']
+        );
     } catch (e) {
-        console.error('Failed to write filemeta:', e.message);
+        console.error('[fileMeta] setFileMeta error:', e.message);
     }
 }
 
 /**
- * Rename a key in .filemeta.json (old relative path → new relative path).
+ * Rename a file metadata entry (old relative path → new relative path).
+ * Also renames child paths for folder renames.
  */
 async function renameFileMeta(projectName, oldRelative, newRelative) {
-    const root = getProjectRoot(projectName);
-    const metaPath = path.join(root, '.filemeta.json');
-    const meta = await getFileMeta(projectName);
+    const projectId = await getProjectId(projectName);
+    if (!projectId) return;
+
     const oldKey = oldRelative.replace(/\\/g, '/');
     const newKey = newRelative.replace(/\\/g, '/');
-    if (meta[oldKey]) {
-        meta[newKey] = meta[oldKey];
-        delete meta[oldKey];
-        // Also rename any child entries (for folder renames)
-        const prefix = oldKey + '/';
-        for (const k of Object.keys(meta)) {
-            if (k.startsWith(prefix)) {
-                const childKey = newKey + '/' + k.slice(prefix.length);
-                meta[childKey] = meta[k];
-                delete meta[k];
+
+    try {
+        await db.transaction(async (client) => {
+            // Rename exact path
+            await client.query(
+                `UPDATE module_files
+                 SET relative_path = $1
+                 WHERE tenant_id = $2 AND project_id = $3 AND relative_path = $4`,
+                [newKey, TENANT_ID, projectId, oldKey]
+            );
+
+            // Rename child paths (folder rename)
+            const prefix = oldKey + '/';
+            const children = await client.query(
+                `SELECT id, relative_path FROM module_files
+                 WHERE tenant_id = $1 AND project_id = $2
+                   AND relative_path LIKE $3`,
+                [TENANT_ID, projectId, prefix + '%']
+            );
+
+            for (const child of children.rows) {
+                const newChildKey = newKey + '/' + child.relative_path.slice(prefix.length);
+                await client.query(
+                    `UPDATE module_files SET relative_path = $1 WHERE id = $2`,
+                    [newChildKey, child.id]
+                );
             }
-        }
-        try {
-            await fsAsync.writeFile(metaPath, JSON.stringify(meta, null, 2), 'utf8');
-        } catch (e) {
-            console.error('Failed to write filemeta:', e.message);
-        }
+        });
+    } catch (e) {
+        console.error('[fileMeta] renameFileMeta error:', e.message);
     }
 }
 
+// Re-export getProjectRoot so callers that import it via fileMeta still work
 module.exports = { getProjectRoot, getFileMeta, setFileMeta, renameFileMeta };

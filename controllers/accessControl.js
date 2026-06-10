@@ -1,372 +1,460 @@
-/**
- * controllers/accessControl.js
- * ─────────────────────────────────────────────────────────────────────────────
- * ACL Engine — Granular per-user, per-project, per-module access control.
- *
- * Storage: src/DataFiles/access-control.json
- *
- * New ACL structure per user:
- * {
- *   "fullAccess": false,            ← true = read+write everything, skip all checks
- *   "dashboard": {
- *     "createProject": false,
- *     "deleteProject": false,
- *     "changeStatus": false,
- *     "reorderProjects": false,
- *     "downloadZip": false
- *   },
- *   "projects": {
- *     "ProjectName": {
- *       "access": true,             ← can they see this project?
- *       "canEdit": false,           ← can they write/edit data?
- *       "modules": {
- *         "aufmass": true,
- *         "files": true,
- *         ...
- *       }
- *     }
- *   }
- * }
- *
- * Permission hierarchy:
- *  1. superadmin role → ALWAYS full access. ACL is NEVER checked for superadmin.
- *  2. fullAccess: true → same as superadmin for ACL purposes (all checks return true)
- *  3. No ACL entry → NO access (zero access by default)
- *  4. dashboard[action] → controls dashboard actions per user
- *  5. projects[name].access → controls project visibility
- *  6. projects[name].canEdit → controls write permission within a project
- *  7. projects[name].modules[mod] → controls module visibility
- *
- * All known module names:
- *   aufmass, files, druckprufung, kalibrieren, einblasen, apl,
- *   knotenpunkt (NVT & Splicing), otdr, chat, planner
- */
+// PostgreSQL migration: 2026-06-10
+// Changed from flat file I/O to PostgreSQL queries via controllers/db.js
+//
+// ACL tables:
+//   access_control        — one row per user per tenant (global flags + dashboard perms)
+//   access_control_projects — one row per user per project (access, canEdit, modules JSONB)
+//
+// Public API preserved exactly — same exported function signatures.
+// V2 used email as key; V3 uses UUID internally but still accepts email from callers.
 
-const fs   = require('fs').promises;
-const path = require('path');
+const db = require('./db');
 
-const ACL_FILE = path.join(__dirname, '..', 'src', 'DataFiles', 'access-control.json');
+const TENANT_ID = process.env.TENANT_ID || 'REPLACE-WITH-GEGGOS-TENANT-UUID';
 
-// ─── File helpers ─────────────────────────────────────────────────────────────
+// ─── Internal helpers ──────────────────────────────────────────────────────────
 
-/**
- * Simple promise-chain mutex so concurrent setUserAccess / removeUserAccess calls
- * don't race each other on the read-modify-write of access-control.json.
- */
-let _writeLock = Promise.resolve();
-
-/** Read the entire ACL file. Returns {} if missing or corrupt. */
-async function readACL() {
+/** Resolve user UUID from email. Returns null if not found. */
+async function getUserId(email) {
+    if (!email) return null;
     try {
-        const raw = await fs.readFile(ACL_FILE, 'utf-8');
-        return JSON.parse(raw);
-    } catch (_) {
-        return {};
+        const r = await db.query(
+            'SELECT id FROM users WHERE LOWER(email) = LOWER($1)',
+            [email]
+        );
+        return r.rows[0]?.id || null;
+    } catch (e) {
+        console.error('[accessControl] getUserId error:', e.message);
+        return null;
     }
 }
 
-/** Write the entire ACL file atomically (within the mutex). */
-async function writeACL(data) {
-    await fs.mkdir(path.dirname(ACL_FILE), { recursive: true });
-    await fs.writeFile(ACL_FILE, JSON.stringify(data, null, 2), 'utf-8');
+/** Resolve project UUID from name. Returns null if not found. */
+async function getProjectId(projectName) {
+    if (!projectName) return null;
+    try {
+        const r = await db.query(
+            'SELECT id FROM projects WHERE tenant_id = $1 AND LOWER(name) = LOWER($2)',
+            [TENANT_ID, projectName]
+        );
+        return r.rows[0]?.id || null;
+    } catch (e) {
+        console.error('[accessControl] getProjectId error:', e.message);
+        return null;
+    }
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+/** Get the access_control row for a user. Returns null if not found. */
+async function getACLRow(userId) {
+    if (!userId) return null;
+    try {
+        const r = await db.query(
+            `SELECT * FROM access_control
+             WHERE tenant_id = $1 AND user_id = $2`,
+            [TENANT_ID, userId]
+        );
+        return r.rows[0] || null;
+    } catch (e) {
+        console.error('[accessControl] getACLRow error:', e.message);
+        return null;
+    }
+}
+
+/** Get all access_control_projects rows for an access_control row. */
+async function getACLProjects(aclId) {
+    if (!aclId) return [];
+    try {
+        const r = await db.query(
+            `SELECT acp.*, p.name AS project_name
+             FROM access_control_projects acp
+             JOIN projects p ON p.id = acp.project_id
+             WHERE acp.access_control_id = $1 AND acp.tenant_id = $2`,
+            [aclId, TENANT_ID]
+        );
+        return r.rows;
+    } catch (e) {
+        console.error('[accessControl] getACLProjects error:', e.message);
+        return [];
+    }
+}
+
+/** Build the V2-compatible access object shape from DB rows. */
+function buildAccessData(aclRow, aclProjects) {
+    if (!aclRow) return null;
+
+    const projects = {};
+    for (const p of aclProjects) {
+        projects[p.project_name] = {
+            access:  p.can_access === true,
+            canEdit: p.can_edit   === true,
+            modules: typeof p.modules === 'object' ? p.modules : {}
+        };
+    }
+
+    return {
+        fullAccess: aclRow.full_access === true,
+        authority: {
+            createProject:   aclRow.can_create_project   === true,
+            deleteProject:   aclRow.can_delete_project   === true,
+            changeStatus:    aclRow.can_change_status     === true,
+            reorderProjects: aclRow.can_reorder_projects  === true,
+            downloadZip:     aclRow.can_download_zip      === true,
+            editProjectInfo: aclRow.can_edit_project_info === true,
+        },
+        // backward-compat alias
+        dashboard: {
+            createProject:   aclRow.can_create_project   === true,
+            deleteProject:   aclRow.can_delete_project   === true,
+            changeStatus:    aclRow.can_change_status     === true,
+            reorderProjects: aclRow.can_reorder_projects  === true,
+            downloadZip:     aclRow.can_download_zip      === true,
+            editProjectInfo: aclRow.can_edit_project_info === true,
+        },
+        projects
+    };
+}
+
+// ─── Public API ────────────────────────────────────────────────────────────────
 
 /**
  * getUserAccess(email)
- * Returns the full ACL entry for a user, or null if no entry exists.
+ * Returns the full V2-compatible ACL object for a user, or null if no entry.
  */
 async function getUserAccess(email) {
-    const acl = await readACL();
-    return acl[email] || null;
+    const userId = await getUserId(email);
+    if (!userId) return null;
+
+    const aclRow = await getACLRow(userId);
+    if (!aclRow) return null;
+
+    const aclProjects = await getACLProjects(aclRow.id);
+    return buildAccessData(aclRow, aclProjects);
 }
 
 /**
  * setUserAccess(email, accessData)
- * Saves (creates or replaces) the full ACL entry for a user.
- * Serialised through _writeLock to prevent concurrent read-modify-write races.
+ * Creates or replaces the full ACL entry for a user.
+ * accessData shape (V2 format):
+ * {
+ *   fullAccess: bool,
+ *   dashboard: { createProject, deleteProject, changeStatus, reorderProjects, downloadZip, editProjectInfo },
+ *   projects: { ProjectName: { access, canEdit, modules: {...} } }
+ * }
  */
 async function setUserAccess(email, accessData) {
-    _writeLock = _writeLock.then(async () => {
-        const acl = await readACL();
-        acl[email] = accessData;
-        await writeACL(acl);
+    const userId = await getUserId(email);
+    if (!userId) {
+        console.error(`[accessControl] setUserAccess: user not found for email ${email}`);
+        return;
+    }
+
+    const auth = accessData.authority || accessData.dashboard || {};
+
+    await db.transaction(async (client) => {
+        // Upsert access_control row
+        const upsertResult = await client.query(
+            `INSERT INTO access_control
+                (tenant_id, user_id, full_access,
+                 can_create_project, can_delete_project, can_change_status,
+                 can_reorder_projects, can_download_zip, can_edit_project_info)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+             ON CONFLICT (tenant_id, user_id) DO UPDATE SET
+                full_access           = EXCLUDED.full_access,
+                can_create_project    = EXCLUDED.can_create_project,
+                can_delete_project    = EXCLUDED.can_delete_project,
+                can_change_status     = EXCLUDED.can_change_status,
+                can_reorder_projects  = EXCLUDED.can_reorder_projects,
+                can_download_zip      = EXCLUDED.can_download_zip,
+                can_edit_project_info = EXCLUDED.can_edit_project_info,
+                updated_at            = NOW()
+             RETURNING id`,
+            [
+                TENANT_ID, userId,
+                accessData.fullAccess === true,
+                !!(auth.createProject),
+                !!(auth.deleteProject),
+                !!(auth.changeStatus),
+                !!(auth.reorderProjects),
+                !!(auth.downloadZip),
+                !!(auth.editProjectInfo)
+            ]
+        );
+
+        const aclId = upsertResult.rows[0].id;
+
+        // Delete old project entries for this ACL
+        await client.query(
+            'DELETE FROM access_control_projects WHERE access_control_id = $1',
+            [aclId]
+        );
+
+        // Insert new project entries
+        const projects = accessData.projects || {};
+        for (const [projectName, pData] of Object.entries(projects)) {
+            const projectId = await getProjectId(projectName);
+            if (!projectId) {
+                console.warn(`[accessControl] setUserAccess: project not found: ${projectName}`);
+                continue;
+            }
+            await client.query(
+                `INSERT INTO access_control_projects
+                    (tenant_id, access_control_id, project_id, can_access, can_edit, modules)
+                 VALUES ($1, $2, $3, $4, $5, $6)`,
+                [
+                    TENANT_ID, aclId, projectId,
+                    pData.access  === true,
+                    pData.canEdit === true,
+                    JSON.stringify(pData.modules || {})
+                ]
+            );
+        }
     });
-    return _writeLock;
 }
 
 /**
  * removeUserAccess(email)
- * Removes all ACL restrictions for a user.
- * Serialised through _writeLock to prevent concurrent read-modify-write races.
+ * Removes all ACL entries for a user (returns them to zero access).
  */
 async function removeUserAccess(email) {
-    _writeLock = _writeLock.then(async () => {
-        const acl = await readACL();
-        delete acl[email];
-        await writeACL(acl);
-    });
-    return _writeLock;
+    const userId = await getUserId(email);
+    if (!userId) return;
+
+    // Cascading delete: access_control_projects deleted via FK cascade
+    await db.query(
+        'DELETE FROM access_control WHERE tenant_id = $1 AND user_id = $2',
+        [TENANT_ID, userId]
+    );
 }
 
 /**
  * getAllAccessRules()
- * Returns the entire ACL object (for admin UI).
+ * Returns all ACL rules as a V2-compatible { email: accessData } map.
  */
 async function getAllAccessRules() {
-    return readACL();
+    try {
+        // Get all access_control rows with user emails
+        const aclRows = await db.query(
+            `SELECT ac.*, u.email
+             FROM access_control ac
+             JOIN users u ON u.id = ac.user_id
+             WHERE ac.tenant_id = $1`,
+            [TENANT_ID]
+        );
+
+        const result = {};
+
+        for (const aclRow of aclRows.rows) {
+            const aclProjects = await getACLProjects(aclRow.id);
+            result[aclRow.email] = buildAccessData(aclRow, aclProjects);
+        }
+
+        return result;
+    } catch (e) {
+        console.error('[accessControl] getAllAccessRules error:', e.message);
+        return {};
+    }
 }
 
 /**
  * getProjectMembers(projectName)
- * Returns an array of emails that have access to the given project.
- * Includes users with fullAccess and users with explicit project access.
- * Does NOT include superadmins (they are separate).
+ * Returns emails of users who have access to a project.
  */
 async function getProjectMembers(projectName) {
-    const acl = await readACL();
-    const members = [];
-    for (const [email, entry] of Object.entries(acl)) {
-        if (!entry) continue;
-        if (entry.fullAccess === true) {
-            members.push(email);
-            continue;
-        }
-        const proj = entry.projects && entry.projects[projectName];
-        if (proj && proj.access === true) {
-            members.push(email);
-        }
+    try {
+        const projectId = await getProjectId(projectName);
+        if (!projectId) return [];
+
+        const r = await db.query(
+            `SELECT u.email
+             FROM access_control_projects acp
+             JOIN access_control ac ON ac.id = acp.access_control_id
+             JOIN users u ON u.id = ac.user_id
+             WHERE acp.project_id = $1
+               AND acp.tenant_id = $2
+               AND (acp.can_access = true OR ac.full_access = true)`,
+            [projectId, TENANT_ID]
+        );
+        return r.rows.map(r => r.email);
+    } catch (e) {
+        console.error('[accessControl] getProjectMembers error:', e.message);
+        return [];
     }
-    return members;
 }
 
-// ─── New Granular Permission Checks ───────────────────────────────────────────
+// ─── Granular Permission Checks ────────────────────────────────────────────────
 
-/**
- * hasFullAccess(email)
- * Returns true if the user has fullAccess: true in their ACL entry.
- * NOTE: Call this AFTER confirming the user is NOT superadmin.
- */
 async function hasFullAccess(email) {
-    const acl = await readACL();
-    const entry = acl[email];
-    if (!entry) return false;
-    return entry.fullAccess === true;
+    const userId = await getUserId(email);
+    if (!userId) return false;
+    const aclRow = await getACLRow(userId);
+    if (!aclRow) return false;
+    return aclRow.full_access === true;
 }
 
-/**
- * canDashboard(email, action)
- * Checks whether a user can perform a specific dashboard action.
- * action: 'createProject' | 'deleteProject' | 'changeStatus' | 'reorderProjects' | 'downloadZip'
- * NOTE: Call this AFTER confirming the user is NOT superadmin.
- */
 async function canDashboard(email, action) {
-    const acl = await readACL();
-    const entry = acl[email];
-    if (!entry) return false;
-    // fullAccess grants all dashboard permissions
-    if (entry.fullAccess === true) return true;
-    // Read from authority first, fall back to dashboard (backward compat)
-    const authData = entry.authority || entry.dashboard;
-    return !!(authData && authData[action] === true);
+    const userId = await getUserId(email);
+    if (!userId) return false;
+    const aclRow = await getACLRow(userId);
+    if (!aclRow) return false;
+    if (aclRow.full_access === true) return true;
+
+    const colMap = {
+        createProject:   'can_create_project',
+        deleteProject:   'can_delete_project',
+        changeStatus:    'can_change_status',
+        reorderProjects: 'can_reorder_projects',
+        downloadZip:     'can_download_zip',
+        editProjectInfo: 'can_edit_project_info',
+    };
+    const col = colMap[action];
+    return col ? aclRow[col] === true : false;
 }
 
-/**
- * canEditProject(email, projectName)
- * Returns true if the user has write/edit permission for a specific project.
- * NOTE: Call this AFTER confirming the user is NOT superadmin.
- * NOTE: Also check canAccessProject first.
- */
 async function canEditProject(email, projectName) {
-    const acl = await readACL();
-    const entry = acl[email];
-    if (!entry) return false;
-    if (entry.fullAccess === true) return true;
-    const projectEntry = entry.projects && entry.projects[projectName];
-    if (!projectEntry) return false;
-    if (projectEntry.access !== true) return false;
-    return projectEntry.canEdit === true;
+    const userId    = await getUserId(email);
+    if (!userId) return false;
+    const aclRow    = await getACLRow(userId);
+    if (!aclRow) return false;
+    if (aclRow.full_access === true) return true;
+
+    const projectId = await getProjectId(projectName);
+    if (!projectId) return false;
+
+    const r = await db.query(
+        `SELECT can_access, can_edit
+         FROM access_control_projects
+         WHERE access_control_id = $1 AND project_id = $2`,
+        [aclRow.id, projectId]
+    );
+    const p = r.rows[0];
+    if (!p || !p.can_access) return false;
+    return p.can_edit === true;
 }
 
-// ─── Existing Checks (Updated for new structure) ──────────────────────────────
-
-/**
- * canAccessProject(email, projectName)
- * Returns true/false.
- * NOTE: Call this AFTER confirming the user is NOT superadmin.
- *
- * Supports both old format (defaultProjectAccess) and new format (fullAccess / projects[].access).
- */
 async function canAccessProject(email, projectName) {
-    const acl = await readACL();
-    const entry = acl[email];
+    const userId = await getUserId(email);
+    if (!userId) return false;
+    const aclRow = await getACLRow(userId);
+    if (!aclRow) return false;
+    if (aclRow.full_access === true) return true;
 
-    // No ACL entry → no access
-    if (!entry) return false;
+    const projectId = await getProjectId(projectName);
+    if (!projectId) return false;
 
-    // New format: fullAccess
-    if (entry.fullAccess === true) return true;
-
-    // New format: explicit per-project access
-    if (entry.projects !== undefined) {
-        const projectEntry = entry.projects[projectName];
-        if (projectEntry !== undefined && projectEntry !== null) {
-            return projectEntry.access === true;
-        }
-        // No entry for this project AND no fullAccess → no access
-        // Check for legacy defaultProjectAccess fallback
-        if (entry.defaultProjectAccess !== undefined) {
-            return entry.defaultProjectAccess === true;
-        }
-        return false;
-    }
-
-    // Legacy old format: defaultProjectAccess
-    if (entry.defaultProjectAccess !== undefined) {
-        return entry.defaultProjectAccess === true;
-    }
-
-    return false;
+    const r = await db.query(
+        `SELECT can_access
+         FROM access_control_projects
+         WHERE access_control_id = $1 AND project_id = $2`,
+        [aclRow.id, projectId]
+    );
+    return r.rows[0]?.can_access === true;
 }
 
-/**
- * canAccessModule(email, projectName, moduleName)
- * Returns true/false.
- * NOTE: Call this AFTER confirming the user is NOT superadmin.
- * NOTE: Also check canAccessProject first.
- */
 async function canAccessModule(email, projectName, moduleName) {
-    const acl = await readACL();
-    const entry = acl[email];
+    const userId = await getUserId(email);
+    if (!userId) return false;
+    const aclRow = await getACLRow(userId);
+    if (!aclRow) return false;
+    if (aclRow.full_access === true) return true;
 
-    // No ACL entry → no access
-    if (!entry) return false;
+    const projectId = await getProjectId(projectName);
+    if (!projectId) return false;
 
-    // fullAccess → all modules accessible
-    if (entry.fullAccess === true) return true;
+    const r = await db.query(
+        `SELECT can_access, modules
+         FROM access_control_projects
+         WHERE access_control_id = $1 AND project_id = $2`,
+        [aclRow.id, projectId]
+    );
+    const p = r.rows[0];
+    if (!p || !p.can_access) return false;
 
-    const projectEntry = entry.projects && entry.projects[projectName];
-
-    // No project-level entry
-    if (!projectEntry) {
-        // Legacy: check defaultProjectAccess
-        if (entry.defaultProjectAccess === true) return true;
-        return false;
+    const modules = typeof p.modules === 'object' ? p.modules : {};
+    if (modules[moduleName] !== undefined) {
+        return modules[moduleName] === true;
     }
-
-    // Project not accessible at all
-    if (projectEntry.access !== true) return false;
-
-    // Project entry exists — check module
-    if (projectEntry.modules && projectEntry.modules[moduleName] !== undefined) {
-        return projectEntry.modules[moduleName] === true;
-    }
-
-    // No module-specific entry → allowed by default (within an accessible project)
+    // No module-specific entry → allowed by default within accessible project
     return true;
 }
 
 /**
  * getAccessibleProjects(email, allProjects)
- * Filters allProjects array to only those the user can access.
- * allProjects is expected to be an array of project objects with a `name` field.
- * NOTE: Call this AFTER confirming the user is NOT superadmin.
+ * Filters allProjects[] to only those the user can access.
  */
 async function getAccessibleProjects(email, allProjects) {
-    const acl = await readACL();
-    const entry = acl[email];
+    if (!allProjects || allProjects.length === 0) return [];
 
-    // No ACL entry → no access to any project
-    if (!entry) return [];
+    const userId = await getUserId(email);
+    if (!userId) return [];
+    const aclRow = await getACLRow(userId);
+    if (!aclRow) return [];
+    if (aclRow.full_access === true) return allProjects;
 
-    // fullAccess → all projects
-    if (entry.fullAccess === true) return allProjects;
+    // Get list of accessible project names
+    const r = await db.query(
+        `SELECT p.name
+         FROM access_control_projects acp
+         JOIN projects p ON p.id = acp.project_id
+         WHERE acp.access_control_id = $1
+           AND acp.can_access = true
+           AND acp.tenant_id = $2`,
+        [aclRow.id, TENANT_ID]
+    );
+    const accessibleNames = new Set(r.rows.map(row => row.name.toLowerCase()));
 
-    return allProjects.filter(project => {
-        const projectEntry = entry.projects && entry.projects[project.name];
-
-        if (projectEntry !== undefined && projectEntry !== null) {
-            return projectEntry.access === true;
-        }
-
-        // Legacy fallback
-        if (entry.defaultProjectAccess !== undefined) {
-            return entry.defaultProjectAccess === true;
-        }
-
-        return false;
-    });
+    return allProjects.filter(p => accessibleNames.has((p.name || '').toLowerCase()));
 }
 
 /**
  * getEffectivePermissions(email)
- * Returns the user's effective permissions object for use by the frontend.
- * NOTE: Call this AFTER confirming the user is NOT superadmin.
- *
- * Returns:
- * {
- *   fullAccess: bool,
- *   dashboard: { createProject, deleteProject, changeStatus, reorderProjects, downloadZip },
- *   projects: { ProjectName: { canEdit: bool, modules: { ... } } }
- * }
+ * Returns V2-compatible permissions object for the frontend.
  */
 async function getEffectivePermissions(email) {
-    const acl = await readACL();
-    const entry = acl[email];
-
     const defaultDashboard = {
-        createProject: false,
-        deleteProject: false,
-        changeStatus: false,
+        createProject:   false,
+        deleteProject:   false,
+        changeStatus:    false,
         reorderProjects: false,
-        downloadZip: false,
+        downloadZip:     false,
+        editProjectInfo: false,
     };
 
-    if (!entry) {
+    const userId = await getUserId(email);
+    if (!userId) {
         return { fullAccess: false, dashboard: { ...defaultDashboard }, projects: {} };
     }
 
-    if (entry.fullAccess === true) {
-        return {
-            fullAccess: true,
-            dashboard: {
-                createProject: true,
-                deleteProject: true,
-                changeStatus: true,
-                reorderProjects: true,
-                downloadZip: true,
-                editProjectInfo: true,
-            },
-            projects: {}
-        };
+    const aclRow = await getACLRow(userId);
+    if (!aclRow) {
+        return { fullAccess: false, dashboard: { ...defaultDashboard }, projects: {} };
     }
 
-    // Build dashboard/authority permissions (read from 'authority' first, fall back to 'dashboard')
-    const authEntry = entry.authority || entry.dashboard || {};
+    if (aclRow.full_access === true) {
+        const fullDash = Object.fromEntries(Object.keys(defaultDashboard).map(k => [k, true]));
+        return { fullAccess: true, dashboard: fullDash, authority: fullDash, projects: {} };
+    }
+
     const dashboard = {
-        createProject:   !!(authEntry.createProject),
-        deleteProject:   !!(authEntry.deleteProject),
-        changeStatus:    !!(authEntry.changeStatus),
-        reorderProjects: !!(authEntry.reorderProjects),
-        downloadZip:     !!(authEntry.downloadZip),
-        editProjectInfo: !!(authEntry.editProjectInfo),
+        createProject:   aclRow.can_create_project   === true,
+        deleteProject:   aclRow.can_delete_project   === true,
+        changeStatus:    aclRow.can_change_status     === true,
+        reorderProjects: aclRow.can_reorder_projects  === true,
+        downloadZip:     aclRow.can_download_zip      === true,
+        editProjectInfo: aclRow.can_edit_project_info === true,
     };
 
-    // Build project permissions (only access + canEdit + modules — no need for access:false ones)
+    const aclProjectRows = await getACLProjects(aclRow.id);
     const projects = {};
-    if (entry.projects) {
-        for (const [pName, pData] of Object.entries(entry.projects)) {
-            if (pData && pData.access === true) {
-                projects[pName] = {
-                    canEdit:  pData.canEdit === true,
-                    modules:  pData.modules || {}
-                };
-            }
+    for (const p of aclProjectRows) {
+        if (p.can_access === true) {
+            projects[p.project_name] = {
+                canEdit:  p.can_edit === true,
+                modules:  typeof p.modules === 'object' ? p.modules : {}
+            };
         }
     }
 
-    return { fullAccess: false, dashboard, projects };
+    return { fullAccess: false, dashboard, authority: dashboard, projects };
 }
 
 module.exports = {
@@ -375,12 +463,10 @@ module.exports = {
     removeUserAccess,
     getAllAccessRules,
     getProjectMembers,
-    // New granular checks
     hasFullAccess,
     canDashboard,
     canEditProject,
     getEffectivePermissions,
-    // Existing checks (updated)
     canAccessProject,
     canAccessModule,
     getAccessibleProjects,
