@@ -32,33 +32,33 @@ ON CONFLICT (slug) DO NOTHING;
 -- The hash below is bcrypt of 'CHANGE_ME_IMMEDIATELY' (cost factor 12).
 -- Generate fresh: node -e "const bcrypt=require('bcryptjs'); bcrypt.hash('yourpass',12).then(h=>console.log(h))"
 
--- ⚠️ DISABLED FOR MIGRATION DEPLOYMENT (June 2026):
--- The real superadmin (and all users) are imported from src/DataFiles/users.json
--- by scripts/migrate-flat-to-pg.js WITH their real bcrypt password hashes.
--- If we seed a placeholder superadmin here FIRST, the migration's
--- ON CONFLICT (email) DO NOTHING would skip the real user, leaving an
--- unusable placeholder password → superadmin locked out.
---
--- For a TRULY FRESH install with NO migration, uncomment the block below and
--- replace the password_hash with a real bcrypt hash:
---   node -e "const b=require('bcryptjs');b.hash('yourpass',12).then(h=>console.log(h))"
---
--- INSERT INTO users (id, email, username, name, password_hash, role, is_verified, is_approved, created_at)
--- VALUES (
---     'aaaaaaaa-0000-4000-a000-000000000002',
---     'admin@geggos.ai', 'admin', 'Admin',
---     '$2a$12$REPLACE_WITH_REAL_BCRYPT_HASH',
---     'superadmin', TRUE, TRUE, NOW()
--- )
--- ON CONFLICT (email) DO NOTHING;
---
--- INSERT INTO tenant_memberships (tenant_id, user_id, role)
--- VALUES ('aaaaaaaa-0000-4000-a000-000000000001', 'aaaaaaaa-0000-4000-a000-000000000002', 'superadmin')
--- ON CONFLICT (tenant_id, user_id) DO NOTHING;
---
--- INSERT INTO platform_admins (user_id)
--- VALUES ('aaaaaaaa-0000-4000-a000-000000000002')
--- ON CONFLICT (user_id) DO NOTHING;
+INSERT INTO users (id, email, username, name, password_hash, role, is_verified, is_approved, created_at)
+VALUES (
+    'aaaaaaaa-0000-4000-a000-000000000002',
+    'admin@geggos.ai',
+    'admin',
+    'Admin',
+    '$2a$12$PLACEHOLDER_REPLACE_WITH_REAL_BCRYPT_HASH_OF_YOUR_PASSWORD',
+    'superadmin',
+    TRUE,
+    TRUE,
+    NOW()
+)
+ON CONFLICT (email) DO NOTHING;
+
+-- Add superadmin to tenant
+INSERT INTO tenant_memberships (tenant_id, user_id, role)
+VALUES (
+    'aaaaaaaa-0000-4000-a000-000000000001',
+    'aaaaaaaa-0000-4000-a000-000000000002',
+    'superadmin'
+)
+ON CONFLICT (tenant_id, user_id) DO NOTHING;
+
+-- Make superadmin a platform admin
+INSERT INTO platform_admins (user_id)
+VALUES ('aaaaaaaa-0000-4000-a000-000000000002')
+ON CONFLICT (user_id) DO NOTHING;
 
 -- =============================================================================
 -- 3. Default Tenant Settings

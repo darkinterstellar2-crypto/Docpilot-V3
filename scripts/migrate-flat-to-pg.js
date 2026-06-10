@@ -50,12 +50,6 @@ if (DRY_RUN) {
     console.log('\n⚠️  DRY RUN MODE — transaction will be rolled back at the end.\n');
 }
 
-// ─── Canonical tenant identity ─────────────────────────────────────────────────
-// MUST match migrations/005-seeds.sql and the TENANT_ID in .env used by the app.
-// Single source of truth — do not generate a random UUID here.
-const CANONICAL_TENANT_ID = 'aaaaaaaa-0000-4000-a000-000000000001';
-const CANONICAL_TENANT_EMAIL = 'admin@geggos.ai';
-
 // ─── Paths ────────────────────────────────────────────────────────────────────
 
 const APP_ROOT    = path.join(__dirname, '..');
@@ -142,17 +136,15 @@ async function migrate() {
 
         // ── 0. Create default tenant ──────────────────────────────────────────
         console.log('── Step 1: Creating tenant (Geggos) ──');
-        // Use the canonical fixed UUID (matches seeds + app .env). Idempotent upsert.
         const tenantRes = await client.query(`
-            INSERT INTO tenants (id, slug, name, email, plan, status, max_users, max_projects)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-            ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name
+            INSERT INTO tenants (slug, name, email, plan, status, max_users, max_projects)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             RETURNING id
-        `, [CANONICAL_TENANT_ID, 'geggos', 'Geggos', CANONICAL_TENANT_EMAIL, 'enterprise', 'active', 100, 999]);
+        `, ['geggos', 'Geggos', 'admin@geggos.de', 'pro', 'active', 100, 100]);
 
         const TENANT_ID = tenantRes.rows[0].id;
         inc('tenants');
-        console.log(`  Tenant ready: ${TENANT_ID}\n`);
+        console.log(`  Created tenant: ${TENANT_ID}\n`);
 
         // ── 1. Users ──────────────────────────────────────────────────────────
         console.log('── Step 2: Migrating users ──');

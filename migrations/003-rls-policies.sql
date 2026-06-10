@@ -197,9 +197,8 @@ CREATE POLICY file_shares_tenant_isolation ON file_shares
 -- Public share resolution: app checks expiry + increments access_count via service_role bypass.
 CREATE POLICY file_shares_public_read ON file_shares
     AS PERMISSIVE FOR SELECT TO PUBLIC
-    USING (expires_at IS NULL OR expires_at > NOW());
-    -- Anyone can SELECT an unexpired share (for the public /share/:shareId endpoint).
-    -- expires_at IS NULL = never-expires share (♾️ feature) — always publicly readable.
+    USING (expires_at > NOW());
+    -- Anyone can SELECT an unexpired share (for the public /share/:shareId endpoint)
     -- No tenant_id check here — share ID is the secret
 
 GRANT ALL ON file_shares TO service_role;
@@ -344,36 +343,3 @@ COMMENT ON FUNCTION set_tenant_context IS 'Sets app.tenant_id for the current tr
 -- 2. Never use SET app.tenant_id (session-level) — leaks across pooled connections
 -- 3. Always wrap API requests in a transaction: BEGIN; SET LOCAL ...; queries; COMMIT;
 -- 4. Supabase Edge Functions: use supabaseClient with service_role for admin ops
-
--- =============================================================================
--- SINGLE-TENANT DEPLOYMENT MODE  (Geggos, June 2026)  ⚑ ACTIVE
--- =============================================================================
--- The application is currently single-tenant. Every route already filters
--- explicitly with `WHERE tenant_id = $1` (the canonical Geggos UUID from .env),
--- so tenant isolation is enforced at the application layer.
---
--- The app connects as `app_user` via a pooled connection (controllers/db.js) and
--- does NOT wrap each request in a transaction that sets app.tenant_id. Under
--- FORCE RLS that would make every policy evaluate tenant_id = NULL → zero rows.
---
--- To make the app functional NOW without per-request SET LOCAL plumbing, grant
--- app_user BYPASSRLS. The RLS policies above remain DEFINED and FORCED on the
--- tables — they are a dormant safety net. When we move to true multi-tenant,
--- remove BYPASSRLS here and add the SET LOCAL app.tenant_id middleware instead.
---
--- SECURITY NOTE: This is safe while single-tenant because app-layer WHERE
--- filters constrain every query to the one tenant. Revisit before onboarding
--- a second tenant.
---
--- IMPORTANT: The app logs in as the LOGIN role `docpilot_app` (see controllers/db.js
--- and setup-postgres.sh), NOT as the `app_user` group role. We therefore:
---   1. Grant docpilot_app membership in app_user so it inherits all table GRANTs.
---   2. Put BYPASSRLS directly on docpilot_app — BYPASSRLS is NOT inherited through
---      role membership, so it must live on the actual login role.
--- =============================================================================
-DO $$ BEGIN
-    IF EXISTS (SELECT FROM pg_roles WHERE rolname = 'docpilot_app') THEN
-        GRANT app_user TO docpilot_app;
-        ALTER ROLE docpilot_app BYPASSRLS;
-    END IF;
-END $$;
