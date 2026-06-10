@@ -16,6 +16,10 @@ const { ensureLocalFile } = require('../controllers/nasOnDemand');
 // ACL Engine
 const { canAccessProject, canAccessModule, canEditProject } = require('../controllers/accessControl');
 
+// ── Aufmass DB store (PostgreSQL) ─────────────────────────────────────────────
+// Falls back to legacy .txt path when DB schema not available for a project.
+const aufmassStore = require('../controllers/aufmassStore');
+
 // Helper: escape special regex characters in a string
 function escapeRegex(str) {
     return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -135,6 +139,13 @@ async function getSafeClusterNames(projectName) {
 }
 
 // --- READ DYNAMIC DATA ---
+// Response shape: { success, schema, data, rowVersions }
+// schema: [ { id, title, cols: [ { id, label, ...extras } ], columns } ]
+// data:   [ { _id, _version, "col-<id>": value, ... } ]
+// rowVersions: { rowId: version }
+//
+// DB path (migrated projects): reads aufmass_schema + aufmass_row via aufmassStore.
+// Legacy fallback (not yet migrated): reads .txt file directly (old behaviour).
 router.get('/', async (req, res) => {
     try {
         const userEmail  = req.headers['x-user-email'] || '';
@@ -150,48 +161,64 @@ router.get('/', async (req, res) => {
             if (!moduleOk) return res.status(403).json({ success: false, message: 'Access denied: aufmass module not accessible.' });
         }
 
-        const filePath = await getFilePath(req.query.project);
-        const fileContent = await fs.readFile(filePath, 'utf-8');
-        const rawData = JSON.parse(fileContent);
-        
-        const E1 = rawData[0];
-        const E2 = rawData[1];
-        const E2_0 = E2[0]; 
-        const dataRows = E2.slice(1); 
+        // ── Try DB path first ────────────────────────────────────────────────
+        let usedDb = false;
+        let schema, flatData, rowVersions = {};
 
-        const schema = E1.map((mainTitle, i) => ({
-            id: `grp-${i}`,
-            title: mainTitle,
-            cols: (E2_0[i] || []).map((subTitle, j) => ({
-                id: `col-${i}-${j}`,
-                label: subTitle
-            }))
-        }));
-
-        const flatData = dataRows.map((row, rIdx) => {
-            let rowObj = { _id: row[0][0] || `ROW-${rIdx}` }; 
-            schema.forEach((group, i) => {
-                group.cols.forEach((col, j) => {
-                    rowObj[col.id] = (row[i] && row[i][j] != null) ? String(row[i][j]) : '';
-                });
-            });
-            return rowObj;
-        });
-
-        // Load row versions for optimistic locking
-        let rowVersions = {};
         try {
-            const rvPath = path.join(getProjectRoot(req.query.project), 'row-versions.json');
-            const rvData = await fs.readFile(rvPath, 'utf-8');
-            rowVersions = JSON.parse(rvData);
-        } catch { /* no versions yet — all default to 0 */ }
+            const schemaRec = await aufmassStore.getSchema(aclProject);
+            if (schemaRec) {
+                const rowRec = await aufmassStore.getRows(aclProject);
+                schema      = schemaRec.schema;  // API-shaped
+                flatData    = rowRec.data;        // flat objects
+                rowVersions = rowRec.rowVersions;
+                usedDb      = true;
+            }
+        } catch (dbErr) {
+            console.warn('[dataRoutes] DB read failed, falling back to .txt:', dbErr.message);
+        }
 
-        // Attach row version to each row
-        flatData.forEach(row => {
-            row._version = rowVersions[row._id] || 0;
-        });
+        // ── Legacy fallback (not yet migrated or DB unavailable) ──────────
+        if (!usedDb) {
+            const filePath = await getFilePath(req.query.project);
+            const fileContent = await fs.readFile(filePath, 'utf-8');
+            const rawData = JSON.parse(fileContent);
 
-        res.json({ success: true, schema, data: flatData });
+            const E1    = rawData[0];
+            const E2    = rawData[1];
+            const E2_0  = E2[0];
+            const dataRows = E2.slice(1);
+
+            schema = E1.map((mainTitle, i) => ({
+                id:    `grp-${i}`,
+                title: mainTitle,
+                cols: (E2_0[i] || []).map((subTitle, j) => ({
+                    id:    `col-${i}-${j}`,
+                    label: subTitle
+                }))
+            }));
+
+            flatData = dataRows.map((row, rIdx) => {
+                let rowObj = { _id: row[0][0] || `ROW-${rIdx}` };
+                schema.forEach((group, i) => {
+                    group.cols.forEach((col, j) => {
+                        rowObj[col.id] = (row[i] && row[i][j] != null) ? String(row[i][j]) : '';
+                    });
+                });
+                return rowObj;
+            });
+
+            // Load row versions for optimistic locking (legacy)
+            try {
+                const rvPath = path.join(getProjectRoot(req.query.project), 'row-versions.json');
+                const rvData = await fs.readFile(rvPath, 'utf-8');
+                rowVersions  = JSON.parse(rvData);
+            } catch { /* no versions yet — all default to 0 */ }
+
+            flatData.forEach(row => { row._version = rowVersions[row._id] || 0; });
+        }
+
+        res.json({ success: true, schema, data: flatData, rowVersions });
 
         // Fire-and-forget background sync after returning data (non-blocking)
         const projectName = req.query.project;
@@ -380,32 +407,77 @@ router.post('/', async (req, res) => {
             });
         }
 
-        await fs.writeFile(filePath, JSON.stringify([E1, finalE2], null, 2), 'utf-8');
+        // ── Try DB path first ────────────────────────────────────────────────────
+        const userEmail   = req.headers['x-user-email'] || 'Unknown';
+        const projectName = req.query.project || '';
+        let savedToDb     = false;
+        let updatedVersions = {};
 
-        // Increment versions for changed rows
-        changedRows.forEach(r => { rowVersions[r.rowId] = (rowVersions[r.rowId] || 0) + 1; });
-        try { await fs.writeFile(rvPath, JSON.stringify(rowVersions), 'utf-8'); } catch (rvErr) {
-            console.error('[dataRoutes] Failed to write row-versions.json:', rvErr.message);
+        try {
+            const schemaRec = await aufmassStore.getSchema(projectName);
+            if (schemaRec) {
+                // DB path: saveRows handles optimistic locking
+                const result = await aufmassStore.saveRows(projectName, data, schema, userEmail);
+                if (result.conflict) {
+                    return res.status(409).json({
+                        success: false, conflict: true,
+                        message: `${result.conflicts.length} row(s) were modified by another user. Please refresh.`,
+                        conflicts: result.conflicts
+                    });
+                }
+                updatedVersions = result.rowVersions || {};
+                savedToDb = true;
+
+                // Fire-and-forget legacy snapshot for backup
+                setImmediate(async () => {
+                    try {
+                        const rawDbRows = await aufmassStore.getRows(projectName);
+                        aufmassStore.triggerLegacySnapshot(projectName, schemaRec._raw,
+                            rawDbRows.data.map(row => ({
+                                row_id: row._id,
+                                cells: Object.fromEntries(Object.entries(row).filter(([k]) => !k.startsWith('_')))
+                            }))
+                        );
+                    } catch (snapErr) {
+                        console.warn('[dataRoutes] Snapshot trigger error:', snapErr.message);
+                    }
+                });
+            }
+        } catch (dbErr) {
+            console.warn('[dataRoutes] DB write failed, falling back to .txt:', dbErr.message);
         }
 
-        const userEmail = req.headers['x-user-email'] || 'Unknown';
-        const projectName = req.query.project || '';
+        if (!savedToDb) {
+            // ── Legacy fallback ──────────────────────────────────────────────────────
+            if (conflicts.length > 0) {
+                return res.status(409).json({
+                    success: false, conflict: true,
+                    message: `${conflicts.length} row(s) were modified by another user. Please refresh the page.`,
+                    conflicts
+                });
+            }
+
+            await fs.writeFile(filePath, JSON.stringify([E1, finalE2], null, 2), 'utf-8');
+
+            changedRows.forEach(r => { rowVersions[r.rowId] = (rowVersions[r.rowId] || 0) + 1; });
+            try { await fs.writeFile(rvPath, JSON.stringify(rowVersions), 'utf-8'); } catch (rvErr) {
+                console.error('[dataRoutes] Failed to write row-versions.json:', rvErr.message);
+            }
+            data.forEach(row => { updatedVersions[row._id] = rowVersions[row._id] || 0; });
+
+            // NAS sync
+            const relFilePath = path.relative(STORAGE_ROOT, filePath).replace(/\\/g, '/');
+            syncFile(relFilePath);
+
+            // Versioned copy + Excel export (fire-and-forget)
+            setImmediate(async () => {
+                try { await saveVersionedCopy(filePath, E1, finalE2); }
+                catch (e) { console.error('Versioning error:', e.message); }
+            });
+        }
+
         await logAction(userEmail, 'Data Saved', logDetails);
-
-        // Return updated versions to client
-        const updatedVersions = {};
-        data.forEach(row => { updatedVersions[row._id] = rowVersions[row._id] || 0; });
         res.json({ success: true, otdrTriggered: otdrTriggeredCount, rowVersions: updatedVersions });
-
-        // --- NAS sync: push updated datafile to NAS (fire-and-forget) ---
-        const relFilePath = path.relative(STORAGE_ROOT, filePath).replace(/\\/g, '/');
-        syncFile(relFilePath);
-
-        // --- Versioned copy + Excel export (fire-and-forget) ---
-        setImmediate(async () => {
-            try { await saveVersionedCopy(filePath, E1, finalE2); }
-            catch (e) { console.error('Versioning error:', e.message); }
-        });
 
         // --- Auto-sync cluster/knotenpunkt folders (fire-and-forget after response) ---
         if (projectName && schema && data) {

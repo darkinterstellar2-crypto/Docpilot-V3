@@ -16,6 +16,54 @@ const { syncFile } = require('../controllers/nasSync');
 // ACL Engine
 const { canAccessProject, canAccessModule, canEditProject } = require('../controllers/accessControl');
 
+// ── Aufmass DB store (PostgreSQL) ───────────────────────────────────────────────
+// Used for navigation + status-update endpoints to read/write aufmass data.
+// Falls back to parseDataFile() (legacy .txt path) when project not yet migrated.
+const aufmassStore = require('../controllers/aufmassStore');
+
+/**
+ * Parse aufmass data for a project — DB-first with .txt fallback.
+ * Returns { E1, E2_0, dataRows, fromDb } where:
+ *   fromDb=true  → data came from PostgreSQL
+ *   fromDb=false → data came from legacy .txt file
+ *
+ * For DB rows: converts flat cells JSONB + schema back to E1/E2_0/dataRows
+ * so that downstream code that uses positional indexing keeps working.
+ */
+async function parseDataAny(projectName) {
+    try {
+        const schemaRec = await aufmassStore.getSchema(projectName);
+        if (schemaRec) {
+            const rowRec = await aufmassStore.getRows(projectName);
+            const raw    = schemaRec._raw; // full schema_json with groups+columns
+
+            const E1   = raw.map(g => g.title);
+            const E2_0 = raw.map(g => (g.columns || []).map(c => c.label));
+
+            // Convert flat cells back to nested row format: row[grpIdx][colIdx]
+            const dataRows = rowRec.data.map(flatRow => {
+                return raw.map(group => {
+                    return (group.columns || []).map(col => flatRow[col.id] ?? '');
+                });
+            });
+
+            // Attach row_id as row[0][0] (Identification group)
+            rowRec.data.forEach((flatRow, idx) => {
+                if (dataRows[idx] && dataRows[idx][0]) {
+                    dataRows[idx][0][0] = flatRow._id;
+                }
+            });
+
+            return { E1, E2_0, dataRows, fromDb: true, schemaRec, rowRec };
+        }
+    } catch (dbErr) {
+        console.warn(`[moduleRoutes] DB read failed for "${projectName}", using .txt fallback:`, dbErr.message);
+    }
+    // Legacy fallback
+    const result = await parseDataFile(projectName);
+    return { ...result, fromDb: false };
+}
+
 // ─── Data file path resolution ─────────────────────────────────────────────────
 
 /** Escape special regex characters in a project name. */
@@ -123,7 +171,7 @@ router.get('/navigation', async (req, res) => {
     }
 
     try {
-        const { E1, E2_0, dataRows } = await parseDataFile(project);
+        const { E1, E2_0, dataRows } = await parseDataAny(project);
 
         // Build schema (group labels from E1, col labels from E2_0)
         const schema = (E1 || []).map((groupLabel, i) => ({
@@ -351,7 +399,12 @@ router.post('/aufmass-update', async (req, res) => {
             }
         }
 
-        const { filePath, E1, E2, E2_0, dataRows } = await parseDataFile(project);
+        // ── DB-first data access for row update ──────────────────────────────────
+        const dataResult = await parseDataAny(project);
+        const { E2_0, dataRows, fromDb } = dataResult;
+        const E1       = dataResult.E1;
+        const filePath = fromDb ? null : dataResult.filePath;
+        const E2       = fromDb ? null : dataResult.E2;
 
         // Find the row index by _id (same logic as GET in dataRoutes.js)
         const rowIndex = dataRows.findIndex((row, rIdx) => {
@@ -422,15 +475,65 @@ router.post('/aufmass-update', async (req, res) => {
             }
         }
 
-        // Reconstruct E2 with updated row in place
+        // ── Write changes back ────────────────────────────────────────────────────
         const newE2 = [E2_0, ...dataRows];
+        let newRowVersion;
 
-        await fs.writeFile(filePath, JSON.stringify([E1, newE2], null, 2), 'utf-8');
+        if (fromDb && dataResult.schemaRec) {
+            // DB path: convert updated nested row back to flat cells
+            const raw = dataResult.schemaRec._raw;
+            const updatedFlatRow = { _id: rowId };
+            raw.forEach((group, gi) => {
+                (group.columns || []).forEach((col, ci) => {
+                    updatedFlatRow[col.id] = (targetRow[gi] && targetRow[gi][ci] != null)
+                        ? String(targetRow[gi][ci]) : '';
+                });
+            });
 
-        // ── Increment row version ──────────────────────────────────────────────
-        versions[rowId] = storedVersion + 1;
-        await saveRowVersions(project, versions);
-        const newRowVersion = versions[rowId];
+            try {
+                const dbResult = await aufmassStore.updateCell(project, rowId, '__batch__', null, storedVersion,
+                    req.headers['x-user-email'] || 'system');
+                // updateCell with __batch__ key is a sentinel; use saveRows instead for multi-cell
+                // Fallback: rebuild all cells via updateCell per changed col
+            } catch (_) { /* use full row save below */ }
+
+            // Full row save: update all cells at once via direct query
+            const cells = {};
+            Object.keys(updatedFlatRow).forEach(k => { if (!k.startsWith('_')) cells[k] = updatedFlatRow[k]; });
+            const { query: pgQuery } = require('../controllers/db');
+            const curVer = await pgQuery(
+                'SELECT version FROM aufmass_row WHERE project_name = $1 AND row_id = $2',
+                [project, rowId]
+            );
+            const currentVersion = curVer.rows[0]?.version || storedVersion;
+            await pgQuery(
+                'UPDATE aufmass_row SET cells = $1, version = version + 1, updated_by = $2 WHERE project_name = $3 AND row_id = $4',
+                [JSON.stringify(cells), req.headers['x-user-email'] || 'system', project, rowId]
+            );
+            newRowVersion = currentVersion + 1;
+
+            // Fire-and-forget legacy snapshot
+            setImmediate(async () => {
+                try {
+                    const rowRec = await aufmassStore.getRows(project);
+                    aufmassStore.triggerLegacySnapshot(project, dataResult.schemaRec._raw,
+                        rowRec.data.map(row => ({
+                            row_id: row._id,
+                            cells: Object.fromEntries(Object.entries(row).filter(([k]) => !k.startsWith('_')))
+                        }))
+                    );
+                } catch (snapErr) {
+                    console.warn('[moduleRoutes] Snapshot error:', snapErr.message);
+                }
+            });
+        } else {
+            // Legacy fallback: write .txt
+            await fs.writeFile(filePath, JSON.stringify([E1, newE2], null, 2), 'utf-8');
+
+            versions[rowId] = storedVersion + 1;
+            await saveRowVersions(project, versions);
+            newRowVersion = versions[rowId];
+        }
 
         // ── Build granular log details ─────────────────────────────────────────
         const userEmail = req.headers['x-user-email'] || 'Unknown';
@@ -458,15 +561,15 @@ router.post('/aufmass-update', async (req, res) => {
 
         res.json({ success: true, rowId, updated: Object.keys(updates), otdrAutoTriggered, rowVersion: newRowVersion });
 
-        // --- NAS sync: push updated datafile to NAS (fire-and-forget) ---
-        const relFilePath = require('path').relative(STORAGE_ROOT, filePath).replace(/\\/g, '/');
-        syncFile(relFilePath);
-
-        // --- Versioned copy + Excel export (fire-and-forget) ---
-        setImmediate(async () => {
-            try { await saveVersionedCopy(filePath, E1, newE2); }
-            catch (e) { console.error('Versioning error (moduleRoutes):', e.message); }
-        });
+        // --- NAS sync + legacy versioned copy (only for .txt path) ---
+        if (!fromDb && filePath) {
+            const relFilePath = require('path').relative(STORAGE_ROOT, filePath).replace(/\\/g, '/');
+            syncFile(relFilePath);
+            setImmediate(async () => {
+                try { await saveVersionedCopy(filePath, E1, newE2); }
+                catch (e) { console.error('Versioning error (moduleRoutes):', e.message); }
+            });
+        }
     } catch (e) {
         console.error('aufmass-update error:', e.message);
         res.status(500).json({ success: false, message: `Update failed: ${e.message}` });
@@ -496,7 +599,7 @@ router.get('/aufmass-row', async (req, res) => {
     }
 
     try {
-        const { E2_0, dataRows } = await parseDataFile(project);
+        const { E2_0, dataRows } = await parseDataAny(project);
 
         // Build schema (same as GET in dataRoutes.js)
         const schema = E2_0.map((cols, i) => ({
@@ -725,7 +828,7 @@ router.get('/appointments', async (req, res) => {
     }
 
     try {
-        const { E1, E2_0, dataRows } = await parseDataFile(project);
+        const { E1, E2_0, dataRows } = await parseDataAny(project);
 
         // Find context columns
         const clusterPos   = findColByLabel(E2_0, l => l === 'cluster');
@@ -828,7 +931,7 @@ router.get('/appointments/all', async (req, res) => {
             }
 
             try {
-                const { E1, E2_0, dataRows } = await parseDataFile(projectName);
+                const { E1, E2_0, dataRows } = await parseDataAny(projectName);
 
                 const clusterPos   = findColByLabel(E2_0, l => l === 'cluster');
                 const knotenPos    = findColByLabel(E2_0, l => l === 'knotenpunkt' || l === 'nvt');

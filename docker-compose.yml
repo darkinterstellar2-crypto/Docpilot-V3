@@ -1,8 +1,28 @@
 services:
+  docpilot-postgres:
+    image: postgres:16-alpine
+    container_name: docpilot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PG_DATABASE:-docpilot}
+      POSTGRES_USER: ${PG_USER:-docpilot}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+    volumes:
+      - docpilot-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-docpilot} -d ${PG_DATABASE:-docpilot}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
   docpilot:
     build: .
     container_name: docpilot
     restart: unless-stopped
+    depends_on:
+      docpilot-postgres:
+        condition: service_healthy
     ports:
       - "3000:3000"
     env_file:
@@ -25,3 +45,4 @@ services:
 volumes:
   geggos-storage:
   geggos-appdata:
+  docpilot-pgdata:
