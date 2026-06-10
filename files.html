@@ -35,7 +35,8 @@
                             300: '#d1d5db', 400: '#9ca3af', 500: '#6b7280',
                             600: '#4b5563', 700: '#374151', 800: '#1f2937', 900: '#111827'
                         }
-                    }
+                    },
+                    spacing: { 'sidebar-width': '240px' }
                 }
             }
         }
@@ -43,6 +44,11 @@
     <style>
         /* ── Base ─────────────────────────────────────────────────── */
         body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .topbar-glass {
+            background: rgba(248,250,252,0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
         ::-webkit-scrollbar { width: 4px; background: transparent; }
         ::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 4px; }
 
@@ -58,18 +64,9 @@
         }
 
         /* ── Sidebar ──────────────────────────────────────────────── */
-        #desktopSidebar {
-            width: 240px;
-            background: #022448;
-            height: 100vh;
-            position: fixed;
-            left: 0; top: 0;
-            z-index: 50;
-            display: flex;
-            flex-direction: column;
+        .sidebar-nav {
             overflow-y: auto;
             overflow-x: hidden;
-            flex-shrink: 0;
         }
         .sidebar-nav-item {
             display: flex;
@@ -647,7 +644,7 @@
     <!-- ═══════════════════════════════════════════════════════════
          DESKTOP SIDEBAR
     ════════════════════════════════════════════════════════════════ -->
-    <aside id="desktopSidebar" class="sidebar-nav">
+    <nav class="sidebar-nav hidden md:flex flex-col bg-primary text-on-primary w-sidebar-width h-screen fixed left-0 top-0 z-50 shrink-0">
         <!-- Brand -->
         <div class="px-4 py-5 border-b border-white/10 flex items-center justify-between">
           <div>
@@ -716,7 +713,7 @@
                 <span class="sidebar-text text-sm font-medium">Logout</span>
             </button>
         </div>
-    </aside>
+    </nav>
 
     <!-- ═══════════════════════════════════════════════════════════
          MOBILE FOLDER DRAWER
@@ -750,75 +747,79 @@
     <!-- ═══════════════════════════════════════════════════════════
          MAIN CONTENT AREA
     ════════════════════════════════════════════════════════════════ -->
-    <div class="flex flex-col flex-1 overflow-hidden main-content" style="margin-left:240px;" id="mainContentWrapper">
+    <div class="main-content flex-1 flex flex-col h-screen md:ml-sidebar-width overflow-hidden" id="mainContentWrapper">
 
         <!-- ── Top Header ────────────────────────────────────────── -->
-        <header class="bg-white border-b border-[#E2E8F0] flex-shrink-0 flex items-center gap-3 px-5 h-14 shadow-sm">
-            <!-- Mobile: hamburger (hidden on desktop since sidebar is always visible) -->
-            <button class="md:hidden p-2 -ml-1 rounded-lg text-[#74777f] hover:bg-[#f2f4f6] transition-colors" onclick="openFolderDrawer()">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
+        <header class="topbar-glass sticky top-0 z-40 border-b border-[#E2E8F0] shadow-sm flex-shrink-0">
+            <div class="flex items-center justify-between px-4 md:px-6 h-14 gap-3">
+                <!-- Left side -->
+                <div class="flex items-center gap-2 min-w-0">
+                    <!-- Mobile: hamburger -->
+                    <button class="md:hidden p-2 -ml-1 rounded-lg text-[#74777f] hover:bg-[#f2f4f6] transition-colors" onclick="openFolderDrawer()">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
 
-            <!-- Breadcrumb / path in header -->
-            <div class="flex-1 min-w-0 flex items-center gap-2">
-                <span class="material-symbols-outlined text-[#fea619] flex-shrink-0" style="font-size:18px">folder_open</span>
-                <div id="breadcrumb" class="flex items-center gap-1 text-sm text-[#74777f] flex-1 flex-wrap min-w-0 overflow-hidden">
-                    <button onclick="navigateTo('')" class="hover:text-[#022448] font-semibold transition-colors">Root</button>
+                    <!-- Breadcrumb / path in header -->
+                    <span class="material-symbols-outlined text-[#fea619] flex-shrink-0" style="font-size:18px">folder_open</span>
+                    <div id="breadcrumb" class="flex items-center gap-1 text-sm text-[#74777f] flex-1 flex-wrap min-w-0 overflow-hidden">
+                        <button onclick="navigateTo('')" class="hover:text-[#022448] font-semibold transition-colors">Root</button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Clipboard paste pill -->
-            <div id="clipboardPill" style="display:none"
-                 class="flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 border border-amber-200 rounded-lg text-xs font-semibold text-amber-700 shrink-0">
-                <span>✂️</span>
-                <span id="clipboardPillName" class="max-w-[100px] truncate"></span>
-                <button onclick="pasteClipboard()" class="hover:text-amber-900 underline underline-offset-2">Paste here</button>
-                <button onclick="clearClipboard()" class="text-gray-400 hover:text-gray-600 ml-0.5" title="Cancel cut">✕</button>
-            </div>
+                <!-- Right side (DoBo injects here) -->
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <!-- Clipboard paste pill -->
+                    <div id="clipboardPill" style="display:none"
+                         class="flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 border border-amber-200 rounded-lg text-xs font-semibold text-amber-700 shrink-0">
+                        <span>✂️</span>
+                        <span id="clipboardPillName" class="max-w-[100px] truncate"></span>
+                        <button onclick="pasteClipboard()" class="hover:text-amber-900 underline underline-offset-2">Paste here</button>
+                        <button onclick="clearClipboard()" class="text-gray-400 hover:text-gray-600 ml-0.5" title="Cancel cut">✕</button>
+                    </div>
 
-            <!-- Recycle bin (admin only) -->
-            <button id="recycleBinBtn" onclick="openRecycleBin()"
-                    class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#74777f] hover:text-error hover:bg-[#ffdad6] border border-[#E2E8F0] rounded-lg transition-colors flex-shrink-0"
-                    title="Recycle Bin" style="display:none">
-                <span class="material-symbols-outlined" style="font-size:16px">delete</span>
-                <span class="hidden sm:inline">Recycle Bin</span>
-            </button>
-
-            <!-- View toggles -->
-            <div class="flex items-center gap-0.5 flex-shrink-0 bg-[#f2f4f6] rounded-lg p-0.5">
-                <button id="btnGrid" onclick="setView('grid')" class="view-btn" title="Grid view">
-                    <span class="material-symbols-outlined" style="font-size:18px">grid_view</span>
-                </button>
-                <button id="btnList" onclick="setView('list')" class="view-btn" title="List view">
-                    <span class="material-symbols-outlined" style="font-size:18px">view_list</span>
-                </button>
-            </div>
-
-            <!-- DoBo + New button container -->
-            <div class="flex items-center gap-2 flex-shrink-0">
-            <div class="relative flex-shrink-0" id="newBtnWrap" style="display:none">
-                <button id="newBtn" class="btn-upload">
-                    <span class="material-symbols-outlined" style="font-size:16px">add</span>
-                    <span class="hidden sm:inline">New</span>
-                    <span class="material-symbols-outlined" style="font-size:14px;opacity:0.7">expand_more</span>
-                </button>
-                <div id="newDropdown" class="new-dropdown hidden">
-                    <button onclick="createFolder()">
-                        <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-8l-2-2z"/></svg>
-                        New Folder
+                    <!-- Recycle bin (admin only) -->
+                    <button id="recycleBinBtn" onclick="openRecycleBin()"
+                            class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#74777f] hover:text-error hover:bg-[#ffdad6] border border-[#E2E8F0] rounded-lg transition-colors flex-shrink-0"
+                            title="Recycle Bin" style="display:none">
+                        <span class="material-symbols-outlined" style="font-size:16px">delete</span>
+                        <span class="hidden sm:inline">Recycle Bin</span>
                     </button>
-                    <div class="divider"></div>
-                    <button onclick="document.getElementById('fileInputMulti').click()">
-                        <svg class="w-4 h-4 text-[#8aa4cf]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                        Upload Files
-                    </button>
-                    <button onclick="document.getElementById('folderInputDir').click()">
-                        <svg class="w-4 h-4 text-[#adc8f5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
-                        Upload Folder
-                    </button>
-                </div>
+
+                    <!-- View toggles -->
+                    <div class="flex items-center gap-0.5 flex-shrink-0 bg-[#f2f4f6] rounded-lg p-0.5">
+                        <button id="btnGrid" onclick="setView('grid')" class="view-btn" title="Grid view">
+                            <span class="material-symbols-outlined" style="font-size:18px">grid_view</span>
+                        </button>
+                        <button id="btnList" onclick="setView('list')" class="view-btn" title="List view">
+                            <span class="material-symbols-outlined" style="font-size:18px">view_list</span>
+                        </button>
+                    </div>
+
+                    <!-- New button -->
+                    <div class="relative flex-shrink-0" id="newBtnWrap" style="display:none">
+                        <button id="newBtn" class="btn-upload">
+                            <span class="material-symbols-outlined" style="font-size:16px">add</span>
+                            <span class="hidden sm:inline">New</span>
+                            <span class="material-symbols-outlined" style="font-size:14px;opacity:0.7">expand_more</span>
+                        </button>
+                        <div id="newDropdown" class="new-dropdown hidden">
+                            <button onclick="createFolder()">
+                                <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2h-8l-2-2z"/></svg>
+                                New Folder
+                            </button>
+                            <div class="divider"></div>
+                            <button onclick="document.getElementById('fileInputMulti').click()">
+                                <svg class="w-4 h-4 text-[#8aa4cf]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                                Upload Files
+                            </button>
+                            <button onclick="document.getElementById('folderInputDir').click()">
+                                <svg class="w-4 h-4 text-[#adc8f5]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path></svg>
+                                Upload Folder
+                            </button>
+                        </div>
+                    </div>
+                </div><!-- /right side -->
             </div>
-            </div><!-- /DoBo + New container -->
         </header>
 
         <!-- ── Two-panel content ─────────────────────────────────── -->
@@ -1110,12 +1111,7 @@
          MOBILE LAYOUT FIX: push main content right on mobile
          (sidebar is hidden on mobile, no margin needed)
     ════════════════════════════════════════════════════════════════ -->
-    <style>
-        @media (max-width: 767px) {
-            #mainContentWrapper { margin-left: 0 !important; }
-            #desktopSidebar { display: none; }
-        }
-    </style>
+    <!-- Mobile sidebar handled by Tailwind hidden md:flex on nav.sidebar-nav -->
 
     <!-- ═══════════════════════════════════════════════════════════
          FOLDER DRAWER HELPERS (minimal inline, not logic changes)

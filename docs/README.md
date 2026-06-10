@@ -1,33 +1,68 @@
-# DocPilot — Documentation
+# DocPilot V3 — Complete Documentation
 
-## Structure
+**Version:** V3.7.1  
+**Last Updated:** June 2026  
 
-```
-docs/
-  README.md              ← you are here
-  architecture/
-    overview.md          ← full app architecture, stack, file structure
-    server-structure.md  ← VPS deployment, Docker, Traefik
-    storage.md           ← storage system, paths, NAS sync
-    auth.md              ← authentication flow, registration, rejection
-    chat.md              ← project chat system
-  changelogs/
-    2026-04-05-*.md      ← permissions rework, role consolidation
-    2026-04-06.md        ← NAS integration, cloud features
-    2026-04-07-*.md      ← excel/table refactor
-    2026-04-09-*.md      ← profile, NAS live, appointments, i18n, reject
-  api/
-    endpoints.md         ← all API endpoints documented
-```
+DocPilot is a full-stack field operations management platform built for German fiber optic (FTTX) construction crews. It enables teams to track, document, and manage every phase of fiber optic installation — from cable blowing (Einblasen) to splice verification (OTDR testing) — with per-project file storage, role-based access control, real-time chat, and an optional AI assistant.
+
+---
+
+## Table of Contents
+
+| # | Document | Description |
+|---|----------|-------------|
+| 1 | [Getting Started](./getting-started.md) | Prerequisites, installation, environment setup, first run, Docker deployment |
+| 2 | [Architecture](./architecture.md) | Overall architecture, tech stack, folder structure, request flow |
+| 3 | [Authentication](./authentication.md) | Login/register flow, JWT handling, OTP verification, 2FA, session management |
+| 4 | [Access Control](./access-control.md) | ACL system, roles, permissions, the `access-control.json` structure |
+| 5 | [API Reference](./api-reference.md) | Every API endpoint — method, path, auth, request/response |
+| 6 | [Database & Data Storage](./database.md) | JSON file storage, SQLite chat DB, data file format, schema |
+| 7 | [Work Modules](./modules.md) | Each field module: Aufmass, Einblasen, Druckprüfung, APL, OTDR, Kalibrieren, Knotenpunkt-Vorbereitung |
+| 8 | [Projects](./projects.md) | Project creation, folder structure, project data, clusters, Knotenpunkte |
+| 9 | [File Management](./file-management.md) | File browser, upload, download, trash, share links, WebDAV/NAS sync |
+| 10 | [AI Integration (DoBo)](./ai-integration.md) | DoBo AI assistant — architecture, controllers, security, memory, cost tracking |
+| 11 | [Frontend](./frontend.md) | Frontend architecture, shared JS modules, CSS/Tailwind, design system |
+| 12 | [Deployment](./deployment.md) | Docker, Caddy/Traefik reverse proxy, environment variables, production setup |
+| 13 | [Admin Panel](./admin.md) | Admin panel, super log, user management, settings, session management |
+| 14 | [Teams](./teams.md) | Teams system — CRUD, members, team pictures |
+| 15 | [Planner & Calendar](./planner.md) | Appointment scheduling, calendar, termin columns |
+| 16 | [Logging](./logging.md) | Three-tier logging: action logs, super logs, session logs |
+| 17 | [Internationalization](./i18n.md) | English/German language toggle system |
+| 18 | [Security](./security.md) | Security measures: rate limiting, path traversal prevention, input validation, CORS |
+| 19 | [Data Versioning](./data-versioning.md) | Aufmass data versioning, Excel export, optimistic locking |
+| 20 | [Troubleshooting](./troubleshooting.md) | Common issues, debugging tips, known limitations |
+
+---
 
 ## Quick Start
 
-1. Clone the repo
-2. `npm install`
-3. Create `.env` from `.env.example` and fill in real values
-4. `node server.js`
-5. Open `http://localhost:3000`
+```bash
+# Clone the repository
+git clone git@github.com:darkinterstellar2-crypto/Docpilot-V3.git
+cd Docpilot-V3
 
-## Environment Variables
+# Install dependencies
+npm install
 
-See `.env.example` in project root for all required variables.
+# Copy environment file and configure
+cp .env.example .env
+# Edit .env with your settings
+
+# Start the server
+npm start
+# → Server running at http://localhost:3000
+```
+
+See [Getting Started](./getting-started.md) for detailed setup instructions.
+
+---
+
+## Key Concepts
+
+- **Project** — A fiber optic construction project (e.g., a city/region build-out). Contains clusters, Knotenpunkte, and addresses.
+- **Cluster** — A geographical grouping within a project (e.g., a neighborhood or sector).
+- **Knotenpunkt (NVT)** — A network junction point within a cluster. Each Knotenpunkt has multiple addresses.
+- **Address** — A single fiber optic connection point (street address). Each address goes through multiple work modules.
+- **Module** — A work phase: Einblasen (fiber blowing), Druckprüfung (pressure test), Kalibrieren (calibration), APL (splicing), OTDR (testing), Knotenpunkt-Vorbereitung (junction prep).
+- **Aufmass** — The master data table tracking all addresses and their status across all modules.
+- **DoBo** — The built-in AI assistant (Document Bot).
