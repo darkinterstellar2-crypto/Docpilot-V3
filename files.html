@@ -647,7 +647,7 @@
     <!-- ═══════════════════════════════════════════════════════════
          DESKTOP SIDEBAR
     ════════════════════════════════════════════════════════════════ -->
-    <aside id="desktopSidebar">
+    <aside id="desktopSidebar" class="sidebar-nav">
         <!-- Brand -->
         <div class="px-4 py-5 border-b border-white/10 flex items-center justify-between">
           <div>
@@ -750,7 +750,7 @@
     <!-- ═══════════════════════════════════════════════════════════
          MAIN CONTENT AREA
     ════════════════════════════════════════════════════════════════ -->
-    <div class="flex flex-col flex-1 overflow-hidden" class="main-content" style="margin-left:240px;" id="mainContentWrapper">
+    <div class="flex flex-col flex-1 overflow-hidden main-content" style="margin-left:240px;" id="mainContentWrapper">
 
         <!-- ── Top Header ────────────────────────────────────────── -->
         <header class="bg-white border-b border-[#E2E8F0] flex-shrink-0 flex items-center gap-3 px-5 h-14 shadow-sm">
@@ -794,7 +794,8 @@
                 </button>
             </div>
 
-            <!-- New button (admin only) -->
+            <!-- DoBo + New button container -->
+            <div class="flex items-center gap-2 flex-shrink-0">
             <div class="relative flex-shrink-0" id="newBtnWrap" style="display:none">
                 <button id="newBtn" class="btn-upload">
                     <span class="material-symbols-outlined" style="font-size:16px">add</span>
@@ -817,6 +818,7 @@
                     </button>
                 </div>
             </div>
+            </div><!-- /DoBo + New container -->
         </header>
 
         <!-- ── Two-panel content ─────────────────────────────────── -->
